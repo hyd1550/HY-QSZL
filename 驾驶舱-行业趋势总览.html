@@ -1,0 +1,3243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>行业趋势总览 - 数字化管理平台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#020611;color:#c8d6e5;overflow:hidden}
+
+/* 1920x1080 大屏 + 自适应缩放（恢复 v1 原始 flex 居中） */
+.viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#020611}
+.screen{position:relative;width:1920px;height:1080px;flex-shrink:0;transform-origin:center center;
+  background:
+    radial-gradient(ellipse 1200px 700px at 50% 30%, rgba(23,151,184,.18) 0%, rgba(8,20,42,.0) 60%),
+    linear-gradient(rgba(58,212,255,.05) 1px, transparent 1px) 0 0/60px 60px,
+    linear-gradient(90deg, rgba(58,212,255,.05) 1px, transparent 1px) 0 0/60px 60px,
+    radial-gradient(ellipse at top,#0a1830 0%,#04091a 60%,#020611 100%)}
+
+/* 顶部装饰光带 */
+.screen::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;
+  background:linear-gradient(90deg,transparent 0%,#1797b8 30%,#3ad4ff 50%,#1797b8 70%,transparent 100%);opacity:.6;z-index:1}
+.screen::after{content:"";position:absolute;left:0;right:0;top:5px;height:24px;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(58,212,255,.45) 0,rgba(58,212,255,.45) 80px,transparent 80px) left top/100% 1px no-repeat,
+    linear-gradient(-90deg,rgba(58,212,255,.45) 0,rgba(58,212,255,.45) 80px,transparent 80px) right top/100% 1px no-repeat;
+  z-index:1}
+
+/* ───── Header ───── */
+.hdr{position:absolute;left:0;right:0;top:0;height:78px;display:flex;align-items:center;padding:0 32px;z-index:10}
+.hdr-title{font-size:28px;font-weight:700;color:#dbeaff;letter-spacing:2px;
+  background:linear-gradient(180deg,#fff 0%,#7fd4ec 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  text-shadow:0 0 14px rgba(80,200,235,.18)}
+.hdr-meta{position:absolute;right:32px;top:50%;transform:translateY(-50%);font-size:14px;color:#7fa3c8;letter-spacing:1px}
+.hdr-meta b{color:#cfe2f8;font-weight:500;margin:0 6px}
+.hdr-meta .wx{display:inline-block;margin-left:18px;padding:2px 10px;border:1px solid rgba(120,200,235,.25);border-radius:12px;color:#a8d0f4}
+
+/* 产业链选择器（用于行业创新模块/地图模块；可多处复用） */
+.chain-sel{display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(180deg,rgba(20,75,100,.45),rgba(10,30,60,.55));
+  border:1px solid rgba(80,180,210,.35);border-radius:3px;padding:4px 10px;cursor:pointer;
+  transition:.2s;position:relative;z-index:20}
+.chain-sel:hover{border-color:#3ad4ff;box-shadow:0 0 8px rgba(58,212,255,.18)}
+.chain-sel-label{font-size:11.5px;color:#a8c4e0;letter-spacing:.5px}
+.chain-sel-val{font-size:12.5px;color:#fff;font-weight:600;letter-spacing:.5px;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chain-sel-arrow{color:#7fa3c8;font-size:9px;margin-left:2px;transition:.2s}
+.chain-sel.open .chain-sel-arrow{transform:rotate(180deg);color:#3ad4ff}
+.chain-dd{position:absolute;left:0;top:calc(100% + 4px);width:260px;
+  background:linear-gradient(180deg,rgba(10,25,50,.98),rgba(6,18,38,.99));
+  border:1px solid rgba(80,180,210,.4);border-radius:4px;padding:4px;z-index:50;
+  max-height:380px;overflow-y:auto;display:none;
+  box-shadow:0 8px 22px rgba(0,0,0,.4),0 0 14px rgba(58,212,255,.12)}
+.chain-sel.open .chain-dd{display:block}
+.chain-dd::-webkit-scrollbar{width:3px}
+.chain-dd::-webkit-scrollbar-thumb{background:rgba(60,160,200,.4);border-radius:2px}
+.chain-dd-it{padding:6px 10px;font-size:12px;color:#cfe2f8;cursor:pointer;border-radius:3px;letter-spacing:.5px;transition:.15s}
+.chain-dd-it:hover{background:rgba(58,212,255,.18);color:#fff}
+.chain-dd-it.cur{background:linear-gradient(90deg,rgba(58,212,255,.22),rgba(58,212,255,.08));color:#fff;font-weight:600}
+.chain-dd-it.cur::after{content:" ✓";color:#42d29a;font-size:11px;margin-left:6px}
+.chain-dd-hd{padding:5px 10px 3px;font-size:10.5px;color:#7fa3c8;letter-spacing:1px;border-bottom:1px solid rgba(80,180,210,.18);margin-bottom:3px}
+/* 地图卡片顶部产业链 + tab 行 */
+.map-chain-row{display:flex;align-items:center;gap:14px;padding:8px 14px 4px;border-bottom:1px solid rgba(60,160,200,.18)}
+.map-chain-row .chain-sel{flex-shrink:0}
+.map-chain-row .subtab{flex:1;border-bottom:none;padding:0;display:flex;gap:6px}
+.map-chain-row .subtab .st{padding:7px 18px;font-size:14px}
+.map-chain-row .unit-hint{font-size:12px;color:#7fa3c8;align-self:center;flex-shrink:0}
+.ds-layer-tabs{display:inline-flex;flex-shrink:0;gap:0;background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);border-radius:14px;padding:2px}
+.ds-layer-tabs .dlt{padding:5px 14px;font-size:12px;color:#a8c4e0;cursor:pointer;border-radius:12px;letter-spacing:.5px;transition:.18s;line-height:1.2}
+.ds-layer-tabs .dlt:hover{color:#fff}
+.ds-layer-tabs .dlt.active{background:linear-gradient(180deg,#1797b8,#0a6584);color:#fff;font-weight:600;box-shadow:0 0 8px rgba(58,212,255,.35)}
+/* 行业创新内嵌产业链选择器 */
+.innov-chain{display:flex;align-items:center;gap:8px;padding:0 14px 6px;flex-wrap:nowrap}
+.innov-chain .chain-sel{padding:3px 8px;flex-shrink:1;min-width:0}
+.innov-chain .chain-sel-val{min-width:60px;max-width:200px;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.innov-chain #innovProdSel{flex-shrink:0}
+.innov-chain #innovProdSel .chain-sel-val{min-width:50px}
+
+/* 顶部导航 tabs（已删除产业链选择器，topnav 回归页面正中） */
+.topnav{position:absolute;left:50%;top:14px;transform:translateX(-50%);display:flex;gap:0;
+  background:linear-gradient(90deg,rgba(20,75,100,.0),rgba(20,75,100,.45),rgba(20,75,100,.0));padding:6px 12px;border-radius:6px;z-index:1}
+.tn{padding:9px 16px;font-size:14px;color:#7d9bbe;letter-spacing:1.5px;cursor:pointer;position:relative;font-weight:500;transition:.2s;white-space:nowrap}
+.tn:hover{color:#cfe2f8}
+.tn.active{color:#fff;font-weight:700}
+.tn.active::after{content:"";position:absolute;left:18%;right:18%;bottom:-2px;height:3px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,#3ad4ff,transparent);box-shadow:0 0 12px #3ad4ff}
+
+/* 二级 tab（嵌入地图卡片顶部） */
+.subtab{display:flex;gap:6px;padding:8px 16px 0;border-bottom:1px solid rgba(60,160,200,.18)}
+.st{padding:7px 22px;font-size:15px;color:#7d9bbe;cursor:pointer;letter-spacing:1px;transition:.2s;
+  border-radius:4px 4px 0 0;border:1px solid transparent;border-bottom:none;position:relative;top:1px}
+.st:hover{color:#cfe2f8}
+.st.active{color:#fff;font-weight:600;background:linear-gradient(180deg,rgba(40,120,210,.4),rgba(20,75,100,.1));
+  border-color:rgba(60,160,200,.4)}
+.st.active::after{content:"";position:absolute;left:10%;right:10%;bottom:-1px;height:2px;background:#3ad4ff;box-shadow:0 0 8px #3ad4ff}
+
+/* ───── 布局 ─────（恢复 18px 边距；用 minmax(0,1fr) 防止 grid item 内容把列撑爆）*/
+.layout{position:absolute;left:18px;right:18px;top:18px;bottom:18px;display:grid;
+  grid-template-columns:480px minmax(0,1fr);gap:14px}
+
+/* 卡片基础 — 监控平台风格：四角直角光框 */
+.card{background:linear-gradient(180deg,rgba(12,32,62,.55),rgba(5,14,30,.6));
+  border:1px solid rgba(58,212,255,.22);border-radius:2px;position:relative;
+  box-shadow:0 0 22px rgba(20,60,120,.18) inset, 0 0 8px rgba(58,212,255,.06)}
+.card::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(#3ad4ff,#3ad4ff) top    left  /14px 1.5px no-repeat,
+    linear-gradient(#3ad4ff,#3ad4ff) top    left  /1.5px 14px no-repeat,
+    linear-gradient(#3ad4ff,#3ad4ff) top    right /14px 1.5px no-repeat,
+    linear-gradient(#3ad4ff,#3ad4ff) top    right /1.5px 14px no-repeat,
+    linear-gradient(#3ad4ff,#3ad4ff) bottom left  /14px 1.5px no-repeat,
+    linear-gradient(#3ad4ff,#3ad4ff) bottom left  /1.5px 14px no-repeat,
+    linear-gradient(#3ad4ff,#3ad4ff) bottom right /14px 1.5px no-repeat,
+    linear-gradient(#3ad4ff,#3ad4ff) bottom right /1.5px 14px no-repeat;
+  filter:drop-shadow(0 0 3px rgba(58,212,255,.55));
+  z-index:6}
+.card-title{position:relative;padding:10px 16px 8px 24px;font-size:15px;font-weight:600;color:#cfeeff;letter-spacing:1.5px;
+  text-shadow:0 0 8px rgba(58,212,255,.5)}
+.card-title::before{content:"";position:absolute;left:14px;top:14px;width:4px;height:14px;background:linear-gradient(180deg,#5fdcff,#1797b8);border-radius:1px;
+  box-shadow:0 0 6px rgba(95,220,255,.7)}
+.card-title .more{float:right;font-size:12px;color:#5e85b0;font-weight:400;cursor:pointer;letter-spacing:0}
+.card-title .more:hover{color:#3ad4ff}
+
+/* ───── 左栏 ─────（按反馈：三块等高） */
+.lcol{display:grid;grid-template-rows:1fr 1fr 1fr;gap:14px;min-height:0}
+
+/* 政策列表 */
+.policy-list{padding:0 14px 12px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:240px}
+.policy-list::-webkit-scrollbar{width:3px}
+.policy-list::-webkit-scrollbar-thumb{background:rgba(60,160,200,.3);border-radius:2px}
+.pol{background:rgba(20,45,80,.4);border:1px solid rgba(60,160,200,.18);border-radius:4px;padding:10px 12px;cursor:pointer;transition:.2s}
+.pol:hover{border-color:#3ad4ff;background:rgba(30,95,130,.55)}
+.pol-name{font-size:13.5px;font-weight:600;color:#cfe2f8;line-height:1.5;margin-bottom:4px}
+.pol-date{font-size:11.5px;color:#5e85b0;margin-bottom:5px}
+.pol-sum{font-size:12px;color:#8ba9c8;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pol-tag{display:inline-block;margin-top:6px;font-size:10.5px;padding:1px 7px;border-radius:2px;
+  background:rgba(58,212,255,.12);color:#7fc4ff;border:1px solid rgba(58,212,255,.25);margin-right:5px}
+
+/* 政策卡 "更多 >>" 按钮 */
+.more-btn{font-size:12px;color:#7fa3c8;letter-spacing:1px;cursor:pointer;float:right;font-weight:400;padding:1px 8px;border-radius:3px;transition:.15s}
+.more-btn:hover{color:#fff;background:rgba(58,212,255,.18)}
+
+/* 政策小列表中可点击的标题 */
+.pol-name{cursor:pointer;transition:.15s}
+.pol-name:hover{color:#fff}
+
+/* 行业创新（专利总数 + 12 月趋势图）*/
+.innov-card{padding:8px 16px 12px;display:flex;flex-direction:column;height:100%;gap:6px;position:relative;overflow:hidden;min-height:0}
+.innov-top{display:flex;align-items:center;gap:14px;padding:2px 4px 6px;border-bottom:1px dashed rgba(80,180,210,.18);position:relative}
+.innov-top::after{content:"";position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  width:48px;height:48px;border-radius:50%;border:1.5px dashed rgba(58,212,255,.35);
+  background:radial-gradient(closest-side,rgba(58,212,255,.18),rgba(58,212,255,0));pointer-events:none}
+.innov-num-wrap{display:flex;flex-direction:column;gap:2px}
+.innov-lbl{font-size:12.5px;color:#a8c4e0;letter-spacing:1px;font-weight:500}
+.innov-num{font-size:32px;font-weight:800;color:#3ad4ff;font-family:'DIN','Arial',sans-serif;letter-spacing:1px;line-height:1;
+  text-shadow:0 0 14px rgba(58,212,255,.45)}
+.innov-sub{font-size:11px;color:#7fa3c8;letter-spacing:.3px;margin-top:1px}
+.innov-chart-wrap{flex:1;display:flex;flex-direction:column;min-height:0;padding-top:4px}
+.innov-chart-h{font-size:11.5px;color:#a8c4e0;letter-spacing:.5px;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.innov-chart-h::before{content:"";width:3px;height:10px;background:#3ad4ff;border-radius:1px;box-shadow:0 0 4px #3ad4ff;flex-shrink:0}
+.innov-chart{flex:1;width:100%;min-height:0}
+.innov-bar-hits rect:hover{fill:rgba(58,212,255,.18)}
+
+/* 图表悬浮提示（深色卡片+青色边） */
+.chart-tip{position:fixed;z-index:9999;background:linear-gradient(180deg,rgba(10,28,52,.97),rgba(6,18,38,.97));
+  border:1px solid rgba(58,212,255,.5);border-radius:6px;padding:8px 12px;font-size:11.5px;color:#dbeaff;
+  pointer-events:none;display:none;box-shadow:0 6px 20px rgba(0,0,0,.6),0 0 18px rgba(58,212,255,.18);
+  line-height:1.55;letter-spacing:.3px;min-width:118px}
+.chart-tip::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:2px;background:#3ad4ff;border-radius:1px;box-shadow:0 0 6px #3ad4ff}
+.chart-tip .tip-month{color:#a8c4e0;font-weight:500;font-size:11px;margin-bottom:3px;letter-spacing:.4px}
+.chart-tip .tip-val{font-family:'DIN','Arial';font-size:18px;font-weight:700;color:#3ad4ff;line-height:1;
+  text-shadow:0 0 8px rgba(58,212,255,.4)}
+.chart-tip .tip-val em{font-style:normal;font-size:10.5px;color:#7fa3c8;margin-left:3px;font-weight:400}
+.chart-tip .tip-hint{margin-top:4px;color:#7fa3c8;font-size:10px;border-top:1px dashed rgba(80,140,180,.3);padding-top:3px}
+
+/* 行业标准卡：4 圆形 stat + 下方标准小列表 */
+.std-card{padding:6px 14px 12px;display:flex;flex-direction:column;height:100%;overflow:hidden}
+.std-circles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px 0 12px;border-bottom:1px dashed rgba(80,180,210,.18)}
+.std-cir{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:6px 0;border-radius:4px;transition:.15s}
+.std-cir:hover{background:rgba(58,212,255,.1)}
+.std-cir-lbl{font-size:12px;color:#a8c4e0;letter-spacing:.5px}
+.std-cir-circle{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:2px dashed;background:radial-gradient(closest-side,rgba(58,212,255,.12),rgba(58,212,255,0));position:relative;transition:.18s}
+.std-cir-circle .num{font-size:20px;font-weight:700;color:#fff;font-family:'DIN','Arial',sans-serif;letter-spacing:.5px;
+  text-shadow:0 0 8px rgba(255,255,255,.25)}
+.std-cir-cn .std-cir-circle{border-color:#02a7f0;background:radial-gradient(closest-side,rgba(2,167,240,.18),rgba(2,167,240,0))}
+.std-cir-ind .std-cir-circle{border-color:#00aaaa;background:radial-gradient(closest-side,rgba(0,170,170,.18),rgba(0,170,170,0))}
+.std-cir-loc .std-cir-circle{border-color:#63a103;background:radial-gradient(closest-side,rgba(99,161,3,.18),rgba(99,161,3,0))}
+.std-cir-grp .std-cir-circle{border-color:#8080ff;background:radial-gradient(closest-side,rgba(128,128,255,.18),rgba(128,128,255,0))}
+.std-cir:hover .std-cir-circle{transform:scale(1.06)}
+.std-cir-circle::after{content:"点击查看";position:absolute;left:50%;bottom:-22px;transform:translateX(-50%);
+  font-size:9.5px;color:#5e85b0;white-space:nowrap;opacity:0;transition:.18s;letter-spacing:.5px}
+.std-cir:hover .std-cir-circle::after{opacity:1}
+
+/* 标准小列表（卡片底部） */
+.std-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;margin-top:10px}
+.std-list::-webkit-scrollbar{width:3px}
+.std-list::-webkit-scrollbar-thumb{background:rgba(60,160,200,.3);border-radius:2px}
+.std-row-item{display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px dashed rgba(80,180,210,.12);cursor:pointer;transition:.15s}
+.std-row-item:hover{background:rgba(58,212,255,.1)}
+.std-row-item:last-child{border-bottom:none}
+.std-rn{flex:1;font-size:12.5px;color:#cfe2f8;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.std-row-item:hover .std-rn{color:#fff}
+.std-rtag{font-size:10.5px;padding:1px 7px;border-radius:2px;background:rgba(2,167,240,.14);color:#7fc4ff;border:1px solid rgba(2,167,240,.32);letter-spacing:.5px;flex-shrink:0}
+.std-rdate{font-size:11px;color:#5e85b0;font-family:'DIN','Arial';flex-shrink:0}
+
+/* 通用 stat-modal（政策列表 / 政策详情 / 标准列表 / 标准详情 共用） */
+.s-modal{position:absolute;inset:0;background:rgba(2,8,20,.65);backdrop-filter:blur(2px);z-index:80;
+  opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:center;justify-content:center}
+.s-modal.show{opacity:1;pointer-events:auto}
+.s-modal-pnl{width:1080px;max-width:96%;height:720px;max-height:92%;
+  background:linear-gradient(180deg,#0a1c38 0%,#061226 100%);border:1px solid rgba(58,212,255,.4);border-radius:6px;
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 30px rgba(58,212,255,.12)}
+.s-modal-pnl::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;
+  background:linear-gradient(90deg,transparent,#3ad4ff,transparent)}
+.s-modal-hd{padding:18px 52px 14px 24px;border-bottom:1px solid rgba(80,180,210,.18);flex-shrink:0;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.s-modal-hd .h1{font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;margin-right:auto}
+.s-modal-close{position:absolute;right:14px;top:14px;width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.06);border:1px solid rgba(80,180,210,.3);color:#a8c4e0;
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;z-index:5}
+.s-modal-close:hover{background:rgba(255,80,120,.2);color:#fff;border-color:#ff6b8a}
+.s-modal-body{flex:1;overflow:auto;padding:14px 24px 20px;min-height:0}
+
+/* 弹窗顶部查询条 */
+.s-search{display:flex;align-items:center;gap:8px;padding:6px 0 12px;flex-shrink:0;flex-wrap:wrap}
+.s-search input{flex:1;max-width:320px;background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);
+  border-radius:3px;padding:6px 10px;font-size:12.5px;color:#cfe2f8;outline:none}
+.s-search input:focus{border-color:#3ad4ff;box-shadow:0 0 0 2px rgba(58,212,255,.15)}
+.s-search .sel{background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);border-radius:3px;padding:6px 12px;font-size:12.5px;color:#a8c4e0;min-width:130px;cursor:pointer}
+.s-search .sel::after{content:" ▾";color:#5e85b0}
+.s-search button{background:linear-gradient(180deg,#1797b8,#0a6584);border:none;color:#fff;padding:6px 22px;border-radius:3px;cursor:pointer;font-size:12.5px;letter-spacing:1px}
+
+/* 通用列表表格 */
+table.s-tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;color:#bcd0e8;table-layout:fixed}
+table.s-tbl th{position:sticky;top:0;background:linear-gradient(180deg,#0e2a52,#091833);
+  color:#a8c4e0;font-weight:500;letter-spacing:.5px;font-size:12px;
+  padding:10px 14px;text-align:left;border-bottom:2px solid rgba(58,212,255,.4);white-space:nowrap;z-index:2}
+table.s-tbl td{padding:11px 14px;border-bottom:1px solid rgba(60,160,200,.08);vertical-align:middle}
+table.s-tbl tbody tr:nth-child(even){background:rgba(15,55,75,.16)}
+table.s-tbl tbody tr:hover{background:rgba(30,110,140,.22);box-shadow:inset 3px 0 0 #3ad4ff}
+.s-tbl-name{color:#dbeaff;font-weight:600;font-size:13px;line-height:1.4;cursor:pointer;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;word-break:break-word}
+.s-tbl-name:hover{color:#3ad4ff;text-decoration:underline}
+.s-tbl-sum{font-size:11.5px;color:#8ba9c8;line-height:1.55;margin-top:4px;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis}
+.s-tbl-no{font-family:'DIN','Consolas',monospace;color:#a8c4e0;font-size:11.5px;letter-spacing:.3px;
+  padding:2px 8px;background:rgba(60,160,200,.08);border:1px solid rgba(60,160,200,.18);border-radius:3px;display:inline-block}
+.s-detail-btn{font-size:11.5px;color:#3ad4ff;cursor:pointer;padding:3px 11px;
+  border:1px solid rgba(58,212,255,.35);background:rgba(58,212,255,.1);border-radius:3px;letter-spacing:.5px;
+  transition:.15s;display:inline-block}
+.s-detail-btn:hover{background:#1797b8;color:#fff;border-color:#1797b8}
+
+/* 详情面板：label-value 网格 */
+.s-detail-grid{display:grid;grid-template-columns:140px 1fr 140px 1fr;gap:0;
+  border:1px solid rgba(60,160,200,.18);border-radius:4px;overflow:hidden;margin-bottom:18px}
+.s-detail-grid > div{padding:11px 14px;border-bottom:1px solid rgba(60,160,200,.08);font-size:12.5px;line-height:1.55}
+.s-detail-grid > div:nth-child(4n+1),.s-detail-grid > div:nth-child(4n+3){
+  background:rgba(15,55,75,.4);color:#a8c4e0;font-weight:500;letter-spacing:.5px;border-right:1px solid rgba(60,160,200,.08)}
+.s-detail-grid > div:nth-child(4n+2),.s-detail-grid > div:nth-child(4n){color:#dbeaff}
+.s-detail-grid > div:nth-child(4n+2){border-right:1px solid rgba(60,160,200,.08)}
+.s-detail-grid > div:nth-last-child(-n+4){border-bottom:none}
+.s-detail-grid .full{grid-column:1/-1}
+.s-detail-grid > div.full{background:rgba(8,22,45,.5);color:#dbeaff;font-weight:400}
+.s-detail-sect-h{font-size:14px;color:#dbeaff;font-weight:600;letter-spacing:1px;padding-left:10px;
+  border-left:3px solid #3ad4ff;margin-bottom:10px;margin-top:4px}
+.s-detail-content{font-size:13px;color:#dbeaff;line-height:1.8;padding:14px 16px;background:rgba(15,55,75,.3);
+  border:1px solid rgba(60,160,200,.15);border-radius:4px;margin-bottom:14px}
+.s-detail-attach{font-size:12.5px;color:#a8c4e0;display:flex;align-items:center;gap:8px;padding:10px 14px;
+  background:rgba(15,55,75,.4);border:1px solid rgba(60,160,200,.15);border-radius:4px}
+.s-detail-attach a{color:#3ad4ff;text-decoration:none;cursor:pointer;font-size:12px;
+  padding:2px 10px;border:1px solid rgba(58,212,255,.35);border-radius:3px;background:rgba(58,212,255,.1);transition:.15s}
+.s-detail-attach a:hover{background:#1797b8;color:#fff;border-color:#1797b8}
+
+/* 弹窗内分页（复用驾驶舱风格） */
+.s-pag{display:flex;align-items:center;gap:6px;padding:14px 0 0;font-size:12.5px;color:#7fa3c8;justify-content:flex-end}
+.s-pag .info{margin-right:auto;color:#7fa3c8}
+.s-pag .info b{color:#3ad4ff;font-weight:600;font-family:'DIN','Arial';margin:0 3px}
+.s-pag .pg{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:28px;padding:0 10px;border-radius:3px;cursor:pointer;
+  background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);color:#a8c4e0;font-family:'DIN','Arial';font-size:12.5px}
+.s-pag .pg:hover{border-color:#3ad4ff;color:#fff;background:rgba(58,212,255,.12)}
+.s-pag .pg.cur{background:linear-gradient(180deg,#1797b8,#0a6584);color:#fff;border-color:#1797b8;font-weight:600}
+
+/* 通用下钻弹窗中常见行内元素的兼容样式（保留给地图品类弹窗 openCatModal 使用） */
+.s-tbl-tag{font-size:11.5px;padding:2px 9px;border-radius:2px;letter-spacing:.5px;
+  color:#3ad4ff;background:rgba(58,212,255,.12);border:1px solid rgba(58,212,255,.4)}
+
+/* 标准趋势 */
+.std-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px 14px}
+.std-cell{background:rgba(20,75,100,.4);border:1px solid rgba(60,160,200,.18);border-radius:4px;padding:10px 6px;text-align:center}
+.std-num{font-size:26px;font-weight:700;color:#3ad4ff;line-height:1.1;font-family:'DIN','Arial Black',sans-serif;
+  text-shadow:0 0 12px rgba(58,212,255,.4)}
+.std-lbl{font-size:11.5px;color:#7fa3c8;margin-top:2px;letter-spacing:1px}
+.std-charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:6px 14px 12px;flex:1;min-height:0}
+.std-mini{background:rgba(8,20,40,.5);border:1px solid rgba(60,160,200,.12);border-radius:4px;padding:8px 8px 6px;display:flex;flex-direction:column}
+.std-mini-t{font-size:11.5px;color:#a8c4e0;margin-bottom:4px}
+.std-mini-svg{flex:1;width:100%}
+
+/* ───── 右栏 ─────
+   布局调整（按反馈）：
+   - 地图 + 右侧"上月出口/各月产量"两个 mini 模块并排（地图收窄）
+   - 最新报价 移到下方占满整行
+   - 右侧 extra-col 宽度与左栏保持一致（480px） */
+.rcol{display:grid;grid-template-rows:1fr 280px;grid-template-columns:minmax(0,1fr) 480px;
+  grid-template-areas:"map extra" "price output";gap:14px;min-height:0;min-width:0}
+.map-card{grid-area:map}
+.tbl-card{grid-area:price}
+.output-card{grid-area:output}
+.extra-col{grid-area:extra;display:grid;grid-template-rows:1fr 1fr;gap:14px;min-height:0}
+
+/* mini-card */
+.mini-card{display:flex;flex-direction:column;overflow:hidden}
+.mini-body{padding:0 12px 10px;flex:1;display:flex;flex-direction:column;min-height:0;gap:6px}
+.mini-stat-row{display:flex;align-items:baseline;gap:6px}
+.mini-stat-num{color:#3ad4ff;font-size:22px;font-weight:700;font-family:'DIN','Arial';letter-spacing:.5px;
+  text-shadow:0 0 10px rgba(58,212,255,.25)}
+.mini-stat-unit{color:#7fa3c8;font-size:11px}
+.mini-stat-cmp{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:3px}
+.mini-cmp-l{color:#7fa3c8;font-size:10.5px}
+.mini-bars{flex:1;display:flex;flex-direction:column;justify-content:center;gap:5px;font-size:11px}
+.mini-bar-row{display:flex;align-items:center;gap:6px;font-family:'PingFang SC'}
+.mb-n{width:38px;color:#a8c4e0;flex-shrink:0;font-size:11px}
+.mb-tk{flex:1;height:8px;background:rgba(60,160,200,.1);border-radius:2px;overflow:hidden}
+.mb-f{display:block;height:100%;border-radius:2px;background:linear-gradient(90deg,#3ad4ff,#1797b8);box-shadow:0 0 6px rgba(58,212,255,.3)}
+.mb-v{font-family:'DIN','Arial';color:#dbeaff;font-size:11px;font-weight:600;text-align:right;min-width:60px}
+.mb-v em{color:#7fa3c8;font-style:normal;font-size:10px;font-weight:400;margin-left:2px}
+
+/* ── 降解材料行业产值（产值方块图：cell 面积 = 产值占比） ── */
+.output-card{display:flex;flex-direction:column;overflow:hidden}
+.output-body{flex:1;display:flex;flex-direction:column;padding:6px 14px 12px;gap:6px;min-height:0}
+
+.output-head{display:flex;align-items:baseline;gap:8px;padding:0 2px 6px;border-bottom:1px dashed rgba(80,180,210,.18)}
+.oh-l{font-size:11.5px;color:#a8c4e0;letter-spacing:.4px}
+.oh-v{font-size:22px;font-weight:800;color:#3ad4ff;font-family:'DIN','Arial';letter-spacing:.5px;line-height:1;
+  text-shadow:0 0 12px rgba(58,212,255,.35);margin-left:2px}
+.oh-u{font-size:11px;color:#7fa3c8;letter-spacing:.3px}
+.oh-cmp{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:3px}
+.oh-cmp-l{color:#7fa3c8;font-size:10.5px;margin-left:2px}
+
+.treemap{flex:1;display:flex;flex-direction:column;gap:3px;min-height:0}
+.tm-row{display:flex;gap:3px;min-height:0}
+.tm-cell{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;
+  padding:8px 10px;border-radius:3px;overflow:hidden;cursor:pointer;transition:.18s;
+  background:linear-gradient(135deg,
+    color-mix(in srgb, var(--tc) 55%, transparent) 0%,
+    color-mix(in srgb, var(--tc2,var(--tc)) 55%, transparent) 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 1px 3px rgba(0,0,0,.25);min-width:0}
+.tm-cell:hover{transform:translateY(-1px);
+  background:linear-gradient(135deg,
+    color-mix(in srgb, var(--tc) 72%, transparent) 0%,
+    color-mix(in srgb, var(--tc2,var(--tc)) 72%, transparent) 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 4px 12px rgba(0,0,0,.4),0 0 16px var(--tc)}
+.tm-cell::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.2) 100%);pointer-events:none}
+.tm-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:.6px;font-family:'PingFang SC';
+  text-shadow:0 1px 4px rgba(0,0,0,.55);position:relative;z-index:1}
+.tm-val{font-size:18px;font-weight:800;color:#fff;font-family:'DIN','Arial';letter-spacing:.5px;line-height:1.05;
+  text-shadow:0 1px 5px rgba(0,0,0,.55);position:relative;z-index:1}
+.tm-val em{font-style:normal;font-size:10px;font-weight:500;opacity:.85;margin-left:2px;letter-spacing:.3px}
+.tm-pct{font-size:10.5px;font-weight:500;color:rgba(255,255,255,.78);font-family:'DIN','Arial';
+  position:absolute;top:6px;right:9px;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+/* 小格子（PCL/PPC 这种 <5% 的）字体自动缩小 */
+.tm-cell.tm-small .tm-name{font-size:11.5px;letter-spacing:.3px}
+.tm-cell.tm-small .tm-val{font-size:14px}
+.tm-cell.tm-small .tm-val em{font-size:9px}
+.tm-cell.tm-small .tm-pct{font-size:9.5px;top:4px;right:6px}
+
+/* 上月累计出口 — 1:1 复刻原型（2×2 六边形图标 + 产品名 + 大数字 + 千克单位） */
+.card-title:has(.expo-title)::before{display:none}
+.expo-title{position:relative;display:flex;align-items:center;width:100%}
+.expo-title .diamond{display:inline-block;width:11px;height:11px;background:#3ad4ff;
+  transform:rotate(45deg);margin:0 10px 0 2px;box-shadow:0 0 8px #3ad4ff}
+.expo-title .ti{color:#cfeeff;font-size:15px;font-weight:600;letter-spacing:1.5px;text-shadow:0 0 8px rgba(58,212,255,.35)}
+.expo-title .arrow-line{flex:1;height:1px;margin:0 14px 0 18px;
+  background:linear-gradient(90deg,transparent 0%,rgba(58,212,255,.35) 40%,rgba(58,212,255,.6) 100%);position:relative}
+.expo-title .arrow-line::after{content:"";position:absolute;right:-2px;top:-3px;width:7px;height:7px;
+  border-top:1.5px solid #3ad4ff;border-right:1.5px solid #3ad4ff;transform:rotate(45deg)}
+.expo-title .more{font-size:12px;color:#a8c4e0;letter-spacing:1px;cursor:pointer;
+  white-space:nowrap;padding-right:2px}
+.expo-title .more:hover{color:#3ad4ff}
+.expo-title .more::after{content:" »";color:#3ad4ff;margin-left:3px}
+
+.kpi-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;
+  grid-auto-rows:118px;gap:10px;padding:8px 4px 6px;
+  overflow-y:auto;align-content:start}
+.kpi-grid::-webkit-scrollbar{width:4px}
+.kpi-grid::-webkit-scrollbar-thumb{background:rgba(60,160,200,.35);border-radius:2px}
+.kpi-grid::-webkit-scrollbar-thumb:hover{background:rgba(58,212,255,.55)}
+.kpi-grid::-webkit-scrollbar-track{background:transparent}
+.kpi-cell{position:relative;display:flex;align-items:center;gap:12px;padding:6px 10px}
+.hex-icon{position:relative;width:64px;height:72px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#3ad4ff 0%,#1797b8 100%);
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  filter:drop-shadow(0 0 6px rgba(58,212,255,.35))}
+.hex-icon::before{content:"";position:absolute;inset:1.5px;
+  background:linear-gradient(135deg,#1c4880 0%,#0e2952 50%,#0a1f3e 100%);
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.hex-icon svg{position:relative;z-index:1;color:#3ad4ff;
+  filter:drop-shadow(0 0 3px rgba(58,212,255,.7))}
+.kpi-meta{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.kpi-lbl{font-size:14px;color:#fff;letter-spacing:1px;font-weight:500;line-height:1}
+.kpi-num{font-family:'DIN','Arial';font-size:21px;font-weight:700;color:#3ad4ff;line-height:1;letter-spacing:.5px;
+  text-shadow:0 0 8px rgba(58,212,255,.4);white-space:nowrap}
+.kpi-num em{font-style:normal;font-size:11px;color:#7fa3c8;font-weight:400;margin-left:5px;letter-spacing:.3px}
+
+/* 上月累计出口 — 数字面板（4 列 × 2 行）— 旧版样式，已不再使用 */
+.expo-grid{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;
+  gap:7px;padding:6px 2px;align-items:stretch}
+.expo-cell{position:relative;display:flex;flex-direction:column;justify-content:center;gap:5px;
+  padding:8px 10px 8px 14px;
+  background:linear-gradient(135deg,rgba(60,160,200,.13) 0%,rgba(60,160,200,.03) 100%);
+  border:1px solid rgba(60,160,200,.2);border-radius:3px;overflow:hidden;
+  transition:.15s}
+.expo-cell:hover{background:linear-gradient(135deg,rgba(60,160,200,.22) 0%,rgba(60,160,200,.06) 100%);
+  border-color:rgba(58,212,255,.4);transform:translateY(-1px)}
+.expo-cell::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2.5px;
+  background:var(--ec,#3ad4ff);box-shadow:0 0 4px var(--ec,#3ad4ff);
+  opacity:.55;border-radius:0 2px 2px 0}
+.ec-head{display:flex;align-items:center;gap:6px}
+.ec-dot{width:7px;height:7px;border-radius:50%;background:var(--ec,#3ad4ff);
+  box-shadow:0 0 5px var(--ec,#3ad4ff);flex-shrink:0}
+.ec-name{color:#cfe2f8;font-size:13px;font-family:'PingFang SC';letter-spacing:.5px;font-weight:500}
+.ec-body{display:flex;align-items:baseline;gap:3px}
+.ec-val{color:#fff;font-family:'DIN','Arial';font-size:22px;font-weight:800;line-height:1;
+  letter-spacing:.5px;text-shadow:0 0 10px rgba(58,212,255,.35)}
+.ec-u{color:#7fa3c8;font-size:10.5px;letter-spacing:.3px}
+.mini-chart{width:100%;flex:1;display:block;min-height:0}
+.mini-foot{font-size:10.5px;color:#5e85b0;letter-spacing:.5px;padding-top:2px;border-top:1px dashed rgba(80,180,210,.15)}
+
+/* 产量卡片 — 产品筛选下拉（紧凑版 chain-sel） */
+.mini-prod-sel{position:relative;display:inline-flex;align-items:center;gap:5px;
+  padding:3px 8px;background:rgba(15,40,65,.6);border:1px solid rgba(60,160,200,.28);
+  border-radius:3px;cursor:pointer;user-select:none;font-family:'PingFang SC';transition:.15s}
+.mini-prod-sel:hover{border-color:#3ad4ff;box-shadow:0 0 8px rgba(58,212,255,.2)}
+.mini-prod-sel .mps-l{font-size:10.5px;color:#7fa3c8;letter-spacing:.3px}
+.mini-prod-sel .mps-v{font-size:11.5px;color:#dbeaff;font-weight:600;min-width:36px}
+.mini-prod-sel .mps-a{font-size:8px;color:#7fa3c8;transition:.2s}
+.mini-prod-sel.open .mps-a{transform:rotate(180deg);color:#3ad4ff}
+.mini-prod-sel .mps-dd{position:absolute;right:0;top:calc(100% + 4px);width:130px;
+  background:linear-gradient(180deg,#0a1c38,#061226);border:1px solid rgba(60,160,200,.35);
+  border-radius:4px;padding:3px;display:none;z-index:50;box-shadow:0 8px 22px rgba(0,0,0,.55)}
+.mini-prod-sel.open .mps-dd{display:block}
+.mps-it{padding:5px 10px;font-size:11.5px;color:#cfe2f8;cursor:pointer;border-radius:3px;letter-spacing:.4px}
+.mps-it:hover{background:rgba(58,212,255,.18);color:#fff}
+.mps-it.cur{background:linear-gradient(90deg,rgba(58,212,255,.22),rgba(58,212,255,.06));color:#fff;font-weight:600}
+
+/* 地图卡片（overflow:visible 让产业链下拉可以延伸出卡片；地图本身在 .map-wrap 中已 overflow:hidden） */
+.map-card{position:relative;display:flex;flex-direction:column;overflow:visible}
+.map-tag{position:absolute;left:24px;top:14px;z-index:4;font-size:13px;color:#a8c4e0;
+  background:rgba(8,30,60,.7);border:1px solid rgba(60,160,200,.3);padding:4px 12px;border-radius:3px}
+.map-wrap{flex:1;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden;padding-right:230px}
+.map{position:relative;width:800px;height:640px;transform:scale(.72);transform-origin:center}
+/* 省份边界用多层 drop-shadow 加深，使各省界线分明 */
+.map img{position:absolute;display:block;
+  filter:drop-shadow(0 0 0 #3ad4ff) drop-shadow(0.6px 0 0 #3ad4ff) drop-shadow(-0.6px 0 0 #3ad4ff) drop-shadow(0 0.6px 0 #3ad4ff) drop-shadow(0 -0.6px 0 #3ad4ff) drop-shadow(0 0 4px rgba(58,212,255,.4));
+  transition:.2s}
+.map img:hover{filter:drop-shadow(0 0 0 #fff) drop-shadow(0.6px 0 0 #fff) drop-shadow(-0.6px 0 0 #fff) drop-shadow(0 0.6px 0 #fff) drop-shadow(0 -0.6px 0 #fff) drop-shadow(0 0 14px #3ad4ff) brightness(1.3);cursor:pointer;z-index:30}
+
+/* 省份名称叠加文字 */
+.prov-label{position:absolute;z-index:5;pointer-events:none;
+  font-size:11.5px;color:#dbeaff;letter-spacing:.5px;font-weight:500;text-align:center;
+  text-shadow:0 0 4px rgba(0,0,0,.85),0 0 8px rgba(0,0,0,.55);transform:translate(-50%,-50%);
+  white-space:nowrap;line-height:1.15}
+.prov-label.small{font-size:10px;color:#a8c4e0}
+.prov-label.muted{font-size:9.5px;color:#7fa3c8}
+
+.legend{position:absolute;left:32px;bottom:32px;background:rgba(8,20,40,.6);border:1px solid rgba(60,160,200,.2);
+  border-radius:4px;padding:10px 14px;font-size:12px;color:#a8c4e0;z-index:3;letter-spacing:1px}
+.legend-h{font-size:12px;font-weight:600;color:#dbeaff;margin-bottom:8px;letter-spacing:1px}
+.lg-row{display:flex;align-items:center;gap:8px;margin:4px 0}
+.lg-sw{width:18px;height:11px;border-radius:1px;flex-shrink:0}
+
+/* 地图角装饰 */
+.map-corn{position:absolute;width:18px;height:18px;border:1.5px solid #3ad4ff;opacity:.7}
+.mc-tl{left:8px;top:8px;border-right:none;border-bottom:none}
+.mc-tr{right:8px;top:8px;border-left:none;border-bottom:none}
+.mc-bl{left:8px;bottom:8px;border-right:none;border-top:none}
+.mc-br{right:8px;bottom:8px;border-left:none;border-top:none}
+
+/* 地图右侧 产品列表 侧栏（随二级 tab 联动） */
+.map-side{position:absolute;right:14px;top:54px;bottom:14px;width:216px;z-index:3;
+  background:linear-gradient(180deg,rgba(8,28,55,.78),rgba(5,18,40,.88));
+  border:1px solid rgba(60,160,200,.28);border-radius:5px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 0 14px rgba(20,60,120,.18) inset}
+.map-side::before{content:"";position:absolute;left:8px;top:0;width:24px;height:2px;background:#3ad4ff;box-shadow:0 0 8px #3ad4ff}
+.ms-hd{padding:11px 14px 10px;border-bottom:1px solid rgba(60,160,200,.2)}
+.ms-tt{font-size:13.5px;font-weight:600;color:#dbeaff;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.ms-tt::before{content:"";width:3px;height:13px;background:#3ad4ff;border-radius:1px;box-shadow:0 0 6px #3ad4ff;flex-shrink:0}
+.ms-sub{font-size:11px;color:#7fa3c8;margin-top:5px;letter-spacing:.5px;padding-left:11px}
+.ms-cnt{font-size:11px;color:#5e85b0;margin-top:6px;padding-left:11px;letter-spacing:.5px}
+.ms-cnt b{color:#fff;font-weight:700;font-size:14px;font-family:'DIN','Arial',sans-serif;margin:0 2px}
+.ms-list{flex:1;overflow-y:auto;padding:6px 8px}
+.ms-list::-webkit-scrollbar{width:3px}
+.ms-list::-webkit-scrollbar-thumb{background:rgba(60,160,200,.35);border-radius:2px}
+.ms-it{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:3px;cursor:pointer;transition:.18s;
+  border:1px solid transparent}
+.ms-it:hover{background:rgba(30,110,140,.25);border-color:rgba(60,160,200,.35)}
+.ms-rk{flex-shrink:0;width:20px;text-align:center;font-size:11px;color:#5e85b0;font-family:'DIN','Arial',monospace;letter-spacing:.5px}
+.ms-it.top .ms-rk{color:#fcd34d;font-weight:700}
+.ms-name{flex:1;font-size:12px;color:#cfe2f8;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-pv{flex-shrink:0;min-width:38px;text-align:right;font-size:11px;color:#a8c4e0;font-family:'DIN','Arial',monospace;letter-spacing:.5px}
+.ms-pv b{color:#fff;font-weight:700;font-size:12px;margin-right:1px}
+.ms-empty{padding:30px 14px;text-align:center;font-size:12px;color:#5e85b0}
+
+/* 中央"南海诸岛" 提示框 */
+.south-sea{position:absolute;right:18px;bottom:18px;width:96px;height:128px;
+  border:1px dashed rgba(80,180,210,.4);font-size:10px;color:#5e85b0;
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px}
+
+/* ───── 底部表格 ───── */
+.tbl-card{display:flex;flex-direction:column;overflow:hidden}
+.tbl-tools{padding:0 18px 8px;display:flex;align-items:center;gap:10px}
+.tbl-tools .sel{background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);border-radius:3px;padding:5px 10px;font-size:12px;color:#a8c4e0;min-width:140px;cursor:pointer;
+  background-image:linear-gradient(180deg,rgba(20,75,100,.0),rgba(20,75,100,.3))}
+.tbl-tools .sel.sel-dd{position:relative;display:inline-flex;align-items:center;gap:4px}
+.tbl-tools .sel-lbl{color:#7fa3c8;font-size:11.5px;letter-spacing:.5px}
+.tbl-tools .sel-val{color:#dbeaff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbl-tools .sel-arr{color:#5e85b0;font-size:10px;transition:.2s}
+.tbl-tools .sel.open .sel-arr{transform:rotate(180deg);color:#3ad4ff}
+.tbl-tools .sel.open{border-color:#3ad4ff;box-shadow:0 0 8px rgba(58,212,255,.18)}
+.sel-dd-list{position:absolute;left:0;top:calc(100% + 4px);width:240px;max-height:300px;overflow-y:auto;
+  background:linear-gradient(180deg,rgba(10,25,50,.98),rgba(6,18,38,.99));
+  border:1px solid rgba(80,180,210,.4);border-radius:4px;padding:4px;z-index:30;display:none;
+  box-shadow:0 8px 22px rgba(0,0,0,.4),0 0 14px rgba(58,212,255,.12)}
+.sel-dd-list::-webkit-scrollbar{width:3px}
+.sel-dd-list::-webkit-scrollbar-thumb{background:rgba(60,160,200,.4);border-radius:2px}
+.tbl-tools .sel.open .sel-dd-list{display:block}
+.sel-dd-it{padding:6px 12px;font-size:12px;color:#cfe2f8;cursor:pointer;border-radius:3px;letter-spacing:.5px;transition:.15s;white-space:nowrap}
+.sel-dd-it:hover{background:rgba(58,212,255,.18);color:#fff}
+.sel-dd-it.cur{background:linear-gradient(90deg,rgba(58,212,255,.22),rgba(58,212,255,.08));color:#fff;font-weight:600}
+.sel-dd-it.cur::after{content:" ✓";color:#42d29a;font-size:11px;margin-left:6px}
+.sel-dd-hd{padding:6px 12px 4px;font-size:11px;color:#7fa3c8;letter-spacing:1px;border-bottom:1px solid rgba(80,180,210,.18);margin-bottom:3px}
+.tbl-tools .sp{flex:1}
+.tbl-tools .sb{background:linear-gradient(180deg,#1797b8,#0a6584);border:none;color:#fff;padding:6px 22px;border-radius:3px;cursor:pointer;font-size:12.5px;letter-spacing:2px;
+  box-shadow:0 0 10px rgba(58,212,255,.3)}
+.tbl-wrap{flex:1;margin:0 14px 14px;overflow:auto;border:1px solid rgba(60,160,200,.15);border-radius:4px;background:rgba(5,15,32,.4)}
+.tbl-wrap::-webkit-scrollbar{height:4px;width:4px}
+.tbl-wrap::-webkit-scrollbar-thumb{background:rgba(60,160,200,.3);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;color:#bcd0e8}
+table th{position:sticky;top:0;background:linear-gradient(180deg,#0e2649,#091833);color:#dbeaff;font-weight:600;letter-spacing:1px;
+  padding:9px 14px;text-align:left;border-bottom:1px solid rgba(60,160,200,.3);font-size:13px;white-space:nowrap}
+table td{padding:9px 14px;border-bottom:1px dashed rgba(60,160,200,.1);white-space:nowrap}
+table tbody tr:hover{background:rgba(30,110,140,.18)}
+table tbody tr:nth-child(odd){background:rgba(15,55,75,.18)}
+table tbody tr:nth-child(odd):hover{background:rgba(30,110,140,.22)}
+.amt{color:#3ad4ff;font-weight:700;font-family:'DIN','Arial',sans-serif}
+.tag-up{color:#42d29a;font-size:11.5px}
+.tag-dn{color:#ff6b8a;font-size:11.5px}
+
+/* 分页 */
+.pag{padding:6px 18px 12px;display:flex;justify-content:flex-end;gap:6px;align-items:center;font-size:12px;color:#7fa3c8}
+.pag .pg{background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);color:#a8c4e0;padding:3px 9px;border-radius:2px;cursor:pointer;min-width:26px;text-align:center}
+.pag .pg.cur{background:#1797b8;color:#fff;border-color:#1797b8}
+.pag .pg:hover{border-color:#3ad4ff}
+
+/* ───── 省份悬浮卡片 ───── */
+.tip{position:fixed;z-index:999;width:280px;
+  background:linear-gradient(180deg,rgba(10,28,55,.96),rgba(6,18,38,.98));
+  border:1px solid rgba(58,212,255,.55);border-radius:6px;padding:12px 14px;
+  font-size:12.5px;color:#dbeaff;pointer-events:none;display:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 18px rgba(58,212,255,.18)}
+.tip::before{content:"";position:absolute;left:-1px;top:-1px;width:14px;height:14px;border-left:2px solid #3ad4ff;border-top:2px solid #3ad4ff;border-radius:6px 0 0 0}
+.tip::after{content:"";position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-right:2px solid #3ad4ff;border-bottom:2px solid #3ad4ff;border-radius:0 0 6px 0}
+.tip-name{font-size:15px;font-weight:600;color:#fff;letter-spacing:1px;
+  padding-bottom:8px;margin-bottom:9px;border-bottom:1px solid rgba(80,180,210,.22);
+  display:flex;align-items:center;justify-content:space-between}
+.tip-name small{font-size:11px;color:#7fa3c8;font-weight:400;letter-spacing:0}
+.tip-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tip-tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:2px;
+  border:1px solid;letter-spacing:.5px;font-weight:500}
+.tip-num{font-weight:700;font-family:'DIN','Arial',sans-serif;letter-spacing:1px}
+.tip-num b{font-size:24px}
+.tip-num em{font-size:11px;font-style:normal;color:#7fa3c8;font-weight:400;margin-left:3px}
+.tip-sub{font-size:11.5px;color:#a8c4e0;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tip-sub::before{content:"";width:3px;height:10px;background:#3ad4ff;border-radius:1px}
+.tip-items{display:flex;flex-wrap:wrap;gap:5px}
+.tip-item{font-size:11px;padding:3px 8px;border-radius:2px;
+  background:rgba(60,160,200,.16);color:#cfe2f8;border:1px solid rgba(60,160,200,.25);line-height:1.2}
+.tip-foot{margin-top:9px;padding-top:7px;border-top:1px dashed rgba(80,180,210,.18);
+  font-size:11px;color:#7fa3c8;display:flex;justify-content:space-between}
+.tip-foot span b{color:#3ad4ff;font-weight:600;font-family:'DIN','Arial';margin:0 2px}
+.tip-empty{color:#5e85b0;font-size:11.5px;text-align:center;padding:8px 0}
+
+/* ───── 省份详情弹窗 ───── */
+.dl-mask{position:absolute;inset:0;background:rgba(2,8,20,.65);backdrop-filter:blur(2px);z-index:50;
+  opacity:0;pointer-events:none;transition:opacity .25s}
+.dl-mask.show{opacity:1;pointer-events:auto}
+.dl-panel{position:absolute;left:50%;top:50%;width:1280px;max-width:96%;height:940px;max-height:96%;z-index:60;
+  background:linear-gradient(180deg,#0a1c38 0%,#061226 100%);border:1px solid rgba(58,212,255,.4);border-radius:8px;
+  box-shadow:0 20px 50px rgba(0,0,0,.6),0 0 30px rgba(58,212,255,.12);
+  transform:translate(-50%,-48%) scale(.96);opacity:0;pointer-events:none;transition:opacity .25s,transform .3s ease;
+  display:flex;flex-direction:column;overflow:hidden}
+.dl-panel.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+.dl-panel::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;
+  background:linear-gradient(90deg,transparent,#3ad4ff,transparent)}
+.dl-panel::after{content:"";position:absolute;left:14px;top:14px;width:18px;height:18px;
+  border-left:2px solid #3ad4ff;border-top:2px solid #3ad4ff;border-radius:4px 0 0 0;opacity:.7}
+.dl-close{position:absolute;right:14px;top:14px;width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.06);border:1px solid rgba(80,180,210,.3);color:#a8c4e0;
+  font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;z-index:5}
+.dl-close:hover{background:rgba(255,80,120,.2);color:#fff;border-color:#ff6b8a}
+.dl-hd{padding:20px 60px 16px 28px;border-bottom:1px solid rgba(80,180,210,.18);flex-shrink:0}
+.dl-prov{font-size:22px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:4px}
+.dl-prov small{font-size:13px;color:#7fa3c8;font-weight:400;letter-spacing:0;margin-left:8px}
+.dl-tag{display:inline-block;font-size:11.5px;padding:3px 10px;border-radius:2px;
+  border:1px solid;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.dl-body{flex:1;display:flex;flex-direction:column;padding:18px 28px 22px;min-height:0;overflow:hidden}
+.dl-main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
+
+/* 工具栏：搜索 + 筛选 */
+.dl-toolbar{display:flex;align-items:center;gap:10px;padding:6px 0 12px;flex-shrink:0}
+.dl-search{flex:1;position:relative;max-width:280px}
+.dl-search input{width:100%;background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);
+  border-radius:3px;padding:6px 10px 6px 30px;font-size:12.5px;color:#cfe2f8;outline:none;transition:.2s}
+.dl-search input:focus{border-color:#3ad4ff;box-shadow:0 0 0 2px rgba(58,212,255,.15)}
+.dl-search input::placeholder{color:#5e85b0}
+.dl-search::before{content:"⌕";position:absolute;left:9px;top:5px;color:#5e85b0;font-size:14px}
+.dl-fil{background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);border-radius:3px;
+  padding:6px 12px;font-size:12.5px;color:#a8c4e0;cursor:pointer;min-width:110px}
+.dl-fil::after{content:" ▾";color:#5e85b0}
+.dl-toolbar-info{margin-left:auto;font-size:12px;color:#7fa3c8}
+.dl-toolbar-info b{color:#3ad4ff;font-weight:600;font-family:'DIN','Arial';margin:0 2px}
+
+/* 表格容器（弹窗内） */
+.dl-tbl-wrap{flex:1;overflow:auto;border:1px solid rgba(60,160,200,.15);border-radius:4px;background:rgba(5,15,32,.4);min-height:0}
+.dl-tbl-wrap::-webkit-scrollbar{height:4px;width:4px}
+.dl-tbl-wrap::-webkit-scrollbar-thumb{background:rgba(60,160,200,.3);border-radius:2px}
+
+.dl-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.dl-st{background:rgba(15,40,80,.4);border:1px solid rgba(60,160,200,.2);border-radius:4px;padding:12px 8px;text-align:center}
+.dl-st-n{font-size:22px;font-weight:700;color:#3ad4ff;font-family:'DIN','Arial',sans-serif;line-height:1.1;
+  text-shadow:0 0 12px rgba(58,212,255,.3)}
+.dl-st-l{font-size:11.5px;color:#7fa3c8;margin-top:5px;letter-spacing:.5px}
+
+.dl-sect{margin-bottom:20px}
+.dl-sect-h{font-size:14px;font-weight:600;color:#dbeaff;letter-spacing:1px;
+  padding-left:10px;border-left:3px solid #3ad4ff;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.dl-sect-h .dl-more{font-size:11.5px;color:#5e85b0;font-weight:400;cursor:pointer;letter-spacing:0}
+.dl-sect-h .dl-more:hover{color:#3ad4ff}
+
+table.dl-tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;color:#bcd0e8;table-layout:fixed}
+table.dl-tbl th{position:sticky;top:0;background:linear-gradient(180deg,#0e2a52,#091833);
+  color:#a8c4e0;font-weight:500;letter-spacing:1px;font-size:12px;
+  padding:12px 16px;text-align:left;border-bottom:2px solid rgba(58,212,255,.4);white-space:nowrap;z-index:2}
+table.dl-tbl th:first-child{border-top-left-radius:4px}
+table.dl-tbl th:last-child{border-top-right-radius:4px}
+table.dl-tbl td{padding:14px 14px;border-bottom:1px solid rgba(60,160,200,.08);vertical-align:middle;overflow:hidden}
+table.dl-tbl tbody tr{transition:background .15s,box-shadow .15s}
+table.dl-tbl tbody tr:nth-child(even){background:rgba(15,55,75,.16)}
+table.dl-tbl tbody tr:hover{background:rgba(30,110,140,.22);box-shadow:inset 3px 0 0 #3ad4ff}
+
+/* 序号 */
+.dl-row-num{display:inline-block;min-width:28px;height:24px;line-height:24px;text-align:center;padding:0 6px;
+  font-family:'DIN','Arial';font-weight:600;font-size:13px;color:#7fa3c8;
+  background:rgba(60,160,200,.1);border:1px solid rgba(60,160,200,.18);border-radius:3px}
+table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(252,211,77,.08);border-color:rgba(252,211,77,.3);
+  box-shadow:0 0 6px rgba(252,211,77,.18)}
+.dl-comp-name{color:#fff;font-weight:600;font-size:13.5px;line-height:1.3}
+
+/* 信用代码 */
+.dl-cc{font-family:'DIN','Consolas',monospace;color:#a8c4e0;font-size:11.5px;letter-spacing:.3px;
+  padding:3px 8px;background:rgba(60,160,200,.08);border:1px solid rgba(60,160,200,.18);border-radius:3px;display:inline-block;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+
+/* 主营产品（长文本，最多 2 行） */
+.dl-prod{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;text-overflow:ellipsis;white-space:normal;word-break:break-word;
+  font-size:12.5px;line-height:1.55;color:#bcd0e8;cursor:default;
+  max-height:40px;width:100%}
+.dl-prod:hover{color:#dbeaff}
+
+/* 注册资本 */
+.dl-cap{font-family:'DIN','Arial';font-weight:700;color:#3ad4ff;font-size:14.5px;
+  text-shadow:0 0 8px rgba(58,212,255,.18);letter-spacing:.5px}
+.dl-cap-unit{font-size:11px;color:#7fa3c8;font-weight:400;margin-left:3px;font-family:'PingFang SC'}
+
+/* 地址 */
+.dl-addr{display:flex;align-items:flex-start;gap:6px;color:#a8c4e0;font-size:12px;line-height:1.55}
+.dl-addr-icon{flex-shrink:0;color:#3ad4ff;opacity:.8;margin-top:2px}
+.dl-addr span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;text-overflow:ellipsis;word-break:break-all;flex:1;min-width:0}
+
+/* 排名（保留向后兼容） */
+.dl-rank{display:inline-block;width:18px;height:18px;border-radius:50%;background:rgba(58,212,255,.15);
+  color:#3ad4ff;font-size:10.5px;font-weight:700;text-align:center;line-height:18px;margin-right:6px;font-family:'DIN','Arial'}
+.dl-rank.top{background:linear-gradient(135deg,#fcd34d,#d09000);color:#3a2800;box-shadow:0 0 8px rgba(252,211,77,.4)}
+
+/* 分页 */
+.dl-pag{display:flex;align-items:center;gap:5px;padding:14px 0 0;font-size:12.5px;color:#7fa3c8;flex-shrink:0;flex-wrap:wrap}
+.dl-pag-info{margin-right:auto;color:#7fa3c8}
+.dl-pag-info b{color:#3ad4ff;font-weight:600;font-family:'DIN','Arial';margin:0 3px}
+.dl-pag .pg{display:inline-flex;align-items:center;justify-content:center;
+  min-width:32px;height:30px;padding:0 10px;border-radius:3px;cursor:pointer;
+  background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);color:#a8c4e0;
+  transition:.15s;user-select:none;font-family:'DIN','Arial';font-size:12.5px}
+.dl-pag .pg:hover{border-color:#3ad4ff;color:#fff;background:rgba(58,212,255,.12)}
+.dl-pag .pg.cur{background:linear-gradient(180deg,#1797b8,#0a6584);color:#fff;border-color:#1797b8;font-weight:600;
+  box-shadow:0 0 10px rgba(58,212,255,.4)}
+.dl-pag .pg.cur:hover{background:linear-gradient(180deg,#1797b8,#0a6584)}
+.dl-pag .pg.dis{opacity:.4;cursor:not-allowed}
+.dl-pag .pg.dis:hover{border-color:rgba(60,160,200,.25);color:#a8c4e0;background:rgba(15,35,65,.6)}
+.dl-pag input{width:46px;height:30px;background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);
+  border-radius:3px;color:#cfe2f8;font-size:12.5px;font-family:'DIN','Arial';text-align:center;outline:none;margin:0 3px}
+.dl-pag input:focus{border-color:#3ad4ff;box-shadow:0 0 0 2px rgba(58,212,255,.15)}
+.dl-pag .ellipsis{padding:0 4px;color:#5e85b0}
+.dl-pag .label{color:#7fa3c8;margin:0 4px}
+
+.dl-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dl-mini{background:rgba(8,20,40,.5);border:1px solid rgba(60,160,200,.15);border-radius:4px;padding:12px}
+.dl-mini-h{font-size:12.5px;color:#a8c4e0;margin-bottom:8px}
+
+.dl-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:11.5px}
+.dl-bar-name{width:80px;color:#a8c4e0;flex-shrink:0;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.dl-bar-track{flex:1;height:7px;background:rgba(60,160,200,.1);border-radius:3px;overflow:hidden}
+.dl-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3ad4ff,#1797b8);box-shadow:0 0 6px rgba(58,212,255,.4)}
+.dl-bar-pct{width:40px;text-align:right;color:#3ad4ff;font-family:'DIN','Arial';font-weight:600}
+</style>
+</head>
+<body>
+<div class="viewport">
+  <div class="screen" id="screen">
+
+    <!-- 主体 -->
+    <div class="layout">
+
+      <!-- ───── 左栏 ───── -->
+      <div class="lcol">
+
+        <!-- 政策动态（按反馈：还原至原型样式 5 条 + "更多 >>" 入口） -->
+        <div class="card" style="display:flex;flex-direction:column;overflow:hidden">
+          <div class="card-title">最新行业政策概览<span class="more-btn" id="polMoreBtn">更多 &gt;&gt;</span></div>
+          <div class="policy-list" id="policyListMain"></div>
+        </div>
+
+        <!-- 行业创新（专利总数 + 近 12 个月专利数量趋势图，带产业链筛选） -->
+        <div class="card" style="display:flex;flex-direction:column;overflow:hidden">
+          <div class="card-title">行业创新<span class="more">详情 ›</span></div>
+          <div class="innov-chain">
+            <div class="chain-sel" id="innovChainSel">
+              <span class="chain-sel-label">产业链：</span>
+              <span class="chain-sel-val" data-chain-val="1">降解材料产业链图谱 — 总图谱</span>
+              <span class="chain-sel-arrow">▼</span>
+              <div class="chain-dd"></div>
+            </div>
+            <div class="chain-sel" id="innovProdSel">
+              <span class="chain-sel-label">产品：</span>
+              <span class="chain-sel-val" id="innovProdVal">全部</span>
+              <span class="chain-sel-arrow">▼</span>
+              <div class="chain-dd" id="innovProdDd"></div>
+            </div>
+          </div>
+          <div class="innov-card">
+            <div class="innov-top">
+              <div class="innov-num-wrap">
+                <div class="innov-lbl">近12个月新增专利总数</div>
+                <div class="innov-num" id="innovNum">154</div>
+                <div class="innov-sub">数据更新：2026-05-08</div>
+              </div>
+            </div>
+            <div class="innov-chart-wrap">
+              <div class="innov-chart-h">近 12 个月专利数量趋势</div>
+              <svg class="innov-chart" id="innovChart" viewBox="0 0 460 110" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="lgInnovBar" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#3ad4ff" stop-opacity=".9"/>
+                    <stop offset="100%" stop-color="#1797b8" stop-opacity=".25"/>
+                  </linearGradient>
+                  <linearGradient id="lgInnovArea" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#42d29a" stop-opacity=".45"/>
+                    <stop offset="100%" stop-color="#42d29a" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <!-- 网格 -->
+                <g stroke="rgba(80,180,210,.14)">
+                  <line x1="30" y1="14" x2="450" y2="14"/>
+                  <line x1="30" y1="42" x2="450" y2="42"/>
+                  <line x1="30" y1="70" x2="450" y2="70"/>
+                  <line x1="30" y1="92" x2="450" y2="92"/>
+                </g>
+                <!-- Y 轴刻度（专利件） -->
+                <g fill="#5e85b0" font-size="8" font-family="DIN,Arial">
+                  <text x="26" y="16" text-anchor="end">25</text>
+                  <text x="26" y="44" text-anchor="end">15</text>
+                  <text x="26" y="72" text-anchor="end">8</text>
+                  <text x="26" y="94" text-anchor="end">0</text>
+                </g>
+                <!-- 12 月柱形（合计 154 件，月分布有波动；点击下钻专利列表） -->
+                <g fill="url(#lgInnovBar)" class="innov-bars">
+                  <rect x="38"  y="64" width="22" height="28" rx="1.5" data-month="2025-06" data-count="8"/>
+                  <rect x="72"  y="58" width="22" height="34" rx="1.5" data-month="2025-07" data-count="10"/>
+                  <rect x="106" y="50" width="22" height="42" rx="1.5" data-month="2025-08" data-count="12"/>
+                  <rect x="140" y="42" width="22" height="50" rx="1.5" data-month="2025-09" data-count="14"/>
+                  <rect x="174" y="48" width="22" height="44" rx="1.5" data-month="2025-10" data-count="13"/>
+                  <rect x="208" y="36" width="22" height="56" rx="1.5" data-month="2025-11" data-count="16"/>
+                  <rect x="242" y="30" width="22" height="62" rx="1.5" data-month="2025-12" data-count="18"/>
+                  <rect x="276" y="22" width="22" height="70" rx="1.5" data-month="2026-01" data-count="20"/>
+                  <rect x="310" y="34" width="22" height="58" rx="1.5" data-month="2026-02" data-count="17"/>
+                  <rect x="344" y="40" width="22" height="52" rx="1.5" data-month="2026-03" data-count="15"/>
+                  <rect x="378" y="28" width="22" height="64" rx="1.5" data-month="2026-04" data-count="19"/>
+                  <rect x="412" y="20" width="22" height="72" rx="1.5" data-month="2026-05" data-count="22"/>
+                </g>
+                <!-- 透明覆盖层方便点击 + 悬浮提示 -->
+                <g class="innov-bar-hits" fill="rgba(0,0,0,0)" style="cursor:pointer">
+                  <rect x="34"  y="14" width="30" height="80" data-month="2025-06" data-count="8"/>
+                  <rect x="68"  y="14" width="30" height="80" data-month="2025-07" data-count="10"/>
+                  <rect x="102" y="14" width="30" height="80" data-month="2025-08" data-count="12"/>
+                  <rect x="136" y="14" width="30" height="80" data-month="2025-09" data-count="14"/>
+                  <rect x="170" y="14" width="30" height="80" data-month="2025-10" data-count="13"/>
+                  <rect x="204" y="14" width="30" height="80" data-month="2025-11" data-count="16"/>
+                  <rect x="238" y="14" width="30" height="80" data-month="2025-12" data-count="18"/>
+                  <rect x="272" y="14" width="30" height="80" data-month="2026-01" data-count="20"/>
+                  <rect x="306" y="14" width="30" height="80" data-month="2026-02" data-count="17"/>
+                  <rect x="340" y="14" width="30" height="80" data-month="2026-03" data-count="15"/>
+                  <rect x="374" y="14" width="30" height="80" data-month="2026-04" data-count="19"/>
+                  <rect x="408" y="14" width="30" height="80" data-month="2026-05" data-count="22"/>
+                </g>
+                <!-- 趋势折线 -->
+                <polyline points="49,68 83,62 117,54 151,46 185,52 219,40 253,34 287,26 321,38 355,44 389,32 423,24"
+                          fill="none" stroke="#42d29a" stroke-width="1.6"/>
+                <g fill="#42d29a">
+                  <circle cx="49"  cy="68" r="2"/><circle cx="83"  cy="62" r="2"/><circle cx="117" cy="54" r="2"/>
+                  <circle cx="151" cy="46" r="2"/><circle cx="185" cy="52" r="2"/><circle cx="219" cy="40" r="2"/>
+                  <circle cx="253" cy="34" r="2"/><circle cx="287" cy="26" r="2"/><circle cx="321" cy="38" r="2"/>
+                  <circle cx="355" cy="44" r="2"/><circle cx="389" cy="32" r="2"/>
+                  <circle cx="423" cy="24" r="2.6" stroke="#fff" stroke-width=".5"/>
+                </g>
+                <text x="423" y="18" fill="#42d29a" font-size="8.5" text-anchor="end" font-weight="700">22</text>
+                <!-- X 轴月份 -->
+                <g fill="#7fa3c8" font-size="8" font-family="DIN,Arial" text-anchor="middle">
+                  <text x="49"  y="106">6月</text>
+                  <text x="83"  y="106">7月</text>
+                  <text x="117" y="106">8月</text>
+                  <text x="151" y="106">9月</text>
+                  <text x="185" y="106">10月</text>
+                  <text x="219" y="106">11月</text>
+                  <text x="253" y="106">12月</text>
+                  <text x="287" y="106">1月</text>
+                  <text x="321" y="106">2月</text>
+                  <text x="355" y="106">3月</text>
+                  <text x="389" y="106">4月</text>
+                  <text x="423" y="106">5月</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 行业标准概况（按反馈：还原至原型样式 — 4 圆形 stat + 小列表，数字可下钻） -->
+        <div class="card std-card" style="display:flex;flex-direction:column;overflow:hidden">
+          <div class="card-title">行业标准概况</div>
+          <div class="std-circles">
+            <div class="std-cir std-cir-cn"  data-type="国家标准" data-num="15">
+              <div class="std-cir-circle"><span class="num">15</span></div>
+              <div class="std-cir-lbl">国家标准</div>
+            </div>
+            <div class="std-cir std-cir-ind" data-type="行业标准" data-num="11">
+              <div class="std-cir-circle"><span class="num">11</span></div>
+              <div class="std-cir-lbl">行业标准</div>
+            </div>
+            <div class="std-cir std-cir-loc" data-type="地方标准" data-num="0">
+              <div class="std-cir-circle"><span class="num">0</span></div>
+              <div class="std-cir-lbl">地方标准</div>
+            </div>
+            <div class="std-cir std-cir-grp" data-type="团体标准" data-num="0">
+              <div class="std-cir-circle"><span class="num">0</span></div>
+              <div class="std-cir-lbl">团体标准</div>
+            </div>
+          </div>
+          <!-- 卡片底部最新标准（点击标准名称打开详情） -->
+          <div class="std-list" id="stdList"></div>
+        </div>
+
+      </div>
+
+      <!-- ───── 右栏 ───── -->
+      <div class="rcol">
+
+        <!-- 地图 -->
+        <div class="card map-card">
+          <span class="map-corn mc-tl"></span><span class="map-corn mc-tr"></span>
+          <span class="map-corn mc-bl"></span><span class="map-corn mc-br"></span>
+
+          <!-- 顶部：先选产业链，再选上中下游 -->
+          <div class="map-chain-row">
+            <div class="chain-sel" id="mapChainSel">
+              <span class="chain-sel-label">产业链：</span>
+              <span class="chain-sel-val" data-chain-val="1">降解材料产业链图谱 — 总图谱</span>
+              <span class="chain-sel-arrow">▼</span>
+              <div class="chain-dd"></div>
+            </div>
+            <div class="subtab">
+              <div class="st">上游</div>
+              <div class="st active">中游</div>
+              <div class="st">下游</div>
+            </div>
+            <!-- 下游+总图谱时显示：改性层 / 终端应用层（pill 风格，二级筛选） -->
+            <div class="ds-layer-tabs" id="dsLayerTabs" style="display:none">
+              <div class="dlt active" data-layer="modify">改性层</div>
+              <div class="dlt" data-layer="terminal">终端应用层</div>
+            </div>
+            <span class="unit-hint">单位：家</span>
+          </div>
+          <div class="map-tag" style="top:54px">中游制造商企业分布 · 全国</div>
+
+          <div class="map-wrap">
+            <div class="map">
+              <img class="prov" data-name="西藏" src="../数智化平台原型/images/行业趋势总览/cn_54_u131.svg" style="left:63px;top:342px;width:271px;height:154px;">
+              <img class="prov" data-name="四川" src="../数智化平台原型/images/行业趋势总览/cn_51_u132.svg" style="left:310px;top:380px;width:148px;height:135px;">
+              <img class="prov" data-name="江苏" src="../数智化平台原型/images/行业趋势总览/cn_32_u133.svg" style="left:558px;top:365px;width:74px;height:75px;">
+              <img class="prov" data-name="内蒙古" src="../数智化平台原型/images/行业趋势总览/cn_15_u134.svg" style="left:308px;top:4px;width:378px;height:323px;">
+              <img class="prov" data-name="河北" src="../数智化平台原型/images/行业趋势总览/cn_13_u135.svg" style="left:522px;top:230px;width:84px;height:120px;">
+              <img class="prov" data-name="安徽" src="../数智化平台原型/images/行业趋势总览/cn_34_u136.svg" style="left:540px;top:374px;width:63px;height:88px;">
+              <img class="prov" data-name="北京" src="../数智化平台原型/images/行业趋势总览/cn_11_u137.svg" style="left:546px;top:260px;width:29px;height:31px;">
+              <img class="prov" data-name="重庆" src="../数智化平台原型/images/行业趋势总览/cn_50_u138.svg" style="left:415px;top:414px;width:64px;height:67px;">
+              <img class="prov" data-name="福建" src="../数智化平台原型/images/行业趋势总览/cn_35_u139.svg" style="left:552px;top:478px;width:61px;height:75px;">
+              <img class="prov" data-name="广东" src="../数智化平台原型/images/行业趋势总览/cn_44_u140.svg" style="left:471px;top:523px;width:99px;height:81px;">
+              <img class="prov" data-name="甘肃" src="../数智化平台原型/images/行业趋势总览/cn_62_u141.svg" style="left:250px;top:228px;width:210px;height:183px;">
+              <img class="prov" data-name="广西" src="../数智化平台原型/images/行业趋势总览/cn_45_u142.svg" style="left:404px;top:507px;width:100px;height:78px;">
+              <img class="prov" data-name="贵州" src="../数智化平台原型/images/行业趋势总览/cn_52_u143.svg" style="left:392px;top:464px;width:80px;height:74px;">
+              <img class="prov" data-name="海南" src="../数智化平台原型/images/行业趋势总览/cn_46_u144.svg" style="left:459px;top:603px;width:32px;height:30px;">
+              <img class="prov" data-name="河南" src="../数智化平台原型/images/行业趋势总览/cn_41_u145.svg" style="left:480px;top:344px;width:83px;height:86px;">
+              <img class="prov" data-name="香港" src="../数智化平台原型/images/行业趋势总览/cn_91_u146.svg" style="left:526px;top:567px;width:8px;height:7px;">
+              <img class="prov" data-name="黑龙江" src="../数智化平台原型/images/行业趋势总览/cn_23_u147.svg" style="left:621px;top:0px;width:179px;height:216px;">
+              <img class="prov" data-name="湖南" src="../数智化平台原型/images/行业趋势总览/cn_43_u148.svg" style="left:460px;top:449px;width:72px;height:88px;">
+              <img class="prov" data-name="湖北" src="../数智化平台原型/images/行业趋势总览/cn_42_u149.svg" style="left:455px;top:397px;width:101px;height:71px;">
+              <img class="prov" data-name="吉林" src="../数智化平台原型/images/行业趋势总览/cn_22_u150.svg" style="left:628px;top:158px;width:127px;height:107px;">
+              <img class="prov" data-name="江西" src="../数智化平台原型/images/行业趋势总览/cn_36_u151.svg" style="left:523px;top:450px;width:65px;height:89px;">
+              <img class="prov" data-name="辽宁" src="../数智化平台原型/images/行业趋势总览/cn_21_u152.svg" style="left:591px;top:213px;width:93px;height:90px;">
+              <img class="prov" data-name="澳门" src="../数智化平台原型/images/行业趋势总览/cn_92_u153.svg" style="left:523px;top:572px;width:1px;height:2px;">
+              <img class="prov" data-name="宁夏" src="../数智化平台原型/images/行业趋势总览/cn_64_u154.svg" style="left:401px;top:290px;width:44px;height:75px;">
+              <img class="prov" data-name="青海" src="../数智化平台原型/images/行业趋势总览/cn_63_u155.svg" style="left:207px;top:293px;width:179px;height:135px;">
+              <img class="prov" data-name="陕西" src="../数智化平台原型/images/行业趋势总览/cn_61_u156.svg" style="left:416px;top:287px;width:77px;height:137px;">
+              <img class="prov" data-name="山东" src="../数智化平台原型/images/行业趋势总览/cn_37_u157.svg" style="left:539px;top:311px;width:104px;height:69px;">
+              <img class="prov" data-name="山西" src="../数智化平台原型/images/行业趋势总览/cn_14_u158.svg" style="left:479px;top:266px;width:57px;height:109px;">
+              <img class="prov" data-name="天津" src="../数智化平台原型/images/行业趋势总览/cn_12_u159.svg" style="left:564px;top:275px;width:19px;height:31px;">
+              <img class="prov" data-name="台湾" src="../数智化平台原型/images/行业趋势总览/cn_71_u160.svg" style="left:584px;top:526px;width:50px;height:52px;">
+              <img class="prov" data-name="新疆" src="../数智化平台原型/images/行业趋势总览/cn_65_u161.svg" style="left:0px;top:98px;width:299px;height:282px;">
+              <img class="prov" data-name="云南" src="../数智化平台原型/images/行业趋势总览/cn_53_u162.svg" style="left:313px;top:464px;width:114px;height:126px;">
+              <img class="prov" data-name="浙江" src="../数智化平台原型/images/行业趋势总览/cn_33_u163.svg" style="left:579px;top:432px;width:59px;height:66px;">
+              <img class="prov" data-name="上海" src="../数智化平台原型/images/行业趋势总览/cn_31_u164.svg" style="left:618px;top:420px;width:23px;height:21px;">
+            </div>
+          </div>
+
+          <!-- 图例：分档以整数台阶（≥30 / 15-30 / 8-15 / 3-8 / <3），省份数由 JS 按当前 tab 实时统计 -->
+          <div class="legend" id="mapLegend">
+            <div class="legend-h">企业数量分布</div>
+            <div class="lg-row"><span class="lg-sw" style="background:rgb(28,52,129)"></span><span>≥ 30 家（<b id="lgB1">—</b> 省）</span></div>
+            <div class="lg-row"><span class="lg-sw" style="background:rgb(65,87,168)"></span><span>15 - 30 家（<b id="lgB2">—</b> 省）</span></div>
+            <div class="lg-row"><span class="lg-sw" style="background:rgb(15,118,220)"></span><span>8 - 15 家（<b id="lgB3">—</b> 省）</span></div>
+            <div class="lg-row"><span class="lg-sw" style="background:rgb(152,169,228)"></span><span>3 - 8 家（<b id="lgB4">—</b> 省）</span></div>
+            <div class="lg-row"><span class="lg-sw" style="background:rgb(174,176,180)"></span><span>&lt; 3 家 / 暂无（<b id="lgB5">—</b> 省）</span></div>
+          </div>
+
+          <!-- 地图右侧 产品/品类侧栏（随二级 tab 联动） -->
+          <div class="map-side" id="mapSide">
+            <div class="ms-hd">
+              <div class="ms-tt" id="msTitle">主要在产产品</div>
+              <div class="ms-sub" id="msSub">当前视图 · 制造商企业分布</div>
+              <div class="ms-cnt" id="msCnt">共 <b>0</b> 类 · 涉及 <b>0</b> 省</div>
+            </div>
+            <div class="ms-list" id="msList"></div>
+          </div>
+        </div>
+
+        <!-- 最新报价（按反馈：可降解材料七大类报价；产品/地区下拉，去掉时间筛选） -->
+        <div class="card tbl-card" id="priceCard">
+          <div class="card-title">可降解材料最新报价
+            <span class="more" id="priceMore">数据源：隆众资讯 / 化工网 ›</span>
+          </div>
+          <div class="tbl-tools">
+            <div class="sel sel-dd" id="priceCatSel" data-val="all">
+              <span class="sel-lbl">产品：</span><span class="sel-val">全部</span><span class="sel-arr">▾</span>
+              <div class="sel-dd-list" id="priceCatDd"></div>
+            </div>
+            <div class="sel sel-dd" id="priceAreaSel" data-val="all">
+              <span class="sel-lbl">地区：</span><span class="sel-val">全国</span><span class="sel-arr">▾</span>
+              <div class="sel-dd-list" id="priceAreaDd"></div>
+            </div>
+            <div class="sp"></div>
+            <button class="sb" id="priceQuery">查 询</button>
+          </div>
+          <div class="tbl-wrap">
+            <table id="priceTable">
+              <thead>
+                <tr>
+                  <th>产品名称</th>
+                  <th>产品型号</th>
+                  <th>企业名称</th>
+                  <th>地区</th>
+                  <th style="text-align:right">价格(元/吨)</th>
+                  <th>日期</th>
+                </tr>
+              </thead>
+              <tbody id="priceTbody"></tbody>
+            </table>
+          </div>
+          <div class="pag">
+            共 <b id="priceTotal" style="color:#3ad4ff;font-family:DIN,Arial;margin:0 3px">—</b> 条
+            <span class="pg">‹</span><span class="pg cur">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">…</span><span class="pg" id="pricePages">—</span><span class="pg">›</span>
+          </div>
+        </div>
+
+        <!-- 降解材料行业产值（平滑曲线，结构与"各月产量"完全一致） -->
+        <div class="card mini-card output-card" id="outputCard">
+          <div class="card-title">降解材料行业产值</div>
+          <div class="mini-body">
+            <div class="mini-stat-row">
+              <div class="mini-stat-num" id="outputNum">142.3</div>
+              <div class="mini-stat-unit">亿元/年</div>
+              <div class="mini-stat-cmp"><span class="tag-up" id="outputCmp">↑ 22.5%</span><span class="mini-cmp-l">同比</span></div>
+              <div class="mini-prod-sel" id="outputProdSel" style="margin-left:auto">
+                <span class="mps-l">产品：</span>
+                <span class="mps-v" id="outputProdVal">PBAT</span>
+                <span class="mps-a">▾</span>
+                <div class="mps-dd">
+                  <div class="mps-it cur" data-prod="PBAT">PBAT</div>
+                  <div class="mps-it" data-prod="PLA">PLA</div>
+                  <div class="mps-it" data-prod="PBS">PBS/PBSA</div>
+                  <div class="mps-it" data-prod="PHA">PHA</div>
+                  <div class="mps-it" data-prod="PGA">PGA</div>
+                  <div class="mps-it" data-prod="PCL">PCL</div>
+                  <div class="mps-it" data-prod="PPC">PPC</div>
+                </div>
+              </div>
+            </div>
+            <svg class="mini-chart" id="outputChart" viewBox="0 0 460 130" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="lgOutputArea" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#3ad4ff" stop-opacity=".55"/>
+                  <stop offset="60%" stop-color="#1797b8" stop-opacity=".18"/>
+                  <stop offset="100%" stop-color="#0a2d4a" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="lgOutputLine" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0%"  stop-color="#42d29a"/>
+                  <stop offset="50%" stop-color="#3ad4ff"/>
+                  <stop offset="100%" stop-color="#3ad4ff"/>
+                </linearGradient>
+              </defs>
+              <g stroke="rgba(80,180,210,.14)">
+                <line x1="34" y1="14" x2="450" y2="14"/>
+                <line x1="34" y1="44" x2="450" y2="44"/>
+                <line x1="34" y1="74" x2="450" y2="74"/>
+                <line x1="34" y1="104" x2="450" y2="104"/>
+              </g>
+              <g id="outputYAxis" fill="#5e85b0" font-size="8" font-family="DIN,Arial"></g>
+              <path id="outputArea" d="" fill="url(#lgOutputArea)"/>
+              <path id="outputLine" d="" fill="none" stroke="url(#lgOutputLine)" stroke-width="1.8"
+                    stroke-opacity=".6" stroke-linejoin="round" stroke-linecap="round"/>
+              <g id="outputDots" fill="#3ad4ff"></g>
+              <circle id="outputEndDot" cx="416" cy="36" r="2.8" fill="#3ad4ff" stroke="#fff" stroke-width=".6"/>
+              <text id="outputEndLbl" x="416" y="30" fill="#3ad4ff" font-size="9" font-weight="700" text-anchor="end" font-family="DIN,Arial">—</text>
+              <g class="output-hits" id="outputHits" fill="rgba(0,0,0,0)" style="cursor:pointer"></g>
+              <g fill="#7fa3c8" font-size="8" font-family="DIN,Arial" text-anchor="middle">
+                <text x="42"  y="118">1月</text>
+                <text x="76"  y="118">2月</text>
+                <text x="110" y="118">3月</text>
+                <text x="144" y="118">4月</text>
+                <text x="178" y="118">5月</text>
+                <text x="212" y="118">6月</text>
+                <text x="246" y="118">7月</text>
+                <text x="280" y="118">8月</text>
+                <text x="314" y="118">9月</text>
+                <text x="348" y="118">10月</text>
+                <text x="382" y="118">11月</text>
+                <text x="416" y="118">12月</text>
+              </g>
+            </svg>
+            <div class="mini-foot">12 个月行业产值趋势 · 数据：行业协会 / 海关 / 测算</div>
+          </div>
+        </div>
+
+        <!-- 新增右侧两个 mini 模块（按反馈："上月累计出口" + "全国降解材料制品各月产量"） -->
+        <div class="extra-col">
+          <!-- 上月累计出口（1:1 复刻原型：六边形图标 + 产品名 + 大数字 + 千克） -->
+          <div class="card mini-card">
+            <div class="card-title" style="padding:0">
+              <div class="expo-title" style="padding:11px 16px 9px">
+                <span class="diamond"></span>
+                <span class="ti">上月累计出口</span>
+                <span class="arrow-line"></span>
+                <span class="more">查看</span>
+              </div>
+            </div>
+            <div class="mini-body">
+              <div class="kpi-grid">
+                <div class="kpi-cell">
+                  <div class="hex-icon">
+                    <!-- 锥形烧瓶 — 化学合成 -->
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 3.2h6M10.2 3.2v4.2L6.4 18a2 2 0 0 0 1.85 2.8h7.5A2 2 0 0 0 17.6 18L13.8 7.4V3.2"/>
+                      <path d="M7.6 13h8.8"/>
+                      <circle cx="9.5" cy="16" r=".5" fill="currentColor"/>
+                      <circle cx="13" cy="17.5" r=".5" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div class="kpi-meta">
+                    <div class="kpi-lbl">PBAT</div>
+                    <div class="kpi-num">36247701<em>千克</em></div>
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="hex-icon">
+                    <!-- 分子结构 — 三原子聚合物链 -->
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="7.4" y1="7.6" x2="16.6" y2="7.6"/>
+                      <line x1="7.8" y1="9.2" x2="11.2" y2="15.4"/>
+                      <line x1="16.2" y1="9.2" x2="12.8" y2="15.4"/>
+                      <circle cx="6" cy="7" r="2.6" fill="rgba(8,22,40,.5)"/>
+                      <circle cx="18" cy="7" r="2.6" fill="rgba(8,22,40,.5)"/>
+                      <circle cx="12" cy="17" r="2.6" fill="rgba(8,22,40,.5)"/>
+                    </svg>
+                  </div>
+                  <div class="kpi-meta">
+                    <div class="kpi-lbl">PBS</div>
+                    <div class="kpi-num">07720<em>千克</em></div>
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="hex-icon">
+                    <!-- 化学桶 — 储运 -->
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M7 5h10v15a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5z"/>
+                      <path d="M7 5c0-.55.45-1 1-1h8c.55 0 1 .45 1 1"/>
+                      <path d="M7 9.5h10M7 13.5h10M7 17.5h10"/>
+                      <path d="M10 4V3h4v1"/>
+                    </svg>
+                  </div>
+                  <div class="kpi-meta">
+                    <div class="kpi-lbl">PBSA</div>
+                    <div class="kpi-num">17860<em>千克</em></div>
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="hex-icon">
+                    <!-- 塑料颗粒 — 成品粒料 -->
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                      <ellipse cx="9" cy="10" rx="2.6" ry="1.8" transform="rotate(-25 9 10)"/>
+                      <ellipse cx="15" cy="10" rx="2.6" ry="1.8" transform="rotate(20 15 10)"/>
+                      <ellipse cx="7" cy="15.5" rx="2.6" ry="1.8" transform="rotate(15 7 15.5)"/>
+                      <ellipse cx="12.5" cy="15.5" rx="2.6" ry="1.8" transform="rotate(-20 12.5 15.5)"/>
+                      <ellipse cx="17.5" cy="15.5" rx="2.6" ry="1.8" transform="rotate(30 17.5 15.5)"/>
+                    </svg>
+                  </div>
+                  <div class="kpi-meta">
+                    <div class="kpi-lbl">PBST</div>
+                    <div class="kpi-num">38871<em>千克</em></div>
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="hex-icon">
+                    <!-- 双螺旋 — 微生物发酵生产 -->
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M8 4c0 4 8 4 8 8s-8 4-8 8"/>
+                      <path d="M16 4c0 4-8 4-8 8s8 4 8 8"/>
+                      <line x1="9.2" y1="7" x2="14.8" y2="7"/>
+                      <line x1="9.2" y1="12" x2="14.8" y2="12"/>
+                      <line x1="9.2" y1="17" x2="14.8" y2="17"/>
+                    </svg>
+                  </div>
+                  <div class="kpi-meta">
+                    <div class="kpi-lbl">PHA</div>
+                    <div class="kpi-num">12450<em>千克</em></div>
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="hex-icon">
+                    <!-- 三联蜂窝 — 高阻隔结构 -->
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 4l3-1.5 3 1.5v3l-3 1.5-3-1.5z"/>
+                      <path d="M4 13l3-1.5 3 1.5v3l-3 1.5-3-1.5z"/>
+                      <path d="M14 13l3-1.5 3 1.5v3l-3 1.5-3-1.5z"/>
+                    </svg>
+                  </div>
+                  <div class="kpi-meta">
+                    <div class="kpi-lbl">PGA</div>
+                    <div class="kpi-num">8932<em>千克</em></div>
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="hex-icon">
+                    <!-- 6 元环 — 环内酯结构 -->
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12.5" y1="7" x2="16.5" y2="9.2"/>
+                      <line x1="17.5" y1="11" x2="17.5" y2="14"/>
+                      <line x1="16.5" y1="15.8" x2="12.5" y2="18"/>
+                      <line x1="11.5" y1="18" x2="7.5" y2="15.8"/>
+                      <line x1="6.5" y1="14" x2="6.5" y2="11"/>
+                      <line x1="7.5" y1="9.2" x2="11.5" y2="7"/>
+                      <circle cx="12" cy="6.5" r="1.5" fill="rgba(8,22,40,.6)"/>
+                      <circle cx="17.5" cy="9.5" r="1.5" fill="rgba(8,22,40,.6)"/>
+                      <circle cx="17.5" cy="15.5" r="1.5" fill="rgba(8,22,40,.6)"/>
+                      <circle cx="12" cy="18.5" r="1.5" fill="rgba(8,22,40,.6)"/>
+                      <circle cx="6.5" cy="15.5" r="1.5" fill="rgba(8,22,40,.6)"/>
+                      <circle cx="6.5" cy="9.5" r="1.5" fill="rgba(8,22,40,.6)"/>
+                    </svg>
+                  </div>
+                  <div class="kpi-meta">
+                    <div class="kpi-lbl">PCL</div>
+                    <div class="kpi-num">15670<em>千克</em></div>
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="hex-icon">
+                    <!-- CO2 → 化学瓶（CO2 基聚合物） -->
+                    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 9.5h6v10a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z"/>
+                      <path d="M10.5 9.5V6.5h3v3"/>
+                      <circle cx="12" cy="14" r="1.3" fill="currentColor"/>
+                      <circle cx="10" cy="17.5" r=".9" fill="currentColor"/>
+                      <circle cx="14" cy="17.5" r=".9" fill="currentColor"/>
+                      <path d="M7 5l2-1M17 5l-2-1"/>
+                    </svg>
+                  </div>
+                  <div class="kpi-meta">
+                    <div class="kpi-lbl">PPC</div>
+                    <div class="kpi-num">4215<em>千克</em></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 全国降解材料制品各月产量（平滑曲线 + 产品下拉） -->
+          <div class="card mini-card">
+            <div class="card-title">全国降解材料制品各月产量</div>
+            <div class="mini-body">
+              <div class="mini-stat-row">
+                <div class="mini-stat-num" id="prodMonthlyNum">25.3</div>
+                <div class="mini-stat-unit">万吨/月</div>
+                <div class="mini-stat-cmp"><span class="tag-up" id="prodMonthlyCmp">↑ 18.5%</span><span class="mini-cmp-l">同比</span></div>
+                <div class="mini-prod-sel" id="prodMonthlySel" style="margin-left:auto">
+                  <span class="mps-l">产品：</span>
+                  <span class="mps-v" id="prodMonthlyVal">PBAT</span>
+                  <span class="mps-a">▾</span>
+                  <div class="mps-dd">
+                    <div class="mps-it cur" data-prod="PBAT">PBAT</div>
+                    <div class="mps-it" data-prod="PLA">PLA</div>
+                    <div class="mps-it" data-prod="PBS">PBS/PBSA</div>
+                    <div class="mps-it" data-prod="PHA">PHA</div>
+                    <div class="mps-it" data-prod="PGA">PGA</div>
+                    <div class="mps-it" data-prod="PCL">PCL</div>
+                    <div class="mps-it" data-prod="PPC">PPC</div>
+                  </div>
+                </div>
+              </div>
+              <svg class="mini-chart" id="prodMonthlyChart" viewBox="0 0 460 130" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="lgProdArea" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#3ad4ff" stop-opacity=".55"/>
+                    <stop offset="60%" stop-color="#1797b8" stop-opacity=".18"/>
+                    <stop offset="100%" stop-color="#0a2d4a" stop-opacity="0"/>
+                  </linearGradient>
+                  <linearGradient id="lgProdLine" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0%"  stop-color="#42d29a"/>
+                    <stop offset="50%" stop-color="#3ad4ff"/>
+                    <stop offset="100%" stop-color="#3ad4ff"/>
+                  </linearGradient>
+                </defs>
+                <!-- 网格 -->
+                <g stroke="rgba(80,180,210,.14)">
+                  <line x1="34" y1="14" x2="450" y2="14"/>
+                  <line x1="34" y1="44" x2="450" y2="44"/>
+                  <line x1="34" y1="74" x2="450" y2="74"/>
+                  <line x1="34" y1="104" x2="450" y2="104"/>
+                </g>
+                <!-- Y 轴刻度（万吨/月，由 JS 按产品动态写入） -->
+                <g id="prodYAxis" fill="#5e85b0" font-size="8" font-family="DIN,Arial"></g>
+                <!-- 面积 + 趋势线（路径由 JS 用 Catmull-Rom 平滑生成，确保过点无折角） -->
+                <path id="prodArea" d="" fill="url(#lgProdArea)"/>
+                <path id="prodLine" d="" fill="none" stroke="url(#lgProdLine)" stroke-width="1.8"
+                      stroke-opacity=".6" stroke-linejoin="round" stroke-linecap="round"/>
+                <!-- 每月数据点（由 JS 动态填充） -->
+                <g id="prodDots" fill="#3ad4ff"></g>
+                <!-- 当前月端点高亮（白边，比其他月份大一圈） -->
+                <circle id="prodEndDot" cx="416" cy="36" r="2.8" fill="#3ad4ff" stroke="#fff" stroke-width=".6"/>
+                <text id="prodEndLbl" x="416" y="30" fill="#3ad4ff" font-size="9" font-weight="700" text-anchor="end" font-family="DIN,Arial">60.0</text>
+                <!-- 透明悬浮命中区（按月分段，仍可显示提示） -->
+                <g class="prod-hits" id="prodHits" fill="rgba(0,0,0,0)" style="cursor:pointer"></g>
+                <!-- X 轴月份 -->
+                <g fill="#7fa3c8" font-size="8" font-family="DIN,Arial" text-anchor="middle">
+                  <text x="42"  y="118">1月</text>
+                  <text x="76"  y="118">2月</text>
+                  <text x="110" y="118">3月</text>
+                  <text x="144" y="118">4月</text>
+                  <text x="178" y="118">5月</text>
+                  <text x="212" y="118">6月</text>
+                  <text x="246" y="118">7月</text>
+                  <text x="280" y="118">8月</text>
+                  <text x="314" y="118">9月</text>
+                  <text x="348" y="118">10月</text>
+                  <text x="382" y="118">11月</text>
+                  <text x="416" y="118">12月</text>
+                </g>
+              </svg>
+              <div class="mini-foot">全国 12 月制品产量趋势 · 数据：海关 / 行业协会</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 省份详情抽屉 -->
+    <div class="dl-mask" id="dlMask"></div>
+    <div class="dl-panel" id="dlPanel">
+      <button class="dl-close" id="dlClose">×</button>
+      <div class="dl-hd" id="dlHead"></div>
+      <div class="dl-body" id="dlBody"></div>
+    </div>
+
+    <!-- 地图品类下钻弹窗（保留，供 openCatModal 使用） -->
+    <div class="s-modal" id="patModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="patClose">×</button>
+        <div class="s-modal-hd" id="patHead"></div>
+        <div class="s-modal-body" id="patBody"></div>
+      </div>
+    </div>
+
+    <!-- 政策列表弹窗 -->
+    <div class="s-modal" id="policyListModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="polListClose">×</button>
+        <div class="s-modal-hd">
+          <div class="h1">政策列表</div>
+          <button class="s-modal-close" style="position:static;display:none"></button>
+        </div>
+        <div class="s-modal-body" id="polListBody"></div>
+      </div>
+    </div>
+
+    <!-- 政策详情弹窗 -->
+    <div class="s-modal" id="policyDetailModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="polDetailClose">×</button>
+        <div class="s-modal-hd"><div class="h1">政策详情</div></div>
+        <div class="s-modal-body" id="polDetailBody"></div>
+      </div>
+    </div>
+
+    <!-- 标准列表弹窗 -->
+    <div class="s-modal" id="stdListModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="stdListClose">×</button>
+        <div class="s-modal-hd"><div class="h1" id="stdListTitle">标准列表</div></div>
+        <div class="s-modal-body" id="stdListBody"></div>
+      </div>
+    </div>
+
+    <!-- 标准详情弹窗 -->
+    <div class="s-modal" id="stdDetailModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="stdDetailClose">×</button>
+        <div class="s-modal-hd"><div class="h1" id="stdDetailTitle">标准详情</div></div>
+        <div class="s-modal-body" id="stdDetailBody"></div>
+      </div>
+    </div>
+
+    <!-- 专利列表弹窗（行业创新柱形点击下钻） -->
+    <div class="s-modal" id="patListModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="patListClose">×</button>
+        <div class="s-modal-hd"><div class="h1" id="patListTitle">专利列表</div></div>
+        <div class="s-modal-body" id="patListBody"></div>
+      </div>
+    </div>
+
+    <!-- 专利详情弹窗 -->
+    <div class="s-modal" id="patDetailModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="patDetailClose">×</button>
+        <div class="s-modal-hd"><div class="h1" id="patDetailTitle">专利详情</div></div>
+        <div class="s-modal-body" id="patDetailBody"></div>
+      </div>
+    </div>
+
+    <!-- 企业详情弹窗（工商信息） -->
+    <div class="s-modal" id="compDetailModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="compDetailClose">×</button>
+        <div class="s-modal-hd"><div class="h1" id="compDetailTitle">企业详情</div></div>
+        <div class="s-modal-body" id="compDetailBody"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 图表悬浮提示：放在 .screen 外面，避免被 transform: scale() 当成定位容器导致坐标错位 -->
+<div class="chart-tip" id="chartTip"></div>
+
+<script>
+// ── 自适应缩放：保持 1920×1080 比例
+function fit(){
+  const s=document.getElementById('screen');
+  const sx=window.innerWidth/1920, sy=window.innerHeight/1080;
+  const k=Math.min(sx,sy);
+  s.style.transform='scale('+k+')';
+}
+window.addEventListener('resize',fit); fit();
+
+// ── 1+11 产业链数据（按 驾驶舱-产业链版图-2.html 中实际 11 条线命名）
+const chainList=[
+  {key:'all',     name:'降解材料产业链图谱 — 总图谱', group:'总图谱'},
+  // 植物基 6 条
+  {key:'starch',  name:'淀粉链',       group:'植物基'},
+  {key:'cell',    name:'纤维素链',     group:'植物基'},
+  {key:'hemi',    name:'半纤维素链',   group:'植物基'},
+  {key:'plant-oil',name:'植物油脂链',  group:'植物基'},
+  {key:'plant-pro',name:'植物蛋白链',  group:'植物基'},
+  {key:'plant-gel',name:'植物胶体链',  group:'植物基'},
+  // 动物基 3 条
+  {key:'ani-pro', name:'动物蛋白链',   group:'动物基'},
+  {key:'ani-oil', name:'动物油脂链',   group:'动物基'},
+  {key:'chitin',  name:'生物甲壳链',   group:'动物基'},
+  // 石油基 2 条
+  {key:'coal',    name:'煤炭链',       group:'石油基'},
+  {key:'oil',     name:'石油链',       group:'石油基'}
+];
+// 两套独立的产业链状态：地图卡 / 行业创新卡，互不联动
+let mapChain   = 'all';
+let innovChain = 'all';
+// 通用：在指定容器内构造产业链下拉（含分组标题）
+function buildChainDdHtml(curKey){
+  const groups=['总图谱','植物基','动物基','石油基'];
+  let html='';
+  groups.forEach(g=>{
+    const items=chainList.filter(c=>c.group===g);
+    if(!items.length) return;
+    const headLabel = g==='总图谱' ? g : (g+'（'+items.length+' 条）');
+    html+='<div class="chain-dd-hd">'+headLabel+'</div>';
+    items.forEach(c=>{
+      html+='<div class="chain-dd-it'+(c.key===curKey?' cur':'')+'" data-key="'+c.key+'">'+c.name+'</div>';
+    });
+  });
+  return html;
+}
+// 通用：每个 chain-sel 维护自己的状态，仅更新自身显示，不影响其他 chain-sel
+function bindChainSel(selId, getCur, setCur, onChange){
+  const sel=document.getElementById(selId);
+  if(!sel) return;
+  const dd=sel.querySelector('.chain-dd');
+  const valEl=sel.querySelector('[data-chain-val]');
+  if(!dd) return;
+  dd.innerHTML=buildChainDdHtml(getCur());
+  sel.addEventListener('click',e=>{
+    if(e.target.classList.contains('chain-dd-it')){
+      const key=e.target.dataset.key;
+      const c=chainList.find(x=>x.key===key);
+      if(c){
+        setCur(key);
+        if(valEl) valEl.textContent=c.name;     // 只更新本下拉的显示文本
+        dd.innerHTML=buildChainDdHtml(key);     // 只更新本下拉的选中态
+        if(onChange) onChange(key);
+      }
+      sel.classList.remove('open');
+      e.stopPropagation();
+      return;
+    }
+    document.querySelectorAll('.chain-sel.open').forEach(s=>{ if(s!==sel) s.classList.remove('open'); });
+    sel.classList.toggle('open');
+    e.stopPropagation();
+  });
+}
+document.addEventListener('click',()=>document.querySelectorAll('.chain-sel.open').forEach(s=>s.classList.remove('open')));
+// 在 DOM 完成插入后初始化两个 chain-sel（行业创新 + 地图卡）+ 行业创新产品下拉
+function initAllChainSels(){
+  // 行业创新：切链 → 重置产品下拉为"全部" + 重算专利数
+  bindChainSel('innovChainSel',
+    ()=>innovChain,
+    k=>{ innovChain=k; },
+    k=>{
+      curInnovProd='all';
+      if (typeof renderInnovProdSel==='function') renderInnovProdSel();
+      if (typeof updateInnovNum==='function')     updateInnovNum();
+    });
+  // 地图：切链 → 重新渲染右侧品类侧栏（不影响行业创新）
+  bindChainSel('mapChainSel',
+    ()=>mapChain,
+    k=>{ mapChain=k; },
+    k=>{
+      if (window.renderMapSide) window.renderMapSide();
+    });
+  if (typeof bindInnovProdSel === 'function') bindInnovProdSel();
+}
+
+// ══════════════ 政策动态模块（卡片 5 条 + 列表弹窗 + 详情弹窗） ══════════════
+const policyData = [
+  { id:'P001', name:'《关于进一步加强塑料污染治理的意见》',          date:'2025-01-20', org:'国家发改委、生态环境部、工信部',         type:'综合治理', code:'发改环资〔2025〕35号',
+    summary:'政策简介：为深入贯彻中央经济工作会议精神，承接好国家超常规逆周期调节政策措施，加快推进塑料污染全链条治理，重点支持生物可降解材料替代...',
+    content:'为深入贯彻中央经济工作会议精神，承接好国家超常规逆周期调节政策措施，加快推进塑料污染全链条治理，重点支持生物可降解材料对传统塑料的替代应用。围绕禁限重点品类、生产、流通、使用、回收等关键环节，部署源头减量、循环利用、终端治理等系列举措，引导降解材料行业向更高水平发展，对单个项目固定资产投资不低于 1000 万元的，按不超过设备投入 10% 的比例，择优给予最高 200 万元奖补。',
+    attach:'《关于进一步加强塑料污染治理的意见》.pdf' },
+  { id:'P002', name:'《关于加快生物可降解塑料应用的指导意见》',      date:'2025-01-15', org:'工业和信息化部',                       type:'应用导向', code:'工信部联节〔2025〕14号',
+    summary:'政策简介：聚焦减塑禁塑工作部署，明确生物可降解材料在快递、餐饮、农业地膜等重点应用场景中的推广路径...',
+    content:'聚焦减塑禁塑工作部署，明确生物可降解材料在快递、餐饮、农业地膜等重点应用场景中的推广路径。鼓励产业链上下游协同，加大改性、共混、母粒等关键技术的研发投入，提升下游应用配方稳定性和成本竞争力。',
+    attach:'《关于加快生物可降解塑料应用的指导意见》.doc' },
+  { id:'P003', name:'《新疆维吾尔自治区生物降解材料产业发展规划（2025-2030）》', date:'2025-01-08', org:'新疆维吾尔自治区人民政府', type:'地方规划', code:'新政发〔2025〕3号',
+    summary:'政策简介：以乌鲁木齐、昌吉、伊犁、塔城等为核心，规划到2030年建成西北地区最大的生物可降解新材料产业基地...',
+    content:'以乌鲁木齐、昌吉、伊犁、塔城等为核心，规划到 2030 年建成西北地区最大的生物可降解新材料产业基地，重点支持 BDO、PBAT、PLA 等龙头项目落地，对入园企业给予税收减免、用电用水补贴和厂房租金扶持。',
+    attach:'《新疆维吾尔自治区生物降解材料产业发展规划（2025-2030）》.pdf' },
+  { id:'P004', name:'《支持企业高质量发展若干政策措施》',            date:'2025-06-16', org:'市发展改革委 市经济信息委 市财政局 市商务委', type:'支持企业技术改造', code:'',
+    summary:'政策简介：支持企业、园区实施节能降碳、节水、清洁生产等领域技改，开展动力电池和工业固废资源化利用...',
+    content:'支持企业、园区实施节能降碳、节水、清洁生产等领域技改，开展动力电池和工业固废资源化利用，对单个项目固定资产投资不低于 1000 万元的，按不超过设备投入 10% 的比例，择优给予最高 200 万元奖补。',
+    attach:'《支持企业高质量发展若干政策措施》.doc' },
+  { id:'P005', name:'《推进绿色低碳新材料产业高质量发展行动方案》',  date:'2024-12-26', org:'工信部、科技部、生态环境部',           type:'产业政策', code:'工信部联材〔2024〕213号',
+    summary:'政策简介：聚焦可降解材料、生物基材料、再生塑料等绿色材料领域，部署中长期发展路径，培育龙头企业...',
+    content:'聚焦可降解材料、生物基材料、再生塑料等绿色材料领域，部署中长期发展路径。培育龙头企业、专精特新"小巨人"企业；强化国家科技重大专项支持，加快重点品种产业化突破。',
+    attach:'《推进绿色低碳新材料产业高质量发展行动方案》.pdf' },
+  { id:'P006', name:'《关于推动塑料制品全生命周期管理的实施方案》',  date:'2024-11-04', org:'国家发改委、商务部',                   type:'综合治理', code:'',
+    summary:'政策简介：聚焦塑料制品全生命周期管理，明确生产、流通、回收、再生利用等各环节责任...',
+    content:'明确生产、流通、回收、再生利用等环节的主体责任和监管要求，建立全生命周期数据归集体系，强化产品标识与追溯，推动绿色设计与生态化处置。',
+    attach:'《关于推动塑料制品全生命周期管理的实施方案》.pdf' },
+  { id:'P007', name:'《农膜回收利用与可降解地膜推广行动计划》',      date:'2024-09-18', org:'农业农村部、生态环境部',               type:'应用导向', code:'',
+    summary:'政策简介：聚焦农膜回收与可降解地膜推广，重点支持西北、东北等地区试点示范...',
+    content:'聚焦农膜回收与可降解地膜推广，重点支持西北、东北等地区试点示范。对采用可降解地膜的种植主体按面积给予补贴，建设回收处理示范园区。',
+    attach:'《农膜回收利用与可降解地膜推广行动计划》.pdf' },
+  { id:'P008', name:'《关于支持生物制造产业发展的指导意见》',        date:'2024-07-22', org:'国家发改委、工信部、科技部',            type:'产业政策', code:'',
+    summary:'政策简介：支持生物制造产业发展，包括 PHA、PLA、L-乳酸等生物基材料及其上下游环节...',
+    content:'明确支持 PHA、PLA、L-乳酸等生物基材料及其上下游环节，加大菌种工程、合成生物学、发酵工艺等关键技术攻关力度，鼓励应用示范基地建设。',
+    attach:'《关于支持生物制造产业发展的指导意见》.pdf' },
+];
+
+function renderPolicyCard(){
+  const el = document.getElementById('policyListMain');
+  if (!el) return;
+  el.innerHTML = policyData.slice(0,5).map(p => (
+    '<div class="pol" data-id="'+p.id+'">'+
+      '<div class="pol-name" data-id="'+p.id+'" title="点击查看详情">'+p.name+'</div>'+
+      '<div class="pol-date">发布日期：'+p.date+'  ·  发布机构：'+p.org+'</div>'+
+      '<div class="pol-sum">'+p.summary+'</div>'+
+    '</div>'
+  )).join('');
+  el.querySelectorAll('.pol-name').forEach(n => n.addEventListener('click', () => openPolicyDetail(n.dataset.id)));
+}
+renderPolicyCard();
+
+// 政策列表弹窗
+function openPolicyList(){
+  const body = document.getElementById('polListBody');
+  const PAGE = 10;
+  let cur = 1, kw = '';
+  function render(){
+    const filtered = kw ? policyData.filter(p => p.name.indexOf(kw)>=0 || p.org.indexOf(kw)>=0) : policyData;
+    const total = filtered.length, pages = Math.max(1, Math.ceil(total/PAGE));
+    if (cur > pages) cur = pages;
+    const slice = filtered.slice((cur-1)*PAGE, cur*PAGE);
+    body.innerHTML =
+      '<div class="s-search">'+
+        '<input id="polKw" placeholder="按政策名称 / 发布机构搜索" value="'+kw+'"/>'+
+        '<button>查询</button>'+
+      '</div>'+
+      '<table class="s-tbl">'+
+        '<thead><tr>'+
+          '<th style="width:50%">政策名称</th>'+
+          '<th style="width:18%">发布日期</th>'+
+          '<th style="width:22%">发布机构</th>'+
+          '<th style="width:10%;text-align:center">操作</th>'+
+        '</tr></thead><tbody>'+
+        (slice.length ? slice.map(p => (
+          '<tr>'+
+            '<td><div class="s-tbl-name" data-id="'+p.id+'">'+p.name+'</div>'+
+              '<div class="s-tbl-sum">'+p.summary+'</div></td>'+
+            '<td style="font-family:DIN,Arial;color:#a8c4e0">'+p.date+'</td>'+
+            '<td style="color:#a8c4e0">'+p.org+'</td>'+
+            '<td style="text-align:center"><span class="s-detail-btn" data-id="'+p.id+'">详情</span></td>'+
+          '</tr>'
+        )).join('') : '<tr><td colspan="4" style="text-align:center;color:#5e85b0;padding:60px 0">⌕  未找到匹配的政策</td></tr>')+
+        '</tbody></table>'+
+      '<div class="s-pag">'+
+        '<span class="info">共 <b>'+total+'</b> 条 · 第 <b>'+cur+'</b> / '+pages+' 页</span>'+
+        '<span class="pg" data-go="'+(cur-1)+'"'+(cur<=1?' style="opacity:.4;pointer-events:none"':'')+'>上一页</span>'+
+        Array.from({length:Math.min(pages,5)}, (_,k)=>{ const p=k+1; return '<span class="pg'+(p===cur?' cur':'')+'" data-go="'+p+'">'+p+'</span>'; }).join('')+
+        '<span class="pg" data-go="'+(cur+1)+'"'+(cur>=pages?' style="opacity:.4;pointer-events:none"':'')+'>下一页</span>'+
+      '</div>';
+    // 行内点击
+    body.querySelectorAll('.s-tbl-name').forEach(n => n.addEventListener('click', () => openPolicyDetail(n.dataset.id)));
+    body.querySelectorAll('.s-detail-btn').forEach(n => n.addEventListener('click', () => openPolicyDetail(n.dataset.id)));
+    // 分页
+    body.querySelectorAll('.s-pag .pg').forEach(p => p.addEventListener('click', () => {
+      const g = parseInt(p.dataset.go);
+      if (!isNaN(g) && g>=1 && g<=pages) { cur = g; render(); }
+    }));
+    // 搜索框
+    const kwEl = document.getElementById('polKw');
+    if (kwEl) kwEl.addEventListener('input', e => { kw = e.target.value.trim(); cur = 1; render(); });
+  }
+  render();
+  document.getElementById('policyListModal').classList.add('show');
+}
+document.getElementById('polMoreBtn').addEventListener('click', openPolicyList);
+document.getElementById('polListClose').addEventListener('click', () => document.getElementById('policyListModal').classList.remove('show'));
+document.getElementById('policyListModal').addEventListener('click', e => {
+  if (e.target.id === 'policyListModal') document.getElementById('policyListModal').classList.remove('show');
+});
+
+// 政策详情弹窗
+function openPolicyDetail(id){
+  const p = policyData.find(x => x.id === id) || policyData[0];
+  document.querySelector('#policyDetailModal .s-modal-hd .h1').textContent = '政策详情';
+  document.getElementById('polDetailBody').innerHTML =
+    '<div class="s-detail-sect-h">基本信息</div>'+
+    '<div class="s-detail-grid">'+
+      '<div>政策类型</div><div>'+(p.type||'-')+'</div>'+
+      '<div>发布机构</div><div>'+(p.org||'-')+'</div>'+
+      '<div>成文日期</div><div>'+(p.date||'-')+'</div>'+
+      '<div>发布日期</div><div>'+(p.date||'-')+'</div>'+
+      '<div>发字文号</div><div>'+(p.code||'-')+'</div>'+
+      '<div>标题</div><div>'+p.name+'</div>'+
+    '</div>'+
+    '<div class="s-detail-sect-h">政策正文</div>'+
+    '<div class="s-detail-content">'+p.content+'</div>'+
+    '<div class="s-detail-sect-h">附件</div>'+
+    '<div class="s-detail-attach">'+
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ad4ff" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>'+
+      '<span style="flex:1">'+p.attach+'</span>'+
+      '<a>下载</a>'+
+    '</div>';
+  document.getElementById('policyDetailModal').classList.add('show');
+}
+document.getElementById('polDetailClose').addEventListener('click', () => document.getElementById('policyDetailModal').classList.remove('show'));
+document.getElementById('policyDetailModal').addEventListener('click', e => {
+  if (e.target.id === 'policyDetailModal') document.getElementById('policyDetailModal').classList.remove('show');
+});
+
+
+// ══════════════ 行业标准模块（4 圆形 stat + 小列表 + 列表/详情弹窗） ══════════════
+// 6 个标准数据（覆盖三大类型，演示用）
+const standardData = [
+  { id:'S001', type:'国家标准', name:'生物降解聚对苯二甲酸-己二酸丁二酯',   code:'GB/T 32366-2025',  status:'现行', date:'2025-01-20', implDate:'2025-07-01', cls:'-',     iso:'49.050',
+    org:'-', author:'安徽劲旋风科技有限公司',                  scope:'-', recCode:'-', recDate:'-' },
+  { id:'S002', type:'国家标准', name:'生物降解聚乳酸 (PLA) 树脂',           code:'GB/T 39728-2024',  status:'现行', date:'2024-12-15', implDate:'2025-06-01', cls:'G31',   iso:'83.080',
+    org:'全国塑料制品标准化技术委员会', author:'中国石化股份有限公司', scope:'适用于生物降解聚乳酸（PLA）树脂的命名、分类、技术要求、试验方法、检验规则、包装、标志、运输和储存。', recCode:'-', recDate:'-' },
+  { id:'S003', type:'国家标准', name:'生物降解聚己内酯 (PCL) 切片',         code:'GB/T 40612-2024',  status:'现行', date:'2024-08-30', implDate:'2025-03-01', cls:'G31',   iso:'83.080',
+    org:'全国塑料制品标准化技术委员会', author:'中国科学院化学研究所',         scope:'适用于以ε-己内酯为单体经开环聚合反应得到的聚己内酯切片产品。', recCode:'-', recDate:'-' },
+  { id:'S004', type:'行业标准', name:'PBAT 改性母粒通用技术规范',           code:'HG/T 6128-2025',  status:'现行', date:'2025-03-12', implDate:'2025-09-01', cls:'G31',   iso:'-',
+    org:'中国石油和化学工业联合会', author:'金发科技股份有限公司',        scope:'适用于以聚己二酸-对苯二甲酸-丁二醇酯 (PBAT) 为基体的改性母粒。', recCode:'HG-2025-018', recDate:'2025-04-10' },
+  { id:'S005', type:'行业标准', name:'生物降解农用地膜技术要求',           code:'HG/T 5984-2024',   status:'现行', date:'2024-10-09', implDate:'2025-04-01', cls:'G31',   iso:'-',
+    org:'中国石油和化学工业联合会', author:'中国农业科学院农业环境与可持续发展研究所',  scope:'适用于以可生物降解树脂为主要原料生产的农用地膜。', recCode:'-', recDate:'-' },
+  { id:'S006', type:'行业标准', name:'PHA 生物合成树脂质量评价规范',       code:'HG/T 6090-2024',  status:'现行', date:'2024-06-28', implDate:'2024-12-01', cls:'G31',   iso:'-',
+    org:'中国石油和化学工业联合会', author:'蓝晶微生物（北京）股份有限公司', scope:'适用于以聚羟基脂肪酸酯 (PHA) 为基体材料的树脂产品质量评价。', recCode:'-', recDate:'-' },
+  { id:'S007', type:'团体标准', name:'生物降解聚对苯二甲酸-己二酸-丁二醇酯/聚乳酸 (PBAT/PLA) 共混料', code:'T/XJBX 001-2024', status:'现行', date:'2024-07-05', implDate:'2024-03-01', cls:'-', iso:'49.050',
+    org:'-', author:'安徽劲旋风科技有限公司',                  scope:'-', recCode:'-', recDate:'-' },
+];
+const stdCounts = { '国家标准':15, '行业标准':11, '地方标准':0, '团体标准':0 };
+
+function renderStdListMini(){
+  const el = document.getElementById('stdList');
+  if (!el) return;
+  el.innerHTML = standardData.slice(0,5).map(s => (
+    '<div class="std-row-item" data-id="'+s.id+'">'+
+      '<span class="std-rn" title="'+s.name+'">'+s.name+'</span>'+
+      '<span class="std-rtag">'+s.type+'</span>'+
+      '<span class="std-rdate">'+s.date+'</span>'+
+    '</div>'
+  )).join('');
+  el.querySelectorAll('.std-row-item').forEach(it => it.addEventListener('click', () => openStdDetail(it.dataset.id)));
+}
+renderStdListMini();
+
+// 4 圆形 stat 点击 → 打开按类型筛选的标准列表
+document.querySelectorAll('.std-cir').forEach(c => c.addEventListener('click', () => openStdList(c.dataset.type)));
+
+// 标准列表弹窗
+function openStdList(filterType){
+  const body = document.getElementById('stdListBody');
+  const titleEl = document.getElementById('stdListTitle');
+  titleEl.textContent = filterType ? ('标准列表 - ' + filterType + '（' + (stdCounts[filterType]||0) + ' 项）') : '标准列表';
+  const PAGE = 10;
+  let cur = 1, kw = '';
+  function render(){
+    let base = filterType ? standardData.filter(s => s.type === filterType) : standardData;
+    if (kw) base = base.filter(s => s.name.indexOf(kw)>=0 || s.code.indexOf(kw)>=0);
+    const total = base.length, pages = Math.max(1, Math.ceil(total/PAGE));
+    if (cur > pages) cur = pages;
+    const slice = base.slice((cur-1)*PAGE, cur*PAGE);
+    body.innerHTML =
+      '<div class="s-search">'+
+        '<input id="stdKw" placeholder="按标准名称 / 标准号搜索" value="'+kw+'"/>'+
+        '<button>查询</button>'+
+      '</div>'+
+      '<table class="s-tbl">'+
+        '<thead><tr>'+
+          '<th style="width:48%">标准名称</th>'+
+          '<th style="width:18%">标准号</th>'+
+          '<th style="width:14%">发布日期</th>'+
+          '<th style="width:10%">类型</th>'+
+          '<th style="width:10%;text-align:center">操作</th>'+
+        '</tr></thead><tbody>'+
+        (slice.length ? slice.map(s => (
+          '<tr>'+
+            '<td><div class="s-tbl-name" data-id="'+s.id+'">'+s.name+'</div></td>'+
+            '<td><span class="s-tbl-no">'+s.code+'</span></td>'+
+            '<td style="font-family:DIN,Arial;color:#a8c4e0">'+s.date+'</td>'+
+            '<td><span class="std-rtag">'+s.type+'</span></td>'+
+            '<td style="text-align:center"><span class="s-detail-btn" data-id="'+s.id+'">详情</span></td>'+
+          '</tr>'
+        )).join('') : '<tr><td colspan="5" style="text-align:center;color:#5e85b0;padding:60px 0">⌕  当前类型暂无标准</td></tr>')+
+        '</tbody></table>'+
+      '<div class="s-pag">'+
+        '<span class="info">共 <b>'+total+'</b> 条 · 第 <b>'+cur+'</b> / '+pages+' 页</span>'+
+        '<span class="pg" data-go="'+(cur-1)+'"'+(cur<=1?' style="opacity:.4;pointer-events:none"':'')+'>上一页</span>'+
+        Array.from({length:Math.min(pages,5)}, (_,k)=>{ const p=k+1; return '<span class="pg'+(p===cur?' cur':'')+'" data-go="'+p+'">'+p+'</span>'; }).join('')+
+        '<span class="pg" data-go="'+(cur+1)+'"'+(cur>=pages?' style="opacity:.4;pointer-events:none"':'')+'>下一页</span>'+
+      '</div>';
+    body.querySelectorAll('.s-tbl-name').forEach(n => n.addEventListener('click', () => openStdDetail(n.dataset.id)));
+    body.querySelectorAll('.s-detail-btn').forEach(n => n.addEventListener('click', () => openStdDetail(n.dataset.id)));
+    body.querySelectorAll('.s-pag .pg').forEach(pg => pg.addEventListener('click', () => {
+      const g = parseInt(pg.dataset.go);
+      if (!isNaN(g) && g>=1 && g<=pages) { cur = g; render(); }
+    }));
+    const kwEl = document.getElementById('stdKw');
+    if (kwEl) kwEl.addEventListener('input', e => { kw = e.target.value.trim(); cur = 1; render(); });
+  }
+  render();
+  document.getElementById('stdListModal').classList.add('show');
+}
+document.getElementById('stdListClose').addEventListener('click', () => document.getElementById('stdListModal').classList.remove('show'));
+document.getElementById('stdListModal').addEventListener('click', e => {
+  if (e.target.id === 'stdListModal') document.getElementById('stdListModal').classList.remove('show');
+});
+
+// 标准详情弹窗
+function openStdDetail(id){
+  const s = standardData.find(x => x.id === id) || standardData[0];
+  document.getElementById('stdDetailTitle').textContent = '标准详情 - ' + s.name;
+  document.getElementById('stdDetailBody').innerHTML =
+    '<div class="s-detail-sect-h">基本信息</div>'+
+    '<div class="s-detail-grid">'+
+      '<div>标准名称</div><div>'+s.name+'</div>'+
+      '<div>标准号</div><div><span class="s-tbl-no">'+s.code+'</span></div>'+
+      '<div>发布日期</div><div>'+s.date+'</div>'+
+      '<div>实施日期</div><div>'+s.implDate+'</div>'+
+      '<div>标准状态</div><div><span style="color:'+(s.status==='现行'?'#42d29a':'#fcd34d')+'">'+s.status+'</span></div>'+
+      '<div>标准类型</div><div>'+s.type+'</div>'+
+      '<div>中国标准分类号</div><div>'+(s.cls||'-')+'</div>'+
+      '<div>国际标准分类号</div><div>'+(s.iso||'-')+'</div>'+
+      '<div>归口单位</div><div>'+(s.org||'-')+'</div>'+
+      '<div>起草单位</div><div>'+(s.author||'-')+'</div>'+
+      '<div>备案号</div><div>'+(s.recCode||'-')+'</div>'+
+      '<div>备案日期</div><div>'+(s.recDate||'-')+'</div>'+
+    '</div>'+
+    '<div class="s-detail-sect-h">适用范围</div>'+
+    '<div class="s-detail-content">'+(s.scope||'-')+'</div>';
+  document.getElementById('stdDetailModal').classList.add('show');
+}
+document.getElementById('stdDetailClose').addEventListener('click', () => document.getElementById('stdDetailModal').classList.remove('show'));
+document.getElementById('stdDetailModal').addEventListener('click', e => {
+  if (e.target.id === 'stdDetailModal') document.getElementById('stdDetailModal').classList.remove('show');
+});
+
+// 复用：地图品类下钻弹窗（patModal）关闭事件
+document.getElementById('patClose').addEventListener('click', () => document.getElementById('patModal').classList.remove('show'));
+document.getElementById('patModal').addEventListener('click', e => {
+  if (e.target.id === 'patModal') document.getElementById('patModal').classList.remove('show');
+});
+
+// ══════════════ 行业创新：月份柱形点击下钻专利列表（参照 数智化平台原型/技术情报洞察-专利查询.html 字段） ══════════════
+const patentTypeOpts = ['发明专利', '实用新型', '外观设计'];
+const patentApplicants = [
+  '蓝山屯河化工股份有限公司', '金发科技股份有限公司', '万华化学集团股份有限公司',
+  '中国石化股份有限公司', '安徽劲旋风科技有限公司', '丰原生物', '蓝晶微生物（北京）股份有限公司',
+  '上海化学工业研究院', '中科金龙', '杭州万图新材料', '粒芽（厦门）新材料有限公司',
+  '南京聚鑫高分子', '青岛科技大学', '浙江大学新材料实验室', '中国科学院化学研究所'
+];
+const patentNamesPool = [
+  '一种生物降解材料-聚对苯二甲酸-己二酸丁二酯（PBAT）的制备方法',
+  '一种 PLA/PBAT 共混改性母粒及其制备工艺',
+  '一种高强度可降解农膜专用 PBAT 树脂',
+  '一种基于 PHA 的可生物降解纤维制备方法',
+  '一种 PBS 改性剂及其在生物降解材料中的应用',
+  '一种基于淀粉基的可降解一次性餐具材料',
+  '一种 PGA 油田暂堵球及其制备方法',
+  '一种 PCL 医用缓释材料及其制备方法',
+  '一种二氧化碳基聚碳酸酯（PPC）制备工艺',
+  '一种生物可降解吹膜级 PBAT 改性料',
+  '一种聚乳酸（PLA）耐热共混改性料',
+  '一种 PBAT 与改性淀粉共混发泡材料及其制备方法',
+  '一种乳酸发酵制备 PLA 单体的高效菌株',
+  '一种全生物基可降解地膜成型工艺',
+  '一种含 PHA 共聚物的医用可吸收手术缝合线',
+  '一种连续化生产 BDO 的合成新工艺',
+  '一种基于丁二酸-丁二醇的 PBS 高分子合成方法',
+  '一种 PLA-PBAT 双层复合可降解快递包装薄膜',
+  '一种聚乳酸基 3D 打印线材及其制备方法',
+  '一种可降解一次性餐具改性配方',
+  '一种秸秆纤维与 PLA 共混制备生物基复合材料',
+  '一种二氧化碳/环氧化合物聚合催化剂体系'
+];
+const provincePool = ['新疆-昌吉','广东-广州','山东-烟台','江苏-苏州','上海-浦东','浙江-杭州','北京-海淀','安徽-蚌埠','河南-郑州','河北-石家庄'];
+const ipcCodes = ['C08L67/02','C08L67/04','C08F2/00','C12P7/56','C08G63/183','C08L101/16','A61L17/12','C08J3/22'];
+
+function seedRandPat(s, i){let h=2166136261;for(let k=0;k<s.length;k++){h^=s.charCodeAt(k);h=Math.imul(h,16777619)}h=Math.imul(h^i,2654435761);return ((h>>>0)/4294967295)}
+
+function genPatentsForMonth(month, count){
+  const list = [];
+  for (let i = 0; i < count; i++){
+    const r1 = seedRandPat(month, i);
+    const r2 = seedRandPat(month + '_b', i);
+    const r3 = seedRandPat(month + '_c', i);
+    const r4 = seedRandPat(month + '_d', i);
+    const day = String(Math.floor(r1 * 28) + 1).padStart(2, '0');
+    const applyDay = String(Math.floor(r3 * 28) + 1).padStart(2, '0');
+    const applyMonthRaw = month.split('-');
+    const applyYear = parseInt(applyMonthRaw[0]) - 1; // 申请日通常早于公开日 1 年
+    const pubNum = 'CN' + (118000000 + Math.floor(r1 * 999999)) + (i % 2 ? 'B' : 'A');
+    const appNum = 'CN' + applyYear + Math.floor(r2 * 99999999).toString().padStart(8,'0') + '.' + Math.floor(r4*9);
+    list.push({
+      id: month + '_' + i,
+      type: patentTypeOpts[Math.floor(r1 * patentTypeOpts.length)],
+      pubNum: pubNum,
+      appNum: appNum,
+      name: patentNamesPool[Math.floor(r2 * patentNamesPool.length)],
+      applicant: patentApplicants[Math.floor(r3 * patentApplicants.length)],
+      applyDate: applyYear + '-' + applyMonthRaw[1] + '-' + applyDay,
+      pubDate: month + '-' + day,
+      status: r4 > 0.3 ? '授权' : (r4 > 0.1 ? '实质审查' : '公开'),
+      ipc: ipcCodes[Math.floor(r4 * ipcCodes.length)],
+      region: provincePool[Math.floor(r1 * provincePool.length)],
+      address: provincePool[Math.floor(r1 * provincePool.length)].replace('-', '') + '高新区科技园 ' + Math.floor(r3*200+1) + '号',
+      summary: '本发明涉及生物降解材料领域，具体提供一种新型可降解聚酯材料及其制备方法。该材料通过共混、改性等工艺，显著提升了材料的力学性能与降解速率匹配，可应用于农膜、一次性餐具、包装薄膜等多种场景。本发明还提供配套的连续化生产工艺，能够有效降低成本并提升产品稳定性。'
+    });
+  }
+  return list;
+}
+
+function openPatList(month, count){
+  const data = genPatentsForMonth(month, count);
+  document.getElementById('patListTitle').textContent = '专利列表 — ' + month + '（共 ' + count + ' 件）';
+  const PAGE = 10;
+  let cur = 1, kw = '';
+  function render(){
+    const filtered = kw ? data.filter(p => p.name.indexOf(kw) >= 0 || p.pubNum.indexOf(kw) >= 0 || p.applicant.indexOf(kw) >= 0) : data;
+    const total = filtered.length, pages = Math.max(1, Math.ceil(total / PAGE));
+    if (cur > pages) cur = pages;
+    const slice = filtered.slice((cur - 1) * PAGE, cur * PAGE);
+    document.getElementById('patListBody').innerHTML =
+      '<div class="s-search">'+
+        '<input id="patListKw" placeholder="按专利名称 / 公开号 / 申请人搜索" value="'+kw+'"/>'+
+        '<button>查询</button>'+
+      '</div>'+
+      '<table class="s-tbl">'+
+        '<thead><tr>'+
+          '<th style="width:54px;text-align:center">序号</th>'+
+          '<th style="width:11%">专利类型</th>'+
+          '<th style="width:14%">公开号</th>'+
+          '<th style="width:38%">专利名称</th>'+
+          '<th style="width:18%">申请人</th>'+
+          '<th style="width:11%">申请日</th>'+
+          '<th style="width:10%;text-align:center">操作</th>'+
+        '</tr></thead><tbody>'+
+        (slice.length ? slice.map((p,i)=>(
+          '<tr>'+
+            '<td style="text-align:center"><span class="dl-row-num">'+String((cur-1)*PAGE+i+1).padStart(2,'0')+'</span></td>'+
+            '<td><span class="std-rtag">'+p.type+'</span></td>'+
+            '<td><span class="s-tbl-no">'+p.pubNum+'</span></td>'+
+            '<td><div class="s-tbl-name" data-pid="'+p.id+'" title="'+p.name+'">'+p.name+'</div></td>'+
+            '<td style="color:#a8c4e0">'+p.applicant+'</td>'+
+            '<td style="font-family:DIN,Arial;color:#a8c4e0">'+p.applyDate+'</td>'+
+            '<td style="text-align:center"><span class="s-detail-btn" data-pid="'+p.id+'">详情</span></td>'+
+          '</tr>'
+        )).join('') : '<tr><td colspan="7" style="text-align:center;color:#5e85b0;padding:60px 0">⌕  未匹配到专利</td></tr>')+
+        '</tbody></table>'+
+      '<div class="s-pag">'+
+        '<span class="info">共 <b>'+total+'</b> 条 · 第 <b>'+cur+'</b> / '+pages+' 页</span>'+
+        '<span class="pg" data-go="'+(cur-1)+'"'+(cur<=1?' style="opacity:.4;pointer-events:none"':'')+'>上一页</span>'+
+        Array.from({length:Math.min(pages,5)},(_,k)=>{const p=k+1;return '<span class="pg'+(p===cur?' cur':'')+'" data-go="'+p+'">'+p+'</span>'}).join('')+
+        '<span class="pg" data-go="'+(cur+1)+'"'+(cur>=pages?' style="opacity:.4;pointer-events:none"':'')+'>下一页</span>'+
+      '</div>';
+    document.querySelectorAll('#patListBody .s-tbl-name, #patListBody .s-detail-btn').forEach(el => el.addEventListener('click', () => openPatDetail(data.find(p => p.id === el.dataset.pid))));
+    document.querySelectorAll('#patListBody .s-pag .pg').forEach(pg => pg.addEventListener('click', () => { const g=parseInt(pg.dataset.go); if(!isNaN(g)&&g>=1&&g<=pages){cur=g;render();} }));
+    const kwEl = document.getElementById('patListKw');
+    if (kwEl) kwEl.addEventListener('input', e => { kw = e.target.value.trim(); cur = 1; render(); });
+  }
+  render();
+  document.getElementById('patListModal').classList.add('show');
+}
+
+function openPatDetail(p){
+  if (!p) return;
+  document.getElementById('patDetailTitle').textContent = '专利详情 — ' + p.name;
+  document.getElementById('patDetailBody').innerHTML =
+    '<div class="s-detail-sect-h">基本信息</div>'+
+    '<div class="s-detail-grid">'+
+      '<div>专利状态</div><div><span style="color:'+(p.status==='授权'?'#42d29a':p.status==='实质审查'?'#fcd34d':'#7fa3c8')+'">'+p.status+'</span></div>'+
+      '<div>专利类型</div><div>'+p.type+'</div>'+
+      '<div class="full">专利名称</div><div class="full" style="color:#dbeaff">'+p.name+'</div>'+
+      '<div>申请号</div><div><span class="s-tbl-no">'+p.appNum+'</span></div>'+
+      '<div>申请日</div><div>'+p.applyDate+'</div>'+
+      '<div>公开（公告）号</div><div><span class="s-tbl-no">'+p.pubNum+'</span></div>'+
+      '<div>公开（公告）日</div><div>'+p.pubDate+'</div>'+
+      '<div>主分类号</div><div><span class="s-tbl-no">'+p.ipc+'</span></div>'+
+      '<div>申请人</div><div>'+p.applicant+'</div>'+
+      '<div>地区</div><div>'+p.region+'</div>'+
+      '<div class="full">地址</div><div class="full" style="color:#dbeaff">'+p.address+'</div>'+
+    '</div>'+
+    '<div class="s-detail-sect-h">摘要</div>'+
+    '<div class="s-detail-content">'+p.summary+'</div>';
+  document.getElementById('patDetailModal').classList.add('show');
+}
+
+document.getElementById('patListClose').addEventListener('click', () => document.getElementById('patListModal').classList.remove('show'));
+document.getElementById('patListModal').addEventListener('click', e => { if(e.target.id==='patListModal') document.getElementById('patListModal').classList.remove('show'); });
+document.getElementById('patDetailClose').addEventListener('click', () => document.getElementById('patDetailModal').classList.remove('show'));
+document.getElementById('patDetailModal').addEventListener('click', e => { if(e.target.id==='patDetailModal') document.getElementById('patDetailModal').classList.remove('show'); });
+
+// 绑定行业创新柱形点击
+document.querySelectorAll('.innov-bar-hits rect').forEach(r => {
+  r.addEventListener('click', () => {
+    const m = r.dataset.month;
+    const matchBar = document.querySelector('.innov-bars rect[data-month="'+m+'"]');
+    const cnt = matchBar ? parseInt(matchBar.dataset.count) : 10;
+    openPatList(m, cnt);
+  });
+});
+
+// ══════════════ 图表悬浮提示（小卡片样式，复用专利柱形 + 产量节点） ══════════════
+(function(){
+  const tip = document.getElementById('chartTip');
+  if (!tip) return;
+  const showTip = (e, html) => {
+    tip.innerHTML = html;
+    tip.style.display = 'block';
+    moveTip(e);
+  };
+  const moveTip = (e) => {
+    const pad = 12;
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    // 默认：鼠标右上方紧贴（chartTip 已挂在 body 上，不受 .screen 缩放影响）
+    let x = e.clientX + pad, y = e.clientY - h - pad;
+    if (x + w > window.innerWidth - 8)  x = e.clientX - w - pad;
+    if (y < 8)                          y = e.clientY + pad;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  };
+  const hideTip = () => { tip.style.display = 'none'; };
+
+  // 专利柱形（按月）
+  document.querySelectorAll('.innov-bar-hits rect').forEach(r => {
+    r.addEventListener('mouseenter', e => {
+      const m = r.dataset.month, c = r.dataset.count;
+      showTip(e,
+        '<div class="tip-month">'+m+'</div>'+
+        '<div class="tip-val">'+c+'<em>件</em></div>'+
+        '<div class="tip-hint">点击查看专利列表 ›</div>');
+    });
+    r.addEventListener('mousemove', moveTip);
+    r.addEventListener('mouseleave', hideTip);
+  });
+
+  // 全国制品产量曲线节点（事件委托，hit 区由 JS 动态生成 — 切换产品后仍有效）
+  const prodHits = document.getElementById('prodHits');
+  if (prodHits){
+    prodHits.addEventListener('mouseover', e => {
+      const el = e.target.closest('rect');
+      if (!el) return;
+      const m = el.dataset.m, v = el.dataset.v;
+      const prodName = document.getElementById('prodMonthlyVal')?.textContent || '全部';
+      showTip(e,
+        '<div class="tip-month">2026 · '+m+' · '+prodName+'</div>'+
+        '<div class="tip-val">'+v+'<em>万吨</em></div>'+
+        '<div class="tip-hint">降解材料制品月度产量</div>');
+    });
+    prodHits.addEventListener('mousemove', e => {
+      if (tip.style.display === 'block') moveTip(e);
+    });
+    prodHits.addEventListener('mouseleave', hideTip);
+  }
+})();
+
+// ══════════════ 产量曲线：Catmull-Rom 平滑路径 + 产品下拉切换 ══════════════
+(function(){
+  const monthsX = [42,76,110,144,178,212,246,280,314,348,382,416];
+  const monthsN = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  // 每个产品 12 个月数据（万吨），及对应平均/同比
+  const prodSeries = {
+    PBAT: {label:'PBAT', avg:'25.3', yoy:'18.5', data:[7.5,14.0,17.3,20.5,22.9,25.3,26.6,27.8,24.1,24.7,21.5,22.1]},
+    PLA:  {label:'PLA',  avg:'17.1', yoy:'15.2', data:[5.1,9.5,11.7,13.9,15.5,17.1,18.0,18.9,16.3,16.8,14.5,15.0]},
+    PBS:  {label:'PBS/PBSA', avg:'10.3', yoy:'12.0', data:[3.1,5.7,7.1,8.3,9.3,10.3,10.8,11.3,9.8,10.1,8.7,9.0]},
+    PHA:  {label:'PHA',  avg:'5.66', yoy:'21.4', data:[1.70,3.18,3.90,4.62,5.18,5.72,6.00,6.30,5.42,5.58,4.84,5.00]},
+    PGA:  {label:'PGA',  avg:'4.36', yoy:'19.8', data:[1.30,2.40,3.00,3.50,3.95,4.36,4.58,4.80,4.15,4.27,3.71,3.82]},
+    PCL:  {label:'PCL',  avg:'3.35', yoy:'13.6', data:[1.00,1.90,2.30,2.75,3.05,3.35,3.55,3.78,3.27,3.36,2.92,3.00]},
+    PPC:  {label:'PPC',  avg:'2.38', yoy:'10.2', data:[0.72,1.32,1.62,1.92,2.16,2.38,2.50,2.64,2.28,2.34,2.03,2.10]}
+  };
+
+  // Catmull-Rom → cubic Bezier，保证每个数据点处 C1 连续，无折角
+  function smoothPath(pts){
+    if (pts.length < 2) return '';
+    let d = 'M'+pts[0][0]+','+pts[0][1].toFixed(2);
+    for (let i = 0; i < pts.length - 1; i++){
+      const p0 = pts[Math.max(0,i-1)];
+      const p1 = pts[i];
+      const p2 = pts[i+1];
+      const p3 = pts[Math.min(pts.length-1,i+2)];
+      const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+      const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+      const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ' C'+cp1x.toFixed(2)+','+cp1y.toFixed(2)+' '+cp2x.toFixed(2)+','+cp2y.toFixed(2)+' '+p2[0]+','+p2[1].toFixed(2);
+    }
+    return d;
+  }
+
+  function fmt(n){ return n < 10 ? n.toFixed(1) : n.toFixed(0); }
+
+  function renderProdChart(key){
+    const s = prodSeries[key] || prodSeries.PBAT;
+    const mn = Math.min(...s.data), mx = Math.max(...s.data);
+    // 给上下留 12% / 8% padding，让曲线不贴边
+    const yMax = mx * 1.12, yMin = Math.max(0, mn - (mx - mn) * 0.18);
+    const yTop = 14, yBot = 104, hChart = yBot - yTop;
+    const mapY = v => yTop + (1 - (v - yMin) / (yMax - yMin)) * hChart;
+    const pts = s.data.map((v,i) => [monthsX[i], mapY(v)]);
+
+    const linePath = smoothPath(pts);
+    const last = pts[pts.length-1], first = pts[0];
+    const areaPath = linePath + ' L'+last[0]+',108 L'+first[0]+',108 Z';
+
+    document.getElementById('prodLine').setAttribute('d', linePath);
+    document.getElementById('prodArea').setAttribute('d', areaPath);
+    // 每月数据点（前 11 个月用小圆点，第 12 月由 prodEndDot 高亮表示）
+    document.getElementById('prodDots').innerHTML = pts.slice(0, -1).map(([x,y]) =>
+      '<circle cx="'+x+'" cy="'+y.toFixed(2)+'" r="2.2" stroke="rgba(8,22,40,.9)" stroke-width=".6"/>'
+    ).join('');
+    const endDot = document.getElementById('prodEndDot');
+    endDot.setAttribute('cx', last[0]);
+    endDot.setAttribute('cy', last[1].toFixed(2));
+    const endLbl = document.getElementById('prodEndLbl');
+    endLbl.setAttribute('y', (last[1] - 6).toFixed(2));
+    endLbl.textContent = s.data[s.data.length-1].toFixed(1);
+
+    // Y 轴刻度（4 档）
+    const yAxis = document.getElementById('prodYAxis');
+    const tick = [yMax, yMin + (yMax - yMin) * 2/3, yMin + (yMax - yMin) / 3, yMin];
+    const yPos = [16, 46, 76, 106];
+    yAxis.innerHTML = tick.map((v,i) => '<text x="30" y="'+yPos[i]+'" text-anchor="end">'+fmt(v)+'</text>').join('');
+
+    // 悬浮命中区（每月一个 rect）
+    const hits = document.getElementById('prodHits');
+    hits.innerHTML = s.data.map((v,i) =>
+      '<rect x="'+(monthsX[i]-17)+'" y="14" width="34" height="90" data-m="'+monthsN[i]+'" data-v="'+v.toFixed(1)+'"/>'
+    ).join('');
+
+    // 顶部数字 + 同比
+    document.getElementById('prodMonthlyNum').textContent = s.avg;
+    document.getElementById('prodMonthlyCmp').textContent = '↑ ' + s.yoy + '%';
+  }
+
+  // 下拉交互
+  const sel = document.getElementById('prodMonthlySel');
+  if (sel){
+    sel.addEventListener('click', e => {
+      const it = e.target.closest('.mps-it');
+      if (it){
+        const key = it.dataset.prod;
+        document.getElementById('prodMonthlyVal').textContent = it.textContent;
+        sel.querySelectorAll('.mps-it').forEach(x => x.classList.remove('cur'));
+        it.classList.add('cur');
+        renderProdChart(key);
+        sel.classList.remove('open');
+        e.stopPropagation();
+        return;
+      }
+      document.querySelectorAll('.mini-prod-sel.open').forEach(s2 => { if(s2!==sel) s2.classList.remove('open'); });
+      sel.classList.toggle('open');
+      e.stopPropagation();
+    });
+    document.addEventListener('click', () => sel.classList.remove('open'));
+  }
+
+  // 初始化
+  renderProdChart('PBAT');
+})();
+
+// ══════════════ 降解材料行业产值：曲线图（复用 prodMonthly 模式：Catmull-Rom + 下拉 + 悬浮提示） ══════════════
+(function(){
+  const monthsX = [42,76,110,144,178,212,246,280,314,348,382,416];
+  const monthsN = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  // 每个产品的月度产值（亿元）+ 累计 + 同比
+  const outputSeries = {
+    PBAT: {label:'PBAT',     total:'142.3', yoy:'22.5', data:[10.5,11.2,11.8,12.5,13.1,12.4,12.0,11.7,12.5,12.8,11.9,11.9]},
+    PLA:  {label:'PLA',      total:'96.5',  yoy:'15.8', data:[ 7.2, 7.6, 8.0, 8.4, 8.7, 8.3, 8.1, 7.9, 8.4, 8.6, 8.1, 8.2]},
+    PBS:  {label:'PBS/PBSA', total:'58.4',  yoy:'12.0', data:[ 4.4, 4.6, 4.8, 5.1, 5.3, 5.0, 4.9, 4.8, 5.1, 5.2, 4.9, 5.0]},
+    PHA:  {label:'PHA',      total:'32.1',  yoy:'28.2', data:[ 2.4, 2.5, 2.7, 2.8, 2.9, 2.7, 2.7, 2.6, 2.8, 2.9, 2.7, 2.7]},
+    PGA:  {label:'PGA',      total:'24.6',  yoy:'20.1', data:[ 1.8, 1.9, 2.0, 2.1, 2.2, 2.1, 2.0, 2.0, 2.1, 2.2, 2.1, 2.1]},
+    PCL:  {label:'PCL',      total:'18.9',  yoy:'14.5', data:[ 1.4, 1.5, 1.6, 1.7, 1.7, 1.6, 1.6, 1.5, 1.6, 1.7, 1.6, 1.6]},
+    PPC:  {label:'PPC',      total:'13.2',  yoy:'10.8', data:[ 1.0, 1.0, 1.1, 1.1, 1.2, 1.1, 1.1, 1.0, 1.1, 1.2, 1.1, 1.1]}
+  };
+
+  function smoothPath(pts){
+    if (pts.length < 2) return '';
+    let d = 'M'+pts[0][0]+','+pts[0][1].toFixed(2);
+    for (let i = 0; i < pts.length - 1; i++){
+      const p0 = pts[Math.max(0,i-1)], p1 = pts[i], p2 = pts[i+1], p3 = pts[Math.min(pts.length-1,i+2)];
+      const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+      const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+      const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ' C'+cp1x.toFixed(2)+','+cp1y.toFixed(2)+' '+cp2x.toFixed(2)+','+cp2y.toFixed(2)+' '+p2[0]+','+p2[1].toFixed(2);
+    }
+    return d;
+  }
+  function fmt(n){ return n < 10 ? n.toFixed(1) : n.toFixed(0); }
+
+  function renderOutputChart(key){
+    const s = outputSeries[key] || outputSeries.PBAT;
+    const mn = Math.min(...s.data), mx = Math.max(...s.data);
+    const yMax = mx * 1.12, yMin = Math.max(0, mn - (mx - mn) * 0.18);
+    const yTop = 14, yBot = 104, hChart = yBot - yTop;
+    const mapY = v => yTop + (1 - (v - yMin) / (yMax - yMin)) * hChart;
+    const pts = s.data.map((v,i) => [monthsX[i], mapY(v)]);
+    const linePath = smoothPath(pts);
+    const last = pts[pts.length-1], first = pts[0];
+    const areaPath = linePath + ' L'+last[0]+',108 L'+first[0]+',108 Z';
+
+    document.getElementById('outputLine').setAttribute('d', linePath);
+    document.getElementById('outputArea').setAttribute('d', areaPath);
+    document.getElementById('outputDots').innerHTML = pts.slice(0, -1).map(([x,y]) =>
+      '<circle cx="'+x+'" cy="'+y.toFixed(2)+'" r="2.2" stroke="rgba(8,22,40,.9)" stroke-width=".6"/>'
+    ).join('');
+    const endDot = document.getElementById('outputEndDot');
+    endDot.setAttribute('cx', last[0]);
+    endDot.setAttribute('cy', last[1].toFixed(2));
+    const endLbl = document.getElementById('outputEndLbl');
+    endLbl.setAttribute('y', (last[1] - 6).toFixed(2));
+    endLbl.textContent = s.data[s.data.length-1].toFixed(1);
+
+    const yAxis = document.getElementById('outputYAxis');
+    const tick = [yMax, yMin + (yMax - yMin) * 2/3, yMin + (yMax - yMin) / 3, yMin];
+    const yPos = [16, 46, 76, 106];
+    yAxis.innerHTML = tick.map((v,i) => '<text x="30" y="'+yPos[i]+'" text-anchor="end">'+fmt(v)+'</text>').join('');
+
+    const hits = document.getElementById('outputHits');
+    hits.innerHTML = s.data.map((v,i) =>
+      '<rect x="'+(monthsX[i]-17)+'" y="14" width="34" height="90" data-m="'+monthsN[i]+'" data-v="'+v.toFixed(1)+'"/>'
+    ).join('');
+
+    // 顶部累计产值 + 同比
+    document.getElementById('outputNum').textContent = s.total;
+    document.getElementById('outputCmp').textContent = '↑ ' + s.yoy + '%';
+  }
+
+  // 下拉交互
+  const sel = document.getElementById('outputProdSel');
+  if (sel){
+    sel.addEventListener('click', e => {
+      const it = e.target.closest('.mps-it');
+      if (it){
+        const key = it.dataset.prod;
+        document.getElementById('outputProdVal').textContent = it.textContent;
+        sel.querySelectorAll('.mps-it').forEach(x => x.classList.remove('cur'));
+        it.classList.add('cur');
+        renderOutputChart(key);
+        sel.classList.remove('open');
+        e.stopPropagation();
+        return;
+      }
+      document.querySelectorAll('.mini-prod-sel.open').forEach(s2 => { if(s2!==sel) s2.classList.remove('open'); });
+      sel.classList.toggle('open');
+      e.stopPropagation();
+    });
+    document.addEventListener('click', () => sel.classList.remove('open'));
+  }
+
+  // 悬浮提示 — 复用 chart-tip + 事件委托
+  const outputHits = document.getElementById('outputHits');
+  if (outputHits){
+    const tip = document.getElementById('chartTip');
+    const moveTip = (e) => {
+      const pad = 12;
+      const w = tip.offsetWidth, h = tip.offsetHeight;
+      let x = e.clientX + pad, y = e.clientY - h - pad;
+      if (x + w > window.innerWidth - 8)  x = e.clientX - w - pad;
+      if (y < 8)                          y = e.clientY + pad;
+      tip.style.left = x + 'px';
+      tip.style.top  = y + 'px';
+    };
+    outputHits.addEventListener('mouseover', e => {
+      const el = e.target.closest('rect');
+      if (!el || !tip) return;
+      const m = el.dataset.m, v = el.dataset.v;
+      const prodName = document.getElementById('outputProdVal')?.textContent || '全部';
+      tip.innerHTML =
+        '<div class="tip-month">2026 · '+m+' · '+prodName+'</div>'+
+        '<div class="tip-val">'+v+'<em>亿元</em></div>'+
+        '<div class="tip-hint">行业月度产值</div>';
+      tip.style.display = 'block';
+      moveTip(e);
+    });
+    outputHits.addEventListener('mousemove', e => {
+      if (tip && tip.style.display === 'block') moveTip(e);
+    });
+    outputHits.addEventListener('mouseleave', () => { if (tip) tip.style.display = 'none'; });
+  }
+
+  renderOutputChart('PBAT');
+})();
+
+// 产业链切换：行业创新卡 / 地图卡 各自独立维护，互不联动（见 initAllChainSels 中两个回调）
+
+// ── 顶部导航：在当前文件夹内已存在的目标页面，跳转到对应原型
+const navMap={'产业链版图':'驾驶舱-产业链版图.html','行业趋势总览':'驾驶舱-行业趋势总览.html'};
+document.querySelectorAll('.tn').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.tn').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active');
+    const p=navMap[el.textContent.trim()];
+    if(p && p!=='驾驶舱-行业趋势总览.html'){ location.href=p; }
+  });
+});
+
+// ── 二级 tab 切换：联动地图悬浮内容、地图标签
+let currentTab='chain'; // upstream / chain / downstream
+const tabKey={'上游':'upstream','中游':'chain','下游':'downstream',
+              '上游原料':'upstream','当前材料产业链':'chain','下游客户':'downstream'};
+const mapTagText={
+  upstream:'上游供应商企业分布 · 全国',
+  chain:'中游制造商企业分布 · 全国',
+  downstream:'下游客户企业分布 · 全国'
+};
+document.querySelectorAll('.st').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.st').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active');
+    currentTab=tabKey[el.textContent.trim()]||'chain';
+    document.querySelector('.map-tag').textContent=mapTagText[currentTab];
+    if(window.renderMapSide) window.renderMapSide();
+  });
+});
+
+// ── 省份产业 mock 数据（按二级 tab 三个维度）
+const mock={
+  '新疆':{
+    upstream:{count:24,trend:18.5,items:['1,4-丁二醇(BDO)','顺酐','PTA','玉米淀粉','棉短绒','石化中间体']},
+    chain:{count:18,trend:12.4,items:['PBAT 聚酯切片','PLA 树脂','改性母粒','发泡级降解料']},
+    downstream:{count:14,trend:9.6,items:['农膜专用料','地膜成品','一次性餐具','工业薄膜']}
+  },
+  '内蒙古':{
+    upstream:{count:19,trend:14.2,items:['玉米淀粉','乳酸','BDO','煤化工副产物']},
+    chain:{count:13,trend:8.0,items:['PLA 树脂','PBAT 聚酯切片']},
+    downstream:{count:11,trend:6.8,items:['农膜专用料','地膜','购物袋']}
+  },
+  '黑龙江':{
+    upstream:{count:15,trend:10.1,items:['玉米淀粉','大豆基原料','乳酸']},
+    chain:{count:10,trend:4.5,items:['PLA 树脂','改性料']},
+    downstream:{count:13,trend:7.2,items:['农膜专用料','一次性餐具','包装薄膜']}
+  },
+  '吉林':{
+    upstream:{count:13,trend:9.4,items:['玉米淀粉','乳酸','化工原料']},
+    chain:{count:11,trend:6.2,items:['PLA 树脂','PBAT 切片']},
+    downstream:{count:12,trend:5.8,items:['农膜','一次性制品']}
+  },
+  '辽宁':{
+    upstream:{count:17,trend:11.3,items:['PTA','BDO','顺酐','化工中间体']},
+    chain:{count:14,trend:9.7,items:['PBAT 聚酯切片','改性母粒']},
+    downstream:{count:16,trend:8.4,items:['汽车内饰件','工程塑料','农膜']}
+  },
+  '北京':{
+    upstream:{count:12,trend:22.0,items:['生物合成单体','PHA 前驱体','研发原料']},
+    chain:{count:11,trend:18.0,items:['PHA 树脂','医用级 PCL']},
+    downstream:{count:19,trend:15.4,items:['医疗器械配件','3D 打印材料','研发样品','可吸收缝合线']}
+  },
+  '天津':{
+    upstream:{count:14,trend:7.6,items:['PTA','BDO','化工原料']},
+    chain:{count:12,trend:6.8,items:['PBAT 切片','PBS 切片']},
+    downstream:{count:18,trend:9.1,items:['包装薄膜','农膜','工业薄膜']}
+  },
+  '河北':{
+    upstream:{count:16,trend:8.3,items:['玉米淀粉','化工中间体','石化原料']},
+    chain:{count:14,trend:6.5,items:['PLA 树脂','改性料']},
+    downstream:{count:18,trend:7.4,items:['农膜','购物袋','一次性餐具']}
+  },
+  '山西':{
+    upstream:{count:13,trend:9.5,items:['煤基原料','BDO','顺酐']},
+    chain:{count:11,trend:5.2,items:['PBAT 切片']},
+    downstream:{count:12,trend:4.8,items:['农膜','工业袋']}
+  },
+  '上海':{
+    upstream:{count:11,trend:16.8,items:['医用级单体','高纯化工原料']},
+    chain:{count:16,trend:21.2,items:['PCL 医用级','PLA 医用级','PHA 医用级']},
+    downstream:{count:23,trend:24.5,items:['医疗器械','可吸收缝合线','3D 打印料','化妆品包装','研发样品']}
+  },
+  '江苏':{
+    upstream:{count:30,trend:12.6,items:['PTA','BDO','顺酐','PLA 单体','乳酸','纺丝原料']},
+    chain:{count:38,trend:15.3,items:['PBAT 切片','PLA 树脂','PBS 树脂','改性母粒','共混料']},
+    downstream:{count:48,trend:18.2,items:['农膜','一次性餐具','包装薄膜','购物袋','纺丝制品']}
+  },
+  '浙江':{
+    upstream:{count:24,trend:10.4,items:['PTA','BDO','化工原料','纺丝原料']},
+    chain:{count:32,trend:13.6,items:['PBAT 切片','PLA 树脂','改性料','纺丝级树脂']},
+    downstream:{count:42,trend:14.8,items:['购物袋','服装纺丝','农膜','包装薄膜','电商包装']}
+  },
+  '安徽':{
+    upstream:{count:14,trend:7.2,items:['玉米淀粉','化工原料','乳酸']},
+    chain:{count:16,trend:8.6,items:['PLA 树脂','PBAT 切片','改性料']},
+    downstream:{count:20,trend:7.9,items:['一次性餐具','包装薄膜','农膜']}
+  },
+  '福建':{
+    upstream:{count:12,trend:5.9,items:['化工原料','纺丝原料']},
+    chain:{count:18,trend:9.4,items:['PLA 注塑级','改性料','纤维级树脂']},
+    downstream:{count:26,trend:11.2,items:['一次性餐具','购物袋','纺丝制品','包装薄膜']}
+  },
+  '江西':{
+    upstream:{count:10,trend:5.1,items:['化工原料','玉米淀粉']},
+    chain:{count:12,trend:6.0,items:['PLA 树脂','PBAT 切片']},
+    downstream:{count:16,trend:6.5,items:['农膜','一次性制品']}
+  },
+  '山东':{
+    upstream:{count:34,trend:13.1,items:['PTA','BDO','顺酐','玉米淀粉','化工中间体']},
+    chain:{count:30,trend:11.9,items:['PBAT 切片','PLA 树脂','PBS 树脂','改性料']},
+    downstream:{count:40,trend:12.3,items:['农膜专用料','地膜','购物袋','工业薄膜']}
+  },
+  '河南':{
+    upstream:{count:28,trend:14.5,items:['玉米淀粉','乳酸','PLA 单体','化工原料']},
+    chain:{count:22,trend:11.7,items:['PLA 树脂','PBAT 切片','改性料']},
+    downstream:{count:30,trend:10.2,items:['农膜','一次性餐具','购物袋']}
+  },
+  '湖北':{
+    upstream:{count:18,trend:9.2,items:['化工原料','PTA','BDO']},
+    chain:{count:16,trend:7.8,items:['PBAT 切片','改性料']},
+    downstream:{count:20,trend:8.4,items:['农膜','购物袋','工业袋']}
+  },
+  '湖南':{
+    upstream:{count:14,trend:6.4,items:['化工原料','玉米淀粉']},
+    chain:{count:12,trend:5.7,items:['PLA 树脂','PBAT 切片']},
+    downstream:{count:16,trend:6.2,items:['一次性餐具','农膜']}
+  },
+  '广东':{
+    upstream:{count:20,trend:11.2,items:['PTA','BDO','化工原料','电子级原料']},
+    chain:{count:28,trend:14.7,items:['PBAT 切片','PLA 树脂','改性料','电子级降解料']},
+    downstream:{count:58,trend:18.6,items:['电子产品包装','购物袋','一次性餐具','3C 包装','化妆品瓶']}
+  },
+  '广西':{
+    upstream:{count:12,trend:6.7,items:['蔗糖基原料','化工原料']},
+    chain:{count:10,trend:5.0,items:['PHA 树脂','PLA 树脂']},
+    downstream:{count:14,trend:5.4,items:['食品包装','农膜']}
+  },
+  '海南':{
+    upstream:{count:6,trend:3.0,items:['热带农业原料']},
+    chain:{count:4,trend:2.0,items:['PLA 树脂']},
+    downstream:{count:8,trend:4.6,items:['酒店一次性用品','农膜']}
+  },
+  '重庆':{
+    upstream:{count:14,trend:8.1,items:['BDO','化工中间体']},
+    chain:{count:12,trend:6.4,items:['PBAT 切片','PLA 树脂']},
+    downstream:{count:16,trend:7.5,items:['汽车内饰件','一次性餐具']}
+  },
+  '四川':{
+    upstream:{count:22,trend:10.6,items:['玉米淀粉','乳酸','PLA 单体','BDO']},
+    chain:{count:20,trend:9.3,items:['PLA 树脂','PBAT 切片','改性料']},
+    downstream:{count:24,trend:9.0,items:['一次性餐具','农膜','购物袋']}
+  },
+  '贵州':{
+    upstream:{count:10,trend:4.8,items:['化工原料','磷化工副产物']},
+    chain:{count:8,trend:3.5,items:['PBAT 切片']},
+    downstream:{count:12,trend:5.2,items:['农膜','一次性制品']}
+  },
+  '云南':{
+    upstream:{count:12,trend:5.6,items:['烟草农业副产物','化工原料']},
+    chain:{count:10,trend:4.7,items:['PLA 树脂']},
+    downstream:{count:14,trend:6.3,items:['烟草包装','一次性制品','农膜']}
+  },
+  '西藏':{
+    upstream:{count:4,trend:2.4,items:['暂无规模供应']},
+    chain:{count:2,trend:1.0,items:['—']},
+    downstream:{count:6,trend:1.2,items:['本地特色农膜']}
+  },
+  '陕西':{
+    upstream:{count:16,trend:8.7,items:['化工中间体','BDO','顺酐']},
+    chain:{count:14,trend:7.0,items:['PBAT 切片','改性料']},
+    downstream:{count:14,trend:6.8,items:['农膜','一次性餐具']}
+  },
+  '甘肃':{
+    upstream:{count:24,trend:15.2,items:['BDO','顺酐','化工中间体','石化原料','煤基原料']},
+    chain:{count:18,trend:11.4,items:['PBAT 聚酯切片','改性料','发泡料']},
+    downstream:{count:14,trend:8.0,items:['农膜专用料','地膜','工业薄膜']}
+  },
+  '青海':{
+    upstream:{count:19,trend:12.8,items:['盐湖化工原料','BDO','顺酐']},
+    chain:{count:12,trend:6.3,items:['PBAT 切片']},
+    downstream:{count:10,trend:4.7,items:['农膜','工业袋']}
+  },
+  '宁夏':{
+    upstream:{count:16,trend:9.1,items:['BDO','顺酐','煤基化工原料']},
+    chain:{count:10,trend:5.0,items:['PBAT 切片']},
+    downstream:{count:8,trend:3.5,items:['农膜','工业薄膜']}
+  },
+  '台湾':{upstream:{count:0,trend:0,items:[]},chain:{count:0,trend:0,items:[]},downstream:{count:0,trend:0,items:[]}},
+  '香港':{
+    upstream:{count:4,trend:2.0,items:['进出口贸易品类']},
+    chain:{count:2,trend:1.0,items:['—']},
+    downstream:{count:8,trend:5.6,items:['零售包装','化妆品包装']}
+  },
+  '澳门':{upstream:{count:0,trend:0,items:[]},chain:{count:0,trend:0,items:[]},downstream:{count:4,trend:2.4,items:['酒店包装']}}
+};
+
+// 省份补全名（部分简称对应全称）
+const fullName={'新疆':'新疆维吾尔自治区','内蒙古':'内蒙古自治区','广西':'广西壮族自治区','西藏':'西藏自治区','宁夏':'宁夏回族自治区','香港':'香港特别行政区','澳门':'澳门特别行政区'};
+
+const tabMeta={
+  upstream:{label:'上游供应商',unit:'家',color:'#42d29a',colorBg:'rgba(66,210,154,.12)',colorBd:'rgba(66,210,154,.45)',
+            sub:'主要供应原材料',trendLabel:'企业数量同比',catLabel:'供应品类'},
+  chain:{label:'制造商企业',unit:'家',color:'#3ad4ff',colorBg:'rgba(58,212,255,.14)',colorBd:'rgba(58,212,255,.5)',
+         sub:'主要在产产品',trendLabel:'企业数量同比',catLabel:'产品品类'},
+  downstream:{label:'下游客户',unit:'家',color:'#fcd34d',colorBg:'rgba(252,211,77,.12)',colorBd:'rgba(252,211,77,.5)',
+              sub:'主要采购品类',trendLabel:'企业数量同比',catLabel:'采购品类'}
+};
+
+// ── 下游"层级"分类（仅总图谱+下游有效）：改性层 / 终端应用层
+let currentDsLayer = 'modify';   // modify | terminal
+function classifyDsLayer(item){
+  // 优先级 1：明确的改性层（中间形态）关键词
+  if (/改性|母粒|共混|切片|聚酯|树脂|发泡料|降解料|专用料|配方料|增韧料/.test(item)) return 'modify';
+  // 优先级 2：以"料"或"级"结尾（注塑级/吹膜级/纤维级 等加工料）
+  if (/[料级]$/.test(item)) return 'modify';
+  // 默认：终端应用层（农膜/餐具/薄膜/包装/制品/购物袋/内饰件/缝合线 等成品）
+  return 'terminal';
+}
+
+// ── 地图右侧"按品类×企业数量"侧栏：按 currentTab 聚合
+//    按反馈意见：右侧从"按省份"改为"按企业数量"（X 家），下钻看企业列表
+function aggProducts(tab){
+  const m={};
+  // 仅当 总图谱+下游 时启用层级筛选
+  const layerFilter = (mapChain==='all' && tab==='downstream') ? currentDsLayer : null;
+  Object.entries(mock).forEach(([prov,dim])=>{
+    const d=dim[tab]; if(!d||!d.count) return;
+    let items=d.items||[];
+    if(!items.length) return;
+    if (layerFilter) items = items.filter(it => classifyDsLayer(it) === layerFilter);
+    if (!items.length) return;
+    // 每个 item 的企业数 = 该省总数 ÷ 该省 item 数（近似分摊）
+    const share=d.count/items.length;
+    items.forEach(it=>{
+      if(!it||it==='—'||/暂无/.test(it)) return;
+      if(!m[it]) m[it]={provinces:0,total:0};
+      m[it].provinces++;
+      m[it].total+=share;
+    });
+  });
+  return Object.entries(m)
+    .map(([name,v])=>({name,provinces:v.provinces,total:Math.max(1,Math.round(v.total))}))
+    .sort((a,b)=>b.total-a.total||b.provinces-a.provinces);
+}
+function syncDsLayerTabs(){
+  const tabs = document.getElementById('dsLayerTabs');
+  if (!tabs) return;
+  const show = (currentTab==='downstream' && mapChain==='all');
+  tabs.style.display = show ? 'inline-flex' : 'none';
+}
+// 按当前 tab 统计省份数量分布，刷新图例数字
+function renderMapLegend(tab){
+  const buckets=[0,0,0,0,0]; // [≥30, 15-30, 8-15, 3-8, <3]
+  // 全国 31 个省级行政区（不含港澳台、若 mock 中无值则计入 <3 桶）
+  const provNames=Object.keys(mock);
+  provNames.forEach(prov=>{
+    const d=mock[prov] && mock[prov][tab];
+    const c=(d && d.count) || 0;
+    if      (c >= 30) buckets[0]++;
+    else if (c >= 15) buckets[1]++;
+    else if (c >= 8 ) buckets[2]++;
+    else if (c >= 3 ) buckets[3]++;
+    else              buckets[4]++;
+  });
+  ['lgB1','lgB2','lgB3','lgB4','lgB5'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=buckets[i];
+  });
+}
+window.renderMapSide=function(){
+  syncDsLayerTabs();
+  renderMapLegend(currentTab);
+  const meta=tabMeta[currentTab];
+  const list=aggProducts(currentTab);
+  const totalCompany=list.reduce((a,x)=>a+x.total,0);
+  // 在下游+总图谱时把层级名追加到子标题，便于辨识当前显示的是哪一层
+  const layerLbl = (currentTab==='downstream' && mapChain==='all') ? (' · '+(currentDsLayer==='modify'?'改性层':'终端应用层')) : '';
+  document.getElementById('msTitle').textContent=meta.sub;
+  document.getElementById('msSub').textContent='按企业数量分布 · '+meta.label+layerLbl;
+  document.getElementById('msCnt').innerHTML='共 <b>'+list.length+'</b> 类 · 合计 <b>'+totalCompany+'</b> 家';
+  const listEl=document.getElementById('msList');
+  if(!list.length){
+    listEl.innerHTML='<div class="ms-empty">暂无品类数据</div>';
+  }else{
+    listEl.innerHTML=list.map((x,i)=>(
+      '<div class="ms-it'+(i<3?' top':'')+'" data-product="'+x.name.replace(/"/g,'&quot;')+'" title="点击查看该品类的在产企业列表">'
+      +'<span class="ms-rk">'+String(i+1).padStart(2,'0')+'</span>'
+      +'<span class="ms-name" title="'+x.name+'">'+x.name+'</span>'
+      +'<span class="ms-pv"><b>'+x.total+'</b>家</span>'
+      +'</div>'
+    )).join('');
+    // 点击品类 → 弹出企业列表（按反馈：下钻看在产企业）
+    listEl.querySelectorAll('.ms-it').forEach(el=>{
+      el.addEventListener('click',()=>openCatModal(el.dataset.product, currentTab));
+    });
+  }
+};
+window.renderMapSide();
+// 绑定改性/终端层切换
+document.querySelectorAll('#dsLayerTabs .dlt').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('#dsLayerTabs .dlt').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    currentDsLayer = el.dataset.layer;
+    if (window.renderMapSide) window.renderMapSide();
+  });
+});
+// ── 产业链切换：刷新行业创新数字（按链 mock 一组数字）+ 联动地图侧栏
+const innovByChain={
+  all:154, starch:18, cell:22, hemi:9, 'plant-oil':12, 'plant-pro':14, 'plant-gel':6,
+  'ani-pro':16, 'ani-oil':8, chitin:5, coal:24, oil:20
+};
+// ── 行业创新：每条产业链对应的产品/环节列表（参照 驾驶舱-产业链版图-2.html 中各链节点）
+//    第一项始终是 {key:'all', name:'全部'}
+const chainProducts = {
+  all: [
+    {key:'all',name:'全部'},
+    {key:'PBAT',name:'PBAT'},{key:'PLA',name:'PLA'},{key:'PBS',name:'PBS'},{key:'PBSA',name:'PBSA'},
+    {key:'PHA',name:'PHA'},{key:'PGA',name:'PGA'},{key:'PCL',name:'PCL'},{key:'PPC',name:'PPC'},
+    {key:'PBST',name:'PBST'},{key:'PBSC',name:'PBSC'}
+  ],
+  starch: [
+    {key:'all',name:'全部'},
+    {key:'TPS',name:'TPS（热塑性淀粉）'},{key:'glcs',name:'糖化液'},{key:'lac',name:'乳酸'},
+    {key:'PLA',name:'PLA'},{key:'PHA',name:'PHA'},{key:'淀粉基复合',name:'淀粉基复合材料'}
+  ],
+  cell: [
+    {key:'all',name:'全部'},
+    {key:'纤维素',name:'纤维素'},{key:'纤维素酯',name:'纤维素酯'},
+    {key:'MG',name:'MG（乙醇酸甲酯）'},{key:'GA',name:'乙醇酸 GA'},
+    {key:'粗乙交酯',name:'粗乙交酯'},{key:'PGA',name:'PGA'}
+  ],
+  hemi: [
+    {key:'all',name:'全部'},
+    {key:'木糖醇',name:'木糖醇'},{key:'糠醛',name:'糠醛'},
+    {key:'PHA',name:'PHA'},{key:'PLA',name:'PLA'}
+  ],
+  'plant-oil': [
+    {key:'all',name:'全部'},
+    {key:'FAPO',name:'FAPO（油脂多元醇）'},{key:'WPU',name:'WPU 胶膜'},{key:'PHA',name:'PHA'}
+  ],
+  'plant-pro': [
+    {key:'all',name:'全部'},
+    {key:'植物蛋白基',name:'植物蛋白基复合'},{key:'生鲜冷链托盘',name:'生鲜冷链托盘'},
+    {key:'蛋托',name:'蛋托'},{key:'植物基薄膜',name:'植物基薄膜'}
+  ],
+  'plant-gel': [
+    {key:'all',name:'全部'},
+    {key:'海藻酸钠',name:'海藻酸钠'},{key:'卡拉胶',name:'卡拉胶'},{key:'阿拉伯胶',name:'阿拉伯胶'}
+  ],
+  'ani-pro': [
+    {key:'all',name:'全部'},
+    {key:'角蛋白',name:'角蛋白'},{key:'明胶',name:'明胶'},{key:'胶原蛋白',name:'胶原蛋白'},{key:'丝蛋白',name:'丝蛋白'}
+  ],
+  'ani-oil': [
+    {key:'all',name:'全部'},
+    {key:'多元醇',name:'多元醇'},{key:'PHA',name:'PHA'},{key:'油脂环氧化',name:'油脂环氧化'}
+  ],
+  chitin: [
+    {key:'all',name:'全部'},
+    {key:'壳聚糖',name:'壳聚糖'},{key:'壳聚糖粉末',name:'工业级壳聚糖粉末'},{key:'壳寡糖',name:'壳寡糖'}
+  ],
+  coal: [
+    {key:'all',name:'全部'},
+    {key:'DMO',name:'DMO（草酸二甲酯）'},{key:'PGA',name:'PGA'},{key:'甲醇',name:'甲醇'},
+    {key:'PPC',name:'PPC'},{key:'BDO',name:'BDO'},{key:'PBAT',name:'PBAT'},{key:'PBS',name:'PBS'},
+    {key:'PBSA',name:'PBSA'},{key:'PBSC',name:'PBSC'},{key:'PBST',name:'PBST'},{key:'PHA',name:'PHA'}
+  ],
+  oil: [
+    {key:'all',name:'全部'},
+    {key:'PX',name:'PX'},{key:'PTA',name:'PTA'},{key:'PBAT',name:'PBAT'},
+    {key:'KA油',name:'KA 油'},{key:'AA',name:'AA（己二酸）'},{key:'ε-己内酯',name:'ε-己内酯'},{key:'PCL',name:'PCL'}
+  ]
+};
+let curInnovProd = 'all';
+function renderInnovProdSel(){
+  const sel = document.getElementById('innovProdSel');
+  const dd = document.getElementById('innovProdDd');
+  const valEl = document.getElementById('innovProdVal');
+  if (!sel || !dd) return;
+  const items = chainProducts[innovChain] || chainProducts.all;
+  // 切链时重置为 全部
+  if (!items.find(x => x.key === curInnovProd)) curInnovProd = 'all';
+  dd.innerHTML = items.map(it => (
+    '<div class="chain-dd-it'+(it.key===curInnovProd?' cur':'')+'" data-key="'+it.key+'">'+it.name+'</div>'
+  )).join('');
+  valEl.textContent = (items.find(x=>x.key===curInnovProd)||items[0]).name;
+}
+function bindInnovProdSel(){
+  const sel = document.getElementById('innovProdSel');
+  if (!sel) return;
+  renderInnovProdSel();
+  sel.addEventListener('click', e => {
+    if (e.target.classList.contains('chain-dd-it')) {
+      const k = e.target.dataset.key;
+      const items = chainProducts[innovChain] || chainProducts.all;
+      const it = items.find(x => x.key === k);
+      if (it) {
+        curInnovProd = k;
+        document.getElementById('innovProdVal').textContent = it.name;
+        renderInnovProdSel();
+        updateInnovNum();
+      }
+      sel.classList.remove('open');
+      e.stopPropagation();
+      return;
+    }
+    document.querySelectorAll('.chain-sel.open').forEach(s => { if (s !== sel) s.classList.remove('open'); });
+    sel.classList.toggle('open');
+    e.stopPropagation();
+  });
+}
+function updateInnovNum(){
+  const baseChain = innovByChain[innovChain] != null ? innovByChain[innovChain] : 0;
+  const items = chainProducts[innovChain] || chainProducts.all;
+  // 选择"全部" → 显示该链总数；选择具体产品 → 按比例分摊（产品数 = 总数 / 子项数 ± 微小波动）
+  let num = baseChain;
+  if (curInnovProd !== 'all' && items.length > 1) {
+    const subCount = items.length - 1;
+    const idx = items.findIndex(x => x.key === curInnovProd);
+    // 用 idx 做种子保证稳定
+    const variance = ((idx * 7919) % 100 - 50) / 100; // -0.5 ~ 0.5
+    num = Math.max(1, Math.round(baseChain / subCount * (1 + variance * 0.3)));
+  }
+  const el = document.getElementById('innovNum');
+  if (el) el.textContent = num;
+}
+// （旧的 onChainChange 已废弃：两个 chain-sel 各自维护回调，互不联动）
+// chainProducts/curInnovProd 等已定义，现在再初始化 chain-sel（避免 const 暂时性死区错误）
+initAllChainSels();
+
+// ── 品类 → 企业列表 下钻弹窗（复用专利弹窗外壳）
+function openCatModal(product, tab){
+  // 聚合所有省份中含该 product 的企业 + 数量
+  const provs=[];
+  let totalCompanies=0;
+  Object.entries(mock).forEach(([prov,dim])=>{
+    const d=dim[tab]; if(!d||!d.count) return;
+    if((d.items||[]).indexOf(product)>=0){
+      const share=Math.max(1,Math.round(d.count/(d.items.length||1)));
+      provs.push({prov:prov, count:share});
+      totalCompanies+=share;
+    }
+  });
+  // 生成假企业（每省取 share 家）
+  const allRows=[];
+  provs.forEach(p=>{
+    const arr=genCompanies(p.prov, tab, p.count);
+    arr.forEach(c=>allRows.push(Object.assign({},c,{prov:p.prov, fullProv: fullName[p.prov]||p.prov})));
+  });
+  allRows.sort((a,b)=>b.capital-a.capital);
+  const meta=tabMeta[tab];
+  const chainName=(chainList.find(c=>c.key===mapChain)||{name:'全部'}).name;
+
+  document.getElementById('patHead').innerHTML=
+    '<div class="h1">'+product+' 在产企业清单 <small>'+chainName+' · '+meta.label+' · 涉及 '+provs.length+' 省 / 共 '+totalCompanies+' 家</small></div>'+
+    '<span class="tag">品类：'+product+'</span>'+
+    '<span class="tag" style="color:'+meta.color+';border-color:'+meta.colorBd+';background:'+meta.colorBg+'">'+meta.label+'</span>';
+
+  const PAGE_SIZE=10;
+  const total=allRows.length;
+  const pages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  let curPage=1;
+  function renderTable(){
+    const start=(curPage-1)*PAGE_SIZE;
+    const slice=allRows.slice(start, start+PAGE_SIZE);
+    document.getElementById('patBody').innerHTML=
+      '<table class="pat-tbl s-tbl"><thead><tr>'+
+        '<th style="width:50px;text-align:center">序号</th>'+
+        '<th style="width:18%">企业名称</th>'+
+        '<th style="width:13%">社会信用代码</th>'+
+        '<th style="width:7%">所在省</th>'+
+        '<th style="width:27%">主营产品</th>'+
+        '<th style="width:9%;text-align:right">注册资本</th>'+
+        '<th style="width:18%">注册地址</th>'+
+        '<th style="width:8%;text-align:center">操作</th>'+
+      '</tr></thead><tbody>'+
+      slice.map(function(c,i){
+        const prodEsc=c.product.replace(/"/g,'&quot;');
+        const idx=start+i+1;
+        return '<tr>'+
+          '<td style="text-align:center"><span class="dl-row-num">'+String(idx).padStart(2,'0')+'</span></td>'+
+          '<td><span class="dl-comp-name">'+c.prov+c.name+'</span></td>'+
+          '<td><span class="dl-cc">'+c.creditCode+'</span></td>'+
+          '<td><span style="color:#a8c4e0">'+c.prov+'</span></td>'+
+          '<td><div class="dl-prod" title="'+prodEsc+'">'+c.product+'</div></td>'+
+          '<td style="text-align:right;white-space:nowrap">'+
+            '<span class="dl-cap">'+c.capital.toLocaleString()+'</span><span class="dl-cap-unit">万元</span>'+
+          '</td>'+
+          '<td><div class="dl-addr"><span>'+c.address+'</span></div></td>'+
+          '<td style="text-align:center"><span class="s-detail-btn pat-comp-detail-btn" data-gidx="'+(start+i)+'">详情</span></td>'+
+        '</tr>';
+      }).join('')+
+      '</tbody></table>'+
+      '<div class="s-pag">'+
+        '<span class="info">共 <b>'+total+'</b> 条 · 第 <b>'+curPage+'</b> / '+pages+' 页</span>'+
+        '<span class="pg" data-go="'+(curPage-1)+'"'+(curPage<=1?' style="opacity:.4;pointer-events:none"':'')+'>上一页</span>'+
+        Array.from({length:Math.min(pages,5)},(_,k)=>{const p=k+1;return '<span class="pg'+(p===curPage?' cur':'')+'" data-go="'+p+'">'+p+'</span>'}).join('')+
+        '<span class="pg" data-go="'+(curPage+1)+'"'+(curPage>=pages?' style="opacity:.4;pointer-events:none"':'')+'>下一页</span>'+
+      '</div>';
+    // 详情按钮
+    document.querySelectorAll('#patBody .pat-comp-detail-btn').forEach(b => b.addEventListener('click', () => {
+      const c = allRows[parseInt(b.dataset.gidx)];
+      if (c) openCompanyDetail(c.prov, c);
+    }));
+    // 分页按钮
+    document.querySelectorAll('#patBody .s-pag .pg').forEach(pg => pg.addEventListener('click', () => {
+      const g = parseInt(pg.dataset.go);
+      if (!isNaN(g) && g>=1 && g<=pages) { curPage=g; renderTable(); }
+    }));
+  }
+  renderTable();
+
+  document.getElementById('patModal').classList.add('show');
+}
+
+// ══════════════ 企业详情弹窗（工商信息） ══════════════
+function openCompanyDetail(provName, c){
+  const fullProv = (typeof fullName !== 'undefined' && fullName[provName]) || (provName + '省');
+  // 由企业名 + 省份生成稳定的工商字段
+  function rnd(seed, k){let h=2166136261;for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)}h=Math.imul(h^k,2654435761);return ((h>>>0)/4294967295)}
+  const seed = (provName + (c.name || ''));
+  const founded = (1995 + Math.floor(rnd(seed,1) * 28)) + '-' + String(Math.floor(rnd(seed,2)*12)+1).padStart(2,'0') + '-' + String(Math.floor(rnd(seed,3)*28)+1).padStart(2,'0');
+  const legalPersons = ['张明华','李伟强','王建国','刘志刚','陈彦军','赵宏伟','黄少华','周泽昊','吴俊杰','徐海峰'];
+  const legalPerson = legalPersons[Math.floor(rnd(seed,4)*legalPersons.length)];
+  const types = ['有限责任公司','股份有限公司','有限责任公司（中外合资）','有限责任公司（自然人投资或控股）'];
+  const compType = types[Math.floor(rnd(seed,5)*types.length)];
+  const industry = ['化学原料和化学制品制造业','橡胶和塑料制品业','研究和试验发展','生物降解新材料制造','合成材料制造'][Math.floor(rnd(seed,6)*5)];
+  const empRange = ['10-50 人','50-200 人','200-500 人','500-1000 人','1000 人以上'][Math.floor(rnd(seed,7)*5)];
+  const tax = '91' + (Math.floor(rnd(seed,8)*9999999999999999)).toString().slice(0,15);
+  const phone = '0' + (Math.floor(rnd(seed,9)*900)+100) + '-' + (Math.floor(rnd(seed,10)*90000000)+10000000);
+  const email = ('contact' + Math.floor(rnd(seed,11)*999) + '@' + (c.name||'comp').slice(0,4).toLowerCase().replace(/[^a-z0-9]/g,'') + '.com.cn');
+  const status = '存续（在营、开业、在册）';
+  const website = 'www.' + (c.name||'comp').slice(0,4).toLowerCase().replace(/[^a-z0-9]/g,'') + '.com.cn';
+  const fullCompName = (provName.length<=2?provName:provName.slice(0,2)) + (c.name || '');
+  document.getElementById('compDetailTitle').textContent = '企业详情 — ' + fullCompName;
+  document.getElementById('compDetailBody').innerHTML =
+    '<div class="s-detail-sect-h">基本信息（工商登记）</div>'+
+    '<div class="s-detail-grid">'+
+      '<div>企业名称</div><div class="s-tbl-name">'+fullCompName+'</div>'+
+      '<div>统一社会信用代码</div><div><span class="s-tbl-no">'+(c.creditCode||tax)+'</span></div>'+
+      '<div>法定代表人</div><div>'+legalPerson+'</div>'+
+      '<div>注册资本</div><div><span style="color:#3ad4ff;font-family:DIN,Arial;font-weight:700">'+(c.capital||0).toLocaleString()+'</span> 万元</div>'+
+      '<div>成立日期</div><div>'+founded+'</div>'+
+      '<div>登记状态</div><div><span style="color:#42d29a">'+status+'</span></div>'+
+      '<div>企业类型</div><div>'+compType+'</div>'+
+      '<div>所属行业</div><div>'+industry+'</div>'+
+      '<div>所属地区</div><div>'+fullProv+'</div>'+
+      '<div>人员规模</div><div>'+empRange+'</div>'+
+      '<div>纳税人识别号</div><div><span class="s-tbl-no">'+tax+'</span></div>'+
+      '<div>营业期限</div><div>'+founded+' 至 长期</div>'+
+      '<div>联系电话</div><div><span style="color:#dbeaff">'+phone+'</span></div>'+
+      '<div>电子邮箱</div><div><span style="color:#dbeaff">'+email+'</span></div>'+
+      '<div>企业官网</div><div><a href="javascript:void(0)" style="color:#3ad4ff">'+website+'</a></div>'+
+      '<div>所属产业链</div><div>降解材料产业链</div>'+
+      '<div class="full">注册地址</div><div class="full" style="color:#dbeaff">'+(c.address||'-')+'</div>'+
+      '<div class="full">经营范围</div><div class="full" style="color:#dbeaff;line-height:1.7">'+(c.product||'-')+'</div>'+
+    '</div>';
+  document.getElementById('compDetailModal').classList.add('show');
+}
+document.getElementById('compDetailClose').addEventListener('click', () => document.getElementById('compDetailModal').classList.remove('show'));
+document.getElementById('compDetailModal').addEventListener('click', e => { if(e.target.id==='compDetailModal') document.getElementById('compDetailModal').classList.remove('show'); });
+
+// ── 省份悬浮卡片
+const tt=document.createElement('div');
+tt.className='tip';
+document.body.appendChild(tt);
+
+window.buildTip=function(name){
+  const data=mock[name];
+  const meta=tabMeta[currentTab];
+  const fn=fullName[name]||(name+' 省');
+  if(!data){
+    return '<div class="tip-name">'+fn+'</div><div class="tip-empty">暂无数据</div>';
+  }
+  const v=data[currentTab];
+  let body='';
+  if(v.count===0||!v.items.length){
+    body='<div class="tip-empty">暂无 '+meta.label+' 数据</div>';
+  }else{
+    const tags=v.items.slice(0,8).map(t=>'<span class="tip-item">'+t+'</span>').join('');
+    const more=v.items.length>8?'<span class="tip-item" style="background:transparent;color:#7fa3c8">+'+(v.items.length-8)+' 项</span>':'';
+    body=
+      '<div class="tip-row">'+
+        '<span class="tip-tag" style="color:'+meta.color+';border-color:'+meta.colorBd+';background:'+meta.colorBg+'">'+meta.label+'</span>'+
+        '<span class="tip-num" style="color:'+meta.color+'"><b>'+v.count+'</b><em>'+meta.unit+'</em></span>'+
+      '</div>'+
+      '<div class="tip-sub">'+meta.sub+'（共 '+v.items.length+' 类）</div>'+
+      '<div class="tip-items">'+tags+more+'</div>'+
+      '<div class="tip-foot" style="justify-content:center"><span style="color:#3ad4ff">点击省份查看所有企业 ›</span></div>';
+  }
+  return '<div class="tip-name">'+fn+' <small>区域分布</small></div>'+body;
+}
+
+// ── 省份名称叠加（按反馈：地图上要显示省份名）
+;(function renderProvLabels(){
+  const mapEl=document.querySelector('.map');
+  if(!mapEl) return;
+  // 简短显示名（部分省份地图区域较小，按大小区分字号）
+  const shortName={'新疆':'新疆','内蒙古':'内蒙古','西藏':'西藏','黑龙江':'黑龙江','吉林':'吉林','辽宁':'辽宁',
+    '甘肃':'甘肃','青海':'青海','宁夏':'宁夏','陕西':'陕西','山西':'山西','河北':'河北','北京':'北京',
+    '天津':'天津','山东':'山东','河南':'河南','四川':'四川','重庆':'重庆','湖北':'湖北','湖南':'湖南',
+    '江苏':'江苏','上海':'上海','浙江':'浙江','安徽':'安徽','江西':'江西','福建':'福建',
+    '广东':'广东','广西':'广西','海南':'海南','贵州':'贵州','云南':'云南','台湾':'台湾',
+    '香港':'香港','澳门':'澳门'};
+  // 极小区域不显示（避免重叠）
+  const tinyHide={'香港':1,'澳门':1,'北京':0,'天津':0,'上海':0};
+  // 形状不规则（弯月/L 形）的省份：外接矩形中心不在填充内，手动指定标签位置
+  const customPos={
+    '内蒙古':{x:560, y:210}   // 标签放在中东部"宽厚段"，避开蒙古国凹侧
+  };
+
+  document.querySelectorAll('.map img.prov').forEach(img=>{
+    const nm=img.dataset.name;
+    if(tinyHide[nm]) return;
+    const cp=customPos[nm];
+    const x=cp ? cp.x : (parseFloat(img.style.left)+parseFloat(img.style.width)/2);
+    const y=cp ? cp.y : (parseFloat(img.style.top) +parseFloat(img.style.height)/2);
+    const w=parseFloat(img.style.width);
+    const label=document.createElement('div');
+    label.className='prov-label';
+    if(w<35) label.classList.add('muted');
+    else if(w<80) label.classList.add('small');
+    label.textContent=shortName[nm]||nm;
+    label.style.left=x+'px';
+    label.style.top=y+'px';
+    mapEl.appendChild(label);
+  });
+})();
+
+document.querySelectorAll('.prov').forEach(p=>{
+  p.addEventListener('mousemove',e=>{
+    tt.innerHTML=window.buildTip(p.dataset.name);
+    // 防止超出右下边界
+    const tw=tt.offsetWidth||280, th=tt.offsetHeight||220;
+    let x=e.clientX+16, y=e.clientY+16;
+    if(x+tw>window.innerWidth) x=e.clientX-tw-16;
+    if(y+th>window.innerHeight) y=e.clientY-th-16;
+    tt.style.left=x+'px'; tt.style.top=y+'px'; tt.style.display='block';
+  });
+  p.addEventListener('mouseleave',()=>{ tt.style.display='none'; });
+  p.addEventListener('click',()=>{ openDetail(p.dataset.name); });
+  p.style.cursor='pointer';
+});
+
+// ── 省份详情抽屉
+const dlMask=document.getElementById('dlMask');
+const dlPanel=document.getElementById('dlPanel');
+const dlHead=document.getElementById('dlHead');
+const dlBody=document.getElementById('dlBody');
+document.getElementById('dlClose').addEventListener('click',closeDetail);
+dlMask.addEventListener('click',closeDetail);
+function closeDetail(){dlMask.classList.remove('show');dlPanel.classList.remove('show')}
+
+// 简单的伪随机：基于字符串生成稳定数字
+function seedRand(str,i){let h=2166136261;for(let k=0;k<str.length;k++){h^=str.charCodeAt(k);h=Math.imul(h,16777619)}h=Math.imul(h^i,2654435761);return ((h>>>0)/4294967295)}
+
+// 公司名生成模板（按维度风格不同）
+const companySuffix={
+  upstream:['化工股份','石化集团','能源化工','材料股份','化纤股份','基础化学','合成材料','化学工业'],
+  chain:['新材料股份','降解科技','聚合科技','环保新材','可降解材料','聚酯科技','生物材料','新材集团'],
+  downstream:['包装制品','农业科技','医疗器械','日化集团','农膜制品','薄膜科技','制品集团','应用科技']
+};
+const cityMap={
+  '新疆':['乌鲁木齐','昌吉','伊犁','石河子','库尔勒'],'内蒙古':['呼和浩特','包头','鄂尔多斯','通辽'],
+  '黑龙江':['哈尔滨','齐齐哈尔','大庆'],'吉林':['长春','吉林','四平'],'辽宁':['沈阳','大连','鞍山','营口'],
+  '北京':['海淀','朝阳','大兴','顺义'],'天津':['滨海','武清','静海'],
+  '河北':['石家庄','保定','沧州','邯郸'],'山西':['太原','长治','晋城'],
+  '上海':['浦东','金山','奉贤','宝山'],'江苏':['南京','苏州','无锡','常州','南通','盐城'],
+  '浙江':['杭州','宁波','嘉兴','台州','绍兴'],'安徽':['合肥','蚌埠','芜湖'],
+  '福建':['厦门','福州','泉州','莆田'],'江西':['南昌','九江','宜春'],
+  '山东':['济南','青岛','潍坊','淄博','烟台','东营'],'河南':['郑州','洛阳','开封','新乡'],
+  '湖北':['武汉','宜昌','襄阳'],'湖南':['长沙','株洲','岳阳'],
+  '广东':['深圳','广州','东莞','佛山','珠海','中山'],'广西':['南宁','柳州','北海'],
+  '海南':['海口','三亚','儋州'],'重庆':['渝北','涪陵','长寿'],
+  '四川':['成都','德阳','宜宾','泸州'],'贵州':['贵阳','遵义'],'云南':['昆明','曲靖'],
+  '西藏':['拉萨'],'陕西':['西安','咸阳','榆林'],'甘肃':['兰州','酒泉','金昌'],
+  '青海':['西宁','格尔木'],'宁夏':['银川','石嘴山','宁东'],
+  '台湾':['台北','高雄'],'香港':['香港'],'澳门':['澳门']
+};
+const namePrefix=['华','瑞','恒','盛','长','百','环','蓝山','屯河','金','正','宇','安','峰','晟','禾','创','鼎','宏','嘉'];
+
+// 直辖市/特别行政区/自治区 完整名映射
+const directCity={'北京':1,'天津':1,'上海':1,'重庆':1};
+const sarCity={'香港':1,'澳门':1};
+const provFullName={'新疆':'新疆维吾尔自治区','内蒙古':'内蒙古自治区','广西':'广西壮族自治区','西藏':'西藏自治区','宁夏':'宁夏回族自治区'};
+const streetTpl=['工业园区','经济开发区','高新技术开发区','化工园区','产业基地','科技园','滨江路','建设路','创业大道','人民路','解放路','中山路','和平路','迎宾大道','长江路','黄河路'];
+// 省份行政区划代码前两位
+const provCode={'北京':'11','天津':'12','河北':'13','山西':'14','内蒙古':'15','辽宁':'21','吉林':'22','黑龙江':'23','上海':'31','江苏':'32','浙江':'33','安徽':'34','福建':'35','江西':'36','山东':'37','河南':'41','湖北':'42','湖南':'43','广东':'44','广西':'45','海南':'46','重庆':'50','四川':'51','贵州':'52','云南':'53','西藏':'54','陕西':'61','甘肃':'62','青海':'63','宁夏':'64','新疆':'65','台湾':'71','香港':'81','澳门':'82'};
+// 18 位社会信用代码生成（结构: 9 + 1 + 6行政区 + 9主体码 + 1校验，使用 0-9A-Z 去除 I O S V Z）
+const ccChars='0123456789ABCDEFGHJKLMNPQRTUWXY';
+function genCreditCode(prov,tab,i){
+  const pc=provCode[prov]||'00';
+  const dist=Math.floor(seedRand(prov+tab+'cc',i)*9999).toString().padStart(4,'0');
+  let code='91'+pc+dist;
+  for(let k=0;k<10;k++){
+    code+=ccChars[Math.floor(seedRand(prov+tab+'ccm',i*10+k)*ccChars.length)];
+  }
+  return code;
+}
+function genAddress(prov,city,seed){
+  const street=streetTpl[Math.floor(seedRand(prov+city+'st',seed)*streetTpl.length)];
+  const no=Math.floor(seedRand(prov+city+'no',seed)*888)+1;
+  if(directCity[prov]) return prov+'市'+city+'区'+street+no+'号';
+  if(sarCity[prov]) return prov+'特别行政区'+city+'区'+street+no+'号';
+  const full=provFullName[prov]||(prov+'省');
+  return full+city+'市'+street+no+'号';
+}
+
+// 主营产品长文本模板（模拟工商登记中的"经营范围"风格，含产品列表 + 业务动词）
+const productTpls=[
+  '主营 {LIST} 等生物可降解新材料的研发、生产与销售；化工产品技术开发、技术咨询、技术转让。',
+  '从事 {LIST} 等可降解高分子材料的生产、加工及技术服务；货物及技术进出口业务。',
+  '专注于 {LIST} 等生物降解材料及改性产品的研发、生产、销售；相关化工设备维护服务。',
+  '生物降解新材料制造商，主要产品包括 {LIST} 及配套化工原料、添加剂、助剂；批发零售。',
+  '{LIST} 等绿色环保材料的研发、制造、销售及技术咨询；化工原料及产品（不含危险品）的批发零售；进出口贸易。',
+  '研发、生产、销售 {LIST} 等系列产品；提供产品定制改性、技术咨询及配套服务。',
+  '生产经营 {LIST} 等可降解新材料及其制品；货物运输（不含危险品）、仓储服务。',
+  '主营 {LIST} 等高分子材料；从事相关产品研发、技术转让、检测服务及进出口业务。'
+];
+function genProductDesc(items,seed){
+  if(!items||!items.length||(items.length===1&&items[0]==='—')) return '主营生物降解相关材料的研发、生产与销售，具体产品以工商登记为准。';
+  // 选 2~5 个产品
+  const pickN=Math.min(items.length, 2+Math.floor(seedRand('pn',seed)*4));
+  // 偏移起点，让不同企业拿到不同子集
+  const start=Math.floor(seedRand('ps',seed)*items.length);
+  const picks=[];
+  for(let k=0;k<pickN;k++) picks.push(items[(start+k)%items.length]);
+  const list=picks.join('、');
+  const tpl=productTpls[Math.floor(seedRand('pt',seed)*productTpls.length)];
+  return tpl.replace('{LIST}',list);
+}
+
+function genCompanies(prov,tab,n){
+  const items=mock[prov][tab].items;
+  const cities=cityMap[prov]||[prov];
+  const sufs=companySuffix[tab];
+  const rows=[];
+  for(let i=0;i<n;i++){
+    const r1=seedRand(prov+tab,i);
+    const r2=seedRand(prov+tab+'b',i);
+    const r3=seedRand(prov+tab+'c',i);
+    const city=cities[Math.floor(r2*cities.length)];
+    rows.push({
+      name: namePrefix[Math.floor(r1*namePrefix.length)]+sufs[i%sufs.length],
+      creditCode: genCreditCode(prov,tab,i),
+      product: genProductDesc(items,prov+tab+i),
+      capital: Math.round((r3*0.7+0.4)*5000*(1-i*0.05)/100)*100,
+      address: genAddress(prov,city,i)
+    });
+  }
+  rows.sort((a,b)=>b.capital-a.capital);
+  return rows;
+}
+
+// 月度趋势（12个月企业累计数：从约 70%base 平稳上升到 base，含小波动）
+function genMonthly(prov,tab,base){
+  const arr=[];
+  for(let i=0;i<12;i++){
+    const r=seedRand(prov+tab+'m',i);
+    // 起步 ≈ 65%base，每月递增约 3%base，叠加 ±5% 抖动；最终接近当前值
+    const v=base*(0.65+i*0.03+r*0.06);
+    arr.push(Math.max(1,Math.round(v)));
+  }
+  return arr;
+}
+
+window.openDetail=function(name){
+  const data=mock[name];
+  const meta=tabMeta[currentTab];
+  const fn=fullName[name]||(name+' 省');
+  if(!data||!data[currentTab].count){
+    dlHead.innerHTML='<div class="dl-prov">'+fn+'</div><span class="dl-tag" style="color:#7fa3c8;border-color:rgba(120,160,200,.3);background:rgba(120,160,200,.08)">暂无 '+meta.label+' 数据</span>';
+    dlBody.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:80px 0;color:#5e85b0;font-size:13px">该省份当前维度暂无可展示企业，请切换其它维度查看。</div>';
+    dlMask.classList.add('show');dlPanel.classList.add('show');
+    return;
+  }
+  const v=data[currentTab];
+  const ranked=Object.entries(mock).map(function(e){return [e[0],e[1][currentTab].count]}).sort(function(a,b){return b[1]-a[1]});
+  const rank=ranked.findIndex(function(e){return e[0]===name})+1;
+
+  // 头部
+  dlHead.innerHTML=
+    '<div class="dl-prov">'+fn+' <small>'+meta.label+'清单 · 共 '+v.count+' 家</small></div>'+
+    '<span class="dl-tag" style="color:'+meta.color+';border-color:'+meta.colorBd+';background:'+meta.colorBg+'">'+meta.label+' · '+v.count+' 家</span>'+
+    '<span class="dl-tag" style="margin-left:6px;color:#3ad4ff;border-color:rgba(58,212,255,.4);background:rgba(58,212,255,.1)">企业数量省份排名 第 '+rank+'</span>';
+
+  // 全部企业
+  const allComps=genCompanies(name,currentTab,v.count);
+  const maxCap=Math.max.apply(null,allComps.map(function(c){return c.capital}))||1;
+  const PAGE_SIZE=10;
+  let curPage=1, searchQ='';
+
+  // 静态结构：工具栏 + 表格容器 + 分页容器
+  dlBody.innerHTML=
+    '<div class="dl-main">'+
+      '<div class="dl-toolbar">'+
+        '<div class="dl-search"><input id="dlSearch" placeholder="搜索企业名称..."/></div>'+
+        '<div class="dl-toolbar-info">共 <b>'+v.count+'</b> 家企业  ·  显示 <b id="dlShown">'+v.count+'</b> 条</div>'+
+      '</div>'+
+      '<div class="dl-tbl-wrap"><table class="dl-tbl" id="dlTable"><thead><tr>'+
+        '<th style="width:56px;text-align:center">序号</th>'+
+        '<th style="width:17%">企业名称</th>'+
+        '<th style="width:13%">社会信用代码</th>'+
+        '<th style="width:28%">主营产品</th>'+
+        '<th style="width:10%;text-align:right">注册资本</th>'+
+        '<th style="width:20%">注册地址</th>'+
+        '<th style="width:8%;text-align:center">操作</th>'+
+      '</tr></thead><tbody></tbody></table></div>'+
+      '<div class="dl-pag" id="dlPag"></div>'+
+    '</div>';
+
+  function renderRows(){
+    const filtered=searchQ?allComps.filter(function(c){return (name+c.name).toLowerCase().indexOf(searchQ)>=0}):allComps;
+    const total=filtered.length;
+    const pages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+    if(curPage>pages) curPage=pages;
+    if(curPage<1) curPage=1;
+    const start=(curPage-1)*PAGE_SIZE;
+    const slice=filtered.slice(start,start+PAGE_SIZE);
+    document.getElementById('dlShown').textContent=total;
+    const tbody=dlBody.querySelector('#dlTable tbody');
+    if(!total){
+      tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#5e85b0;padding:60px 0;font-size:13px">⌕  未找到匹配的企业</td></tr>';
+    }else{
+      tbody.innerHTML=slice.map(function(c,i){
+        const idx=start+i+1;
+        const prodEsc=c.product.replace(/"/g,'&quot;');
+        return '<tr>'+
+          '<td style="text-align:center"><span class="dl-row-num">'+String(idx).padStart(2,'0')+'</span></td>'+
+          '<td><span class="dl-comp-name">'+name+c.name+'</span></td>'+
+          '<td><span class="dl-cc">'+c.creditCode+'</span></td>'+
+          '<td><div class="dl-prod" title="'+prodEsc+'">'+c.product+'</div></td>'+
+          '<td style="text-align:right;white-space:nowrap">'+
+            '<span class="dl-cap">'+c.capital.toLocaleString()+'</span><span class="dl-cap-unit">万元</span>'+
+          '</td>'+
+          '<td><div class="dl-addr">'+
+            '<svg class="dl-addr-icon" width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.5 6 8 6 8s6-3.5 6-8c0-3.3-2.7-6-6-6zm0 8.2A2.2 2.2 0 116 3.8a2.2 2.2 0 010 4.4z" fill="currentColor"/></svg>'+
+            '<span>'+c.address+'</span>'+
+          '</div></td>'+
+          '<td style="text-align:center"><span class="s-detail-btn comp-detail-btn" data-idx="'+(start+i)+'">详情</span></td>'+
+        '</tr>';
+      }).join('');
+      // 绑定详情按钮（基于本次过滤后的列表，记录索引）
+      tbody.querySelectorAll('.comp-detail-btn').forEach(b => b.addEventListener('click', () => {
+        const c = filtered[parseInt(b.dataset.idx)];
+        if (c) openCompanyDetail(name, c);
+      }));
+    }
+    renderPag(pages,total);
+  }
+
+  function renderPag(pages,total){
+    const cur=curPage;
+    let h='<div class="dl-pag-info">第 <b>'+cur+'</b> / '+pages+' 页 · 共 <b>'+total+'</b> 条</div>';
+    h+='<span class="pg'+(cur<=1?' dis':'')+'" data-page="'+(cur-1)+'">‹</span>';
+    const list=[1];
+    if(cur-2>2) list.push('...');
+    for(let p=Math.max(2,cur-1);p<=Math.min(pages-1,cur+1);p++){if(list.indexOf(p)<0) list.push(p)}
+    if(cur+2<pages-1) list.push('...');
+    if(pages>1 && list.indexOf(pages)<0) list.push(pages);
+    list.forEach(function(p){
+      if(p==='...') h+='<span class="ellipsis">···</span>';
+      else h+='<span class="pg'+(p===cur?' cur':'')+'" data-page="'+p+'">'+p+'</span>';
+    });
+    h+='<span class="pg'+(cur>=pages?' dis':'')+'" data-page="'+(cur+1)+'">›</span>';
+    h+='<span class="label">跳至</span><input type="number" min="1" max="'+pages+'" id="dlJump" value="'+cur+'"/><span class="label">页</span>';
+    document.getElementById('dlPag').innerHTML=h;
+  }
+
+  // 事件绑定
+  document.getElementById('dlSearch').addEventListener('input',function(e){
+    searchQ=e.target.value.trim().toLowerCase();
+    curPage=1;
+    renderRows();
+  });
+  document.getElementById('dlPag').addEventListener('click',function(e){
+    const t=e.target.closest('.pg');
+    if(!t||t.classList.contains('dis')) return;
+    const p=parseInt(t.dataset.page);
+    if(!isNaN(p)){curPage=p;renderRows()}
+  });
+  document.getElementById('dlPag').addEventListener('change',function(e){
+    if(e.target.id==='dlJump'){
+      const p=parseInt(e.target.value);
+      if(!isNaN(p)&&p>=1){curPage=p;renderRows()}
+    }
+  });
+  document.getElementById('dlPag').addEventListener('keydown',function(e){
+    if(e.target.id==='dlJump'&&e.key==='Enter'){
+      const p=parseInt(e.target.value);
+      if(!isNaN(p)&&p>=1){curPage=p;renderRows()}
+    }
+  });
+
+  renderRows();
+  dlMask.classList.add('show');dlPanel.classList.add('show');
+}
+
+// ══════════════ 最新报价模块 ══════════════
+// 七大类降解材料 + 假数据（保留产品名称/型号/企业名称/地区/价格/日期）
+const priceCategories=[
+  {key:'all',  name:'全部'},
+  {key:'PBAT', name:'PBAT'},
+  {key:'PLA',  name:'PLA'},
+  {key:'PBS',  name:'PBS/PBSA'},
+  {key:'PHA',  name:'PHA'},
+  {key:'PGA',  name:'PGA'},
+  {key:'PCL',  name:'PCL'},
+  {key:'PPC',  name:'PPC'}
+];
+const priceData=[
+  // PBAT
+  {cat:'PBAT', name:'PBAT 通用注塑级', model:'TH-801F',       enterprise:'蓝山屯河化工股份有限公司', area:'新疆 · 昌吉', price:13800, date:'2026-05-12'},
+  {cat:'PBAT', name:'PBAT 农膜专用料', model:'TH-806A',       enterprise:'蓝山屯河化工股份有限公司', area:'新疆 · 昌吉', price:13950, date:'2026-05-12'},
+  {cat:'PBAT', name:'PBAT 吹膜级',     model:'JF-PBAT-700',   enterprise:'金发科技股份有限公司',     area:'广东 · 广州', price:13650, date:'2026-05-12'},
+  {cat:'PBAT', name:'PBAT 共混料',     model:'WH-PBAT-805',   enterprise:'万华化学集团股份有限公司', area:'山东 · 烟台', price:13780, date:'2026-05-11'},
+  {cat:'PBAT', name:'PBAT 一次性餐具级', model:'JS-PBAT-T20', enterprise:'江苏盛虹石化',           area:'江苏 · 苏州', price:14100, date:'2026-05-11'},
+  // PLA
+  {cat:'PLA',  name:'PLA 注塑级',      model:'4032D',         enterprise:'NatureWorks 中国',        area:'上海 · 浦东', price:18600, date:'2026-05-12'},
+  {cat:'PLA',  name:'PLA 吹膜级',      model:'4043D',         enterprise:'NatureWorks 中国',        area:'上海 · 浦东', price:18900, date:'2026-05-12'},
+  {cat:'PLA',  name:'PLA 食品包装级',  model:'TJ-PLA-200',    enterprise:'丰原生物',               area:'安徽 · 蚌埠', price:17800, date:'2026-05-11'},
+  {cat:'PLA',  name:'PLA 纤维级',      model:'TJ-PLA-F300',   enterprise:'丰原生物',               area:'安徽 · 蚌埠', price:18200, date:'2026-05-10'},
+  // PBS
+  {cat:'PBS',  name:'PBS 通用级',      model:'BiONLY-100',    enterprise:'三菱化学（杭州）',        area:'浙江 · 杭州', price:21500, date:'2026-05-12'},
+  {cat:'PBS',  name:'PBSA 农膜级',     model:'BiONLY-200A',   enterprise:'三菱化学（杭州）',        area:'浙江 · 杭州', price:22800, date:'2026-05-12'},
+  {cat:'PBS',  name:'PBS 注塑级',      model:'XH-PBS-N30',    enterprise:'新疆蓝山屯河聚酯',       area:'新疆 · 昌吉', price:21200, date:'2026-05-11'},
+  // PHA
+  {cat:'PHA',  name:'PHA 通用级',      model:'BlueP-100',     enterprise:'蓝晶微生物',             area:'北京 · 海淀', price:48000, date:'2026-05-12'},
+  {cat:'PHA',  name:'PHA 医用级',      model:'BlueP-M200',    enterprise:'蓝晶微生物',             area:'北京 · 海淀', price:62000, date:'2026-05-11'},
+  // PGA
+  {cat:'PGA',  name:'PGA 通用级',      model:'SH-PGA-100',    enterprise:'上海化学工业研究院',     area:'上海 · 浦东', price:46500, date:'2026-05-12'},
+  {cat:'PGA',  name:'PGA 油田用',      model:'SH-PGA-300P',   enterprise:'上海化学工业研究院',     area:'上海 · 浦东', price:52000, date:'2026-05-10'},
+  // PCL
+  {cat:'PCL',  name:'PCL 通用级',      model:'CAPA-6500',     enterprise:'Perstorp 中国',          area:'江苏 · 苏州', price:38900, date:'2026-05-12'},
+  {cat:'PCL',  name:'PCL 医用级',      model:'CAPA-6800',     enterprise:'Perstorp 中国',          area:'江苏 · 苏州', price:56000, date:'2026-05-11'},
+  // PPC
+  {cat:'PPC',  name:'PPC 通用级',      model:'CHN-PPC-100',   enterprise:'中科金龙',               area:'河南 · 郑州', price:23800, date:'2026-05-12'},
+  {cat:'PPC',  name:'PPC 高阻隔级',    model:'CHN-PPC-300H',  enterprise:'中科金龙',               area:'河南 · 郑州', price:26500, date:'2026-05-10'}
+];
+let priceCurCat='all', priceCurArea='all';
+// 31 个省份/直辖市/特别行政区
+const priceAreas=[
+  {key:'all', name:'全国'},
+  {key:'新疆', name:'新疆'}, {key:'内蒙古', name:'内蒙古'}, {key:'黑龙江', name:'黑龙江'},
+  {key:'吉林', name:'吉林'}, {key:'辽宁', name:'辽宁'}, {key:'北京', name:'北京'},
+  {key:'天津', name:'天津'}, {key:'河北', name:'河北'}, {key:'山西', name:'山西'},
+  {key:'上海', name:'上海'}, {key:'江苏', name:'江苏'}, {key:'浙江', name:'浙江'},
+  {key:'安徽', name:'安徽'}, {key:'福建', name:'福建'}, {key:'江西', name:'江西'},
+  {key:'山东', name:'山东'}, {key:'河南', name:'河南'}, {key:'湖北', name:'湖北'},
+  {key:'湖南', name:'湖南'}, {key:'广东', name:'广东'}, {key:'广西', name:'广西'},
+  {key:'海南', name:'海南'}, {key:'重庆', name:'重庆'}, {key:'四川', name:'四川'},
+  {key:'贵州', name:'贵州'}, {key:'云南', name:'云南'}, {key:'西藏', name:'西藏'},
+  {key:'陕西', name:'陕西'}, {key:'甘肃', name:'甘肃'}, {key:'青海', name:'青海'},
+  {key:'宁夏', name:'宁夏'}
+];
+function renderPriceTable(){
+  const tbody=document.getElementById('priceTbody');
+  let filtered=priceData;
+  if(priceCurCat!=='all') filtered=filtered.filter(p=>p.cat===priceCurCat);
+  if(priceCurArea!=='all') filtered=filtered.filter(p=>p.area.indexOf(priceCurArea)>=0);
+  document.getElementById('priceTotal').textContent=filtered.length;
+  document.getElementById('pricePages').textContent=Math.max(1,Math.ceil(filtered.length/7));
+  if(!filtered.length){
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#5e85b0;padding:30px 0">⌕  当前筛选无报价数据</td></tr>';
+    return;
+  }
+  tbody.innerHTML=filtered.slice(0,7).map(p=>(
+    '<tr>'+
+      '<td>'+p.name+'</td>'+
+      '<td><span class="dl-cc">'+p.model+'</span></td>'+
+      '<td style="color:#cfe2f8">'+p.enterprise+'</td>'+
+      '<td>'+p.area+'</td>'+
+      '<td style="text-align:right" class="amt">'+p.price.toLocaleString()+'</td>'+
+      '<td>'+p.date+'</td>'+
+    '</tr>'
+  )).join('');
+}
+// 通用下拉初始化
+function bindPriceDd(selId, ddId, items, getCur, setCur, getLabel){
+  const sel=document.getElementById(selId);
+  const dd=document.getElementById(ddId);
+  if(!sel||!dd) return;
+  function render(){
+    dd.innerHTML=items.map(it=>(
+      '<div class="sel-dd-it'+(it.key===getCur()?' cur':'')+'" data-key="'+it.key+'">'+it.name+'</div>'
+    )).join('');
+  }
+  render();
+  sel.addEventListener('click', e=>{
+    if(e.target.classList.contains('sel-dd-it')){
+      const k=e.target.dataset.key;
+      const it=items.find(x=>x.key===k);
+      if(it){
+        setCur(k);
+        sel.querySelector('.sel-val').textContent=getLabel(it);
+        render();
+        renderPriceTable();
+      }
+      sel.classList.remove('open');
+      e.stopPropagation();
+      return;
+    }
+    document.querySelectorAll('.tbl-tools .sel.open').forEach(s=>{ if(s!==sel) s.classList.remove('open'); });
+    sel.classList.toggle('open');
+    e.stopPropagation();
+  });
+}
+bindPriceDd('priceCatSel','priceCatDd', priceCategories,
+  ()=>priceCurCat, k=>{priceCurCat=k}, it=>it.name);
+bindPriceDd('priceAreaSel','priceAreaDd', priceAreas,
+  ()=>priceCurArea, k=>{priceCurArea=k}, it=>it.name);
+document.addEventListener('click',()=>{
+  document.querySelectorAll('.tbl-tools .sel.open').forEach(s=>s.classList.remove('open'));
+});
+document.getElementById('priceQuery').addEventListener('click', renderPriceTable);
+renderPriceTable();
+
+// 调试钩子：URL 参数 demo / tab / detail 可自动展示某省份悬浮卡或详情面板
+try{
+  var q=new URLSearchParams(location.search);
+  var demo=q.get('demo');
+  if(demo){
+    var tab=q.get('tab')||'chain';
+    document.querySelectorAll('.st').forEach(function(x){
+      x.classList.remove('active');
+      var k=tabKey[x.textContent.trim()];
+      if(k===tab) x.classList.add('active');
+    });
+    currentTab=tab;
+    document.querySelector('.map-tag').textContent=mapTagText[tab];
+    if(window.renderMapSide) window.renderMapSide();
+    if(q.get('detail')==='1'){
+      window.openDetail(demo);
+    }else{
+      tt.innerHTML=window.buildTip(demo);
+      tt.style.left='540px';
+      tt.style.top='280px';
+      tt.style.display='block';
+    }
+  }
+}catch(e){console.error(e);}
+</script>
+</body>
+</html>
