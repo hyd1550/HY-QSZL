@@ -116,8 +116,12 @@ html,body{width:100%;height:100%;font-family:'PingFang SC','Microsoft YaHei',san
   text-shadow:0 0 8px rgba(58,212,255,.5)}
 .card-title::before{content:"";position:absolute;left:14px;top:14px;width:4px;height:14px;background:linear-gradient(180deg,#5fdcff,#1797b8);border-radius:1px;
   box-shadow:0 0 6px rgba(95,220,255,.7)}
-.card-title .more{float:right;font-size:12px;color:#5e85b0;font-weight:400;cursor:pointer;letter-spacing:0}
+.card-title .more{float:right;font-size:12px;color:#7fa3c8;font-weight:400;cursor:pointer;letter-spacing:0}
 .card-title .more:hover{color:#3ad4ff}
+/* 详情/查看 入口按钮（明显的按钮感，与"更多 >>"对齐） */
+.card-title .more.detail-link{padding:1px 8px;border-radius:3px;letter-spacing:1px;color:#3ad4ff;
+  background:rgba(58,212,255,.08);border:1px solid rgba(58,212,255,.22);transition:.15s}
+.card-title .more.detail-link:hover{color:#fff;background:rgba(58,212,255,.25);border-color:#3ad4ff}
 
 /* ───── 左栏 ─────（按反馈：三块等高） */
 .lcol{display:grid;grid-template-rows:1fr 1fr 1fr;gap:14px;min-height:0}
@@ -373,10 +377,12 @@ table.s-tbl tbody tr:hover{background:rgba(30,110,140,.22);box-shadow:inset 3px 
   background:linear-gradient(90deg,transparent 0%,rgba(58,212,255,.35) 40%,rgba(58,212,255,.6) 100%);position:relative}
 .expo-title .arrow-line::after{content:"";position:absolute;right:-2px;top:-3px;width:7px;height:7px;
   border-top:1.5px solid #3ad4ff;border-right:1.5px solid #3ad4ff;transform:rotate(45deg)}
-.expo-title .more{font-size:12px;color:#a8c4e0;letter-spacing:1px;cursor:pointer;
-  white-space:nowrap;padding-right:2px}
-.expo-title .more:hover{color:#3ad4ff}
+.expo-title .more{font-size:12px;color:#3ad4ff;letter-spacing:1.5px;cursor:pointer;
+  white-space:nowrap;padding:2px 9px;border-radius:3px;background:rgba(58,212,255,.10);
+  border:1px solid rgba(58,212,255,.28);transition:.15s}
+.expo-title .more:hover{color:#fff;background:rgba(58,212,255,.28);border-color:#3ad4ff}
 .expo-title .more::after{content:" »";color:#3ad4ff;margin-left:3px}
+.expo-title .more:hover::after{color:#fff}
 
 .kpi-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;
   grid-auto-rows:118px;gap:10px;padding:8px 4px 6px;
@@ -401,6 +407,19 @@ table.s-tbl tbody tr:hover{background:rgba(30,110,140,.22);box-shadow:inset 3px 
 .kpi-num{font-family:'DIN','Arial';font-size:21px;font-weight:700;color:#3ad4ff;line-height:1;letter-spacing:.5px;
   text-shadow:0 0 8px rgba(58,212,255,.4);white-space:nowrap}
 .kpi-num em{font-style:normal;font-size:11px;color:#7fa3c8;font-weight:400;margin-left:5px;letter-spacing:.3px}
+
+/* 上月累计出口 — 详情弹窗 */
+.expo-kpi-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;padding:14px 18px;
+  background:rgba(20,45,80,.45);border:1px solid rgba(60,160,200,.22);border-radius:4px}
+.expo-kpi-c{display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0}
+.expo-kpi-n{font-family:DIN,Arial;font-size:24px;font-weight:700;color:#3ad4ff;letter-spacing:.5px;
+  text-shadow:0 0 8px rgba(58,212,255,.4);line-height:1}
+.expo-kpi-l{font-size:11.5px;color:#7fa3c8;letter-spacing:1.2px}
+.expo-dest-tag{display:inline-block;font-size:11px;padding:1px 7px;margin:0 4px 2px 0;border-radius:2px;
+  background:rgba(58,212,255,.10);color:#a8e0ff;border:1px solid rgba(58,212,255,.22)}
+.expo-yoy-up{color:#42d29a;font-weight:600}
+.expo-yoy-down{color:#ff7a7a;font-weight:600}
+.expo-foot{margin-top:12px;font-size:11.5px;color:#5e85b0;letter-spacing:.5px;text-align:right}
 
 /* 上月累计出口 — 数字面板（4 列 × 2 行）— 旧版样式，已不再使用 */
 .expo-grid{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;
@@ -733,7 +752,7 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
 
         <!-- 行业创新（专利总数 + 近 12 个月专利数量趋势图，带产业链筛选） -->
         <div class="card" style="display:flex;flex-direction:column;overflow:hidden">
-          <div class="card-title">行业创新<span class="more">详情 ›</span></div>
+          <div class="card-title">行业创新<span class="more detail-link" id="innovDetailBtn">查看 ›</span></div>
           <div class="innov-chain">
             <div class="chain-sel" id="innovChainSel">
               <span class="chain-sel-label">产业链：</span>
@@ -1006,7 +1025,6 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
             <div class="mini-stat-row">
               <div class="mini-stat-num" id="outputNum">142.3</div>
               <div class="mini-stat-unit">亿元/年</div>
-              <div class="mini-stat-cmp"><span class="tag-up" id="outputCmp">↑ 22.5%</span><span class="mini-cmp-l">同比</span></div>
               <div class="mini-prod-sel" id="outputProdSel" style="margin-left:auto">
                 <span class="mps-l">产品：</span>
                 <span class="mps-v" id="outputProdVal">PBAT</span>
@@ -1077,7 +1095,7 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
                 <span class="diamond"></span>
                 <span class="ti">上月累计出口</span>
                 <span class="arrow-line"></span>
-                <span class="more">查看</span>
+                <span class="more" id="expoViewBtn">查看</span>
               </div>
             </div>
             <div class="mini-body">
@@ -1226,7 +1244,6 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
               <div class="mini-stat-row">
                 <div class="mini-stat-num" id="prodMonthlyNum">25.3</div>
                 <div class="mini-stat-unit">万吨/月</div>
-                <div class="mini-stat-cmp"><span class="tag-up" id="prodMonthlyCmp">↑ 18.5%</span><span class="mini-cmp-l">同比</span></div>
                 <div class="mini-prod-sel" id="prodMonthlySel" style="margin-left:auto">
                   <span class="mps-l">产品：</span>
                   <span class="mps-v" id="prodMonthlyVal">PBAT</span>
@@ -1370,6 +1387,15 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
         <button class="s-modal-close" id="patDetailClose">×</button>
         <div class="s-modal-hd"><div class="h1" id="patDetailTitle">专利详情</div></div>
         <div class="s-modal-body" id="patDetailBody"></div>
+      </div>
+    </div>
+
+    <!-- 上月累计出口 详情弹窗（产品出口明细 + 主要目的国） -->
+    <div class="s-modal" id="expoDetailModal">
+      <div class="s-modal-pnl">
+        <button class="s-modal-close" id="expoDetailClose">×</button>
+        <div class="s-modal-hd"><div class="h1">上月累计出口 — 详情（2026-04）</div></div>
+        <div class="s-modal-body" id="expoDetailBody"></div>
       </div>
     </div>
 
@@ -1912,6 +1938,125 @@ document.querySelectorAll('.innov-bar-hits rect').forEach(r => {
   });
 });
 
+// 行业创新「详情」按钮 → 打开近 12 个月全部专利列表（聚合各月数据）
+function openPatListAll(){
+  const bars = document.querySelectorAll('.innov-bars rect[data-month]');
+  let allData = [];
+  bars.forEach(b => {
+    const m = b.dataset.month;
+    const cnt = parseInt(b.dataset.count) || 0;
+    if (cnt > 0) allData = allData.concat(genPatentsForMonth(m, cnt));
+  });
+  // 按公开日倒序
+  allData.sort((a,b) => b.pubDate.localeCompare(a.pubDate));
+  const total = allData.length;
+  document.getElementById('patListTitle').textContent = '专利列表 — 近 12 个月（共 ' + total + ' 件）';
+  const PAGE = 10;
+  let cur = 1, kw = '';
+  function render(){
+    const filtered = kw ? allData.filter(p => p.name.indexOf(kw)>=0 || p.pubNum.indexOf(kw)>=0 || p.applicant.indexOf(kw)>=0) : allData;
+    const t = filtered.length, pages = Math.max(1, Math.ceil(t/PAGE));
+    if (cur > pages) cur = pages;
+    const slice = filtered.slice((cur-1)*PAGE, cur*PAGE);
+    document.getElementById('patListBody').innerHTML =
+      '<div class="s-search">'+
+        '<input id="patListAllKw" placeholder="按专利名称 / 公开号 / 申请人搜索" value="'+kw+'"/>'+
+        '<button>查询</button>'+
+      '</div>'+
+      '<table class="s-tbl">'+
+        '<thead><tr>'+
+          '<th style="width:54px;text-align:center">序号</th>'+
+          '<th style="width:11%">专利类型</th>'+
+          '<th style="width:14%">公开号</th>'+
+          '<th style="width:34%">专利名称</th>'+
+          '<th style="width:17%">申请人</th>'+
+          '<th style="width:11%">公开日</th>'+
+          '<th style="width:10%;text-align:center">操作</th>'+
+        '</tr></thead><tbody>'+
+        (slice.length ? slice.map((p,i)=>(
+          '<tr>'+
+            '<td style="text-align:center"><span class="dl-row-num">'+String((cur-1)*PAGE+i+1).padStart(3,'0')+'</span></td>'+
+            '<td><span class="std-rtag">'+p.type+'</span></td>'+
+            '<td><span class="s-tbl-no">'+p.pubNum+'</span></td>'+
+            '<td><div class="s-tbl-name" data-pid="'+p.id+'" title="'+p.name+'">'+p.name+'</div></td>'+
+            '<td style="color:#a8c4e0">'+p.applicant+'</td>'+
+            '<td style="font-family:DIN,Arial;color:#a8c4e0">'+p.pubDate+'</td>'+
+            '<td style="text-align:center"><span class="s-detail-btn" data-pid="'+p.id+'">详情</span></td>'+
+          '</tr>'
+        )).join('') : '<tr><td colspan="7" style="text-align:center;color:#5e85b0;padding:60px 0">⌕  未匹配到专利</td></tr>')+
+        '</tbody></table>'+
+      '<div class="s-pag">'+
+        '<span class="info">共 <b>'+t+'</b> 条 · 第 <b>'+cur+'</b> / '+pages+' 页</span>'+
+        '<span class="pg" data-go="'+(cur-1)+'"'+(cur<=1?' style="opacity:.4;pointer-events:none"':'')+'>上一页</span>'+
+        Array.from({length:Math.min(pages,5)},(_,k)=>{const p=k+1;return '<span class="pg'+(p===cur?' cur':'')+'" data-go="'+p+'">'+p+'</span>'}).join('')+
+        '<span class="pg" data-go="'+(cur+1)+'"'+(cur>=pages?' style="opacity:.4;pointer-events:none"':'')+'>下一页</span>'+
+      '</div>';
+    document.querySelectorAll('#patListBody .s-tbl-name, #patListBody .s-detail-btn').forEach(el => el.addEventListener('click', () => openPatDetail(allData.find(p => p.id === el.dataset.pid))));
+    document.querySelectorAll('#patListBody .s-pag .pg').forEach(pg => pg.addEventListener('click', () => { const g=parseInt(pg.dataset.go); if(!isNaN(g)&&g>=1&&g<=pages){cur=g;render();} }));
+    const kwEl = document.getElementById('patListAllKw');
+    if (kwEl) kwEl.addEventListener('input', e => { kw = e.target.value.trim(); cur = 1; render(); });
+  }
+  render();
+  document.getElementById('patListModal').classList.add('show');
+}
+document.getElementById('innovDetailBtn').addEventListener('click', openPatListAll);
+
+// ══════════════ 上月累计出口 「查看」按钮 → 详情弹窗（产品出口明细 + 主要目的国） ══════════════
+const expoDetailData = [
+  {code:'3907.69.00', name:'PBAT', kg:36247701, usd:8127.50, dest:['印度尼西亚','越南','马来西亚'], price:2.24, yoy:'+12.8%'},
+  {code:'3907.99.10', name:'PBS',  kg:7720,     usd:1.85,    dest:['泰国','德国'],                   price:2.40, yoy:'+5.6%'},
+  {code:'3907.99.10', name:'PBSA', kg:17860,    usd:4.20,    dest:['日本','德国'],                   price:2.35, yoy:'+8.1%'},
+  {code:'3907.99.10', name:'PBST', kg:38871,    usd:9.40,    dest:['美国','英国','法国'],            price:2.42, yoy:'-3.2%'},
+  {code:'3907.99.90', name:'PHA',  kg:12450,    usd:7.10,    dest:['德国','美国','日本'],            price:5.70, yoy:'+22.5%'},
+  {code:'3907.99.90', name:'PGA',  kg:8932,     usd:22.30,   dest:['美国','德国'],                   price:24.97,yoy:'+18.3%'},
+  {code:'3907.69.00', name:'PCL',  kg:15670,    usd:7.05,    dest:['日本','韩国','德国'],            price:4.50, yoy:'+9.8%'},
+  {code:'3907.20.00', name:'PPC',  kg:4215,     usd:1.92,    dest:['美国','德国'],                   price:4.55, yoy:'+15.4%'}
+];
+
+function openExpoDetail(){
+  const totalKg  = expoDetailData.reduce((a,b)=>a+b.kg, 0);
+  const totalUsd = expoDetailData.reduce((a,b)=>a+b.usd,0);
+  const destSet = new Set();
+  expoDetailData.forEach(d => d.dest.forEach(c => destSet.add(c)));
+  const yoyCls = v => v.startsWith('+') ? 'expo-yoy-up' : 'expo-yoy-down';
+  document.getElementById('expoDetailBody').innerHTML =
+    '<div class="expo-kpi-bar">'+
+      '<div class="expo-kpi-c"><div class="expo-kpi-n">'+totalKg.toLocaleString()+'</div><div class="expo-kpi-l">出口量（千克）</div></div>'+
+      '<div class="expo-kpi-c"><div class="expo-kpi-n">'+totalUsd.toFixed(1)+'</div><div class="expo-kpi-l">出口额（万美元）</div></div>'+
+      '<div class="expo-kpi-c"><div class="expo-kpi-n">'+destSet.size+'</div><div class="expo-kpi-l">涉及国家（个）</div></div>'+
+      '<div class="expo-kpi-c"><div class="expo-kpi-n">86</div><div class="expo-kpi-l">涉及企业（家）</div></div>'+
+    '</div>'+
+    '<table class="s-tbl">'+
+      '<thead><tr>'+
+        '<th style="width:54px;text-align:center">序号</th>'+
+        '<th style="width:11%">产品</th>'+
+        '<th style="width:13%">海关编码</th>'+
+        '<th style="width:14%;text-align:right">出口量（千克）</th>'+
+        '<th style="width:13%;text-align:right">出口额（万美元）</th>'+
+        '<th style="width:12%;text-align:right">均价（USD/kg）</th>'+
+        '<th style="width:23%">主要目的国（Top 3）</th>'+
+        '<th style="width:9%;text-align:center">同比</th>'+
+      '</tr></thead><tbody>'+
+      expoDetailData.map((d,i)=>(
+        '<tr>'+
+          '<td style="text-align:center"><span class="dl-row-num">'+String(i+1).padStart(2,'0')+'</span></td>'+
+          '<td><span class="std-rtag">'+d.name+'</span></td>'+
+          '<td><span class="s-tbl-no">'+d.code+'</span></td>'+
+          '<td style="text-align:right;font-family:DIN,Arial;color:#3ad4ff">'+d.kg.toLocaleString()+'</td>'+
+          '<td style="text-align:right;font-family:DIN,Arial;color:#a8c4e0">'+d.usd.toFixed(2)+'</td>'+
+          '<td style="text-align:right;font-family:DIN,Arial;color:#a8c4e0">'+d.price.toFixed(2)+'</td>'+
+          '<td>'+d.dest.map(c => '<span class="expo-dest-tag">'+c+'</span>').join('')+'</td>'+
+          '<td style="text-align:center" class="'+yoyCls(d.yoy)+'">'+d.yoy+'</td>'+
+        '</tr>'
+      )).join('')+
+      '</tbody></table>'+
+    '<div class="expo-foot">数据来源：海关总署 / 国际贸易司 · 统计周期：2026-04-01 至 2026-04-30</div>';
+  document.getElementById('expoDetailModal').classList.add('show');
+}
+document.getElementById('expoDetailClose').addEventListener('click', () => document.getElementById('expoDetailModal').classList.remove('show'));
+document.getElementById('expoDetailModal').addEventListener('click', e => { if(e.target.id==='expoDetailModal') document.getElementById('expoDetailModal').classList.remove('show'); });
+document.getElementById('expoViewBtn').addEventListener('click', openExpoDetail);
+
 // ══════════════ 图表悬浮提示（小卡片样式，复用专利柱形 + 产量节点） ══════════════
 (function(){
   const tip = document.getElementById('chartTip');
@@ -2039,9 +2184,8 @@ document.querySelectorAll('.innov-bar-hits rect').forEach(r => {
       '<rect x="'+(monthsX[i]-17)+'" y="14" width="34" height="90" data-m="'+monthsN[i]+'" data-v="'+v.toFixed(1)+'"/>'
     ).join('');
 
-    // 顶部数字 + 同比
+    // 顶部数字
     document.getElementById('prodMonthlyNum').textContent = s.avg;
-    document.getElementById('prodMonthlyCmp').textContent = '↑ ' + s.yoy + '%';
   }
 
   // 下拉交互
@@ -2133,9 +2277,8 @@ document.querySelectorAll('.innov-bar-hits rect').forEach(r => {
       '<rect x="'+(monthsX[i]-17)+'" y="14" width="34" height="90" data-m="'+monthsN[i]+'" data-v="'+v.toFixed(1)+'"/>'
     ).join('');
 
-    // 顶部累计产值 + 同比
+    // 顶部累计产值
     document.getElementById('outputNum').textContent = s.total;
-    document.getElementById('outputCmp').textContent = '↑ ' + s.yoy + '%';
   }
 
   // 下拉交互
@@ -2508,81 +2651,301 @@ const innovByChain={
   all:154, starch:18, cell:22, hemi:9, 'plant-oil':12, 'plant-pro':14, 'plant-gel':6,
   'ani-pro':16, 'ani-oil':8, chitin:5, coal:24, oil:20
 };
-// ── 行业创新：每条产业链对应的产品/环节列表（参照 驾驶舱-产业链版图-2.html 中各链节点）
-//    第一项始终是 {key:'all', name:'全部'}
+// ── 行业创新：每条产业链对应的产品/环节列表（按 驾驶舱-产业链版图-2.html 中实际产业链节点构建，按支链分组）
+//    数据结构：chain → [{group, items:[{key,name}]}]；通过 getChainProdItems() 拍平
 const chainProducts = {
   all: [
-    {key:'all',name:'全部'},
-    {key:'PBAT',name:'PBAT'},{key:'PLA',name:'PLA'},{key:'PBS',name:'PBS'},{key:'PBSA',name:'PBSA'},
-    {key:'PHA',name:'PHA'},{key:'PGA',name:'PGA'},{key:'PCL',name:'PCL'},{key:'PPC',name:'PPC'},
-    {key:'PBST',name:'PBST'},{key:'PBSC',name:'PBSC'}
+    {group:'主要可降解高分子', items:[
+      {key:'PBAT',name:'PBAT'},{key:'PLA',name:'PLA'},{key:'PBS',name:'PBS'},
+      {key:'PBSA',name:'PBSA'},{key:'PBSC',name:'PBSC'},{key:'PBST',name:'PBST'},
+      {key:'PHA',name:'PHA'},{key:'PGA',name:'PGA'},{key:'PCL',name:'PCL'},
+      {key:'PPC',name:'PPC'},{key:'PEF',name:'PEF'}
+    ]},
+    {group:'重要中间体', items:[
+      {key:'BDO',name:'1,4-丁二醇(BDO)'},{key:'AA',name:'己二酸(AA)'},{key:'PTA',name:'对苯二甲酸(PTA)'},
+      {key:'FAPO',name:'脂肪酸基聚酯多元醇(FAPO)'},{key:'GA',name:'乙交酯(GA)'},
+      {key:'DMO',name:'草酸二甲酯(DMO)'},{key:'MG',name:'乙醇酸甲酯(MG)'},{key:'FDME',name:'呋喃二甲酸二甲酯(FDME)'}
+    ]}
   ],
   starch: [
-    {key:'all',name:'全部'},
-    {key:'TPS',name:'TPS（热塑性淀粉）'},{key:'glcs',name:'糖化液'},{key:'lac',name:'乳酸'},
-    {key:'PLA',name:'PLA'},{key:'PHA',name:'PHA'},{key:'淀粉基复合',name:'淀粉基复合材料'}
+    {group:'TPS 链', items:[
+      {key:'熔融淀粉',name:'熔融淀粉'},
+      {key:'热塑性淀粉(TPS)',name:'热塑性淀粉(TPS)'},
+      {key:'TPS',name:'TPS（共混改性后）'}
+    ]},
+    {group:'糖化液-PLA 链', items:[
+      {key:'高活性淀粉',name:'高活性淀粉'},
+      {key:'糖化液',name:'糖化液'},
+      {key:'乳酸单体',name:'乳酸单体'},
+      {key:'淀粉基PLA',name:'淀粉基聚乳酸(PLA)'}
+    ]},
+    {group:'糖化液-PHA 链', items:[
+      {key:'淀粉基PHA',name:'淀粉基聚羟基脂肪酸酯(PHA)'}
+    ]}
   ],
   cell: [
-    {key:'all',name:'全部'},
-    {key:'纤维素',name:'纤维素'},{key:'纤维素酯',name:'纤维素酯'},
-    {key:'MG',name:'MG（乙醇酸甲酯）'},{key:'GA',name:'乙醇酸 GA'},
-    {key:'粗乙交酯',name:'粗乙交酯'},{key:'PGA',name:'PGA'}
+    {group:'直接产物', items:[
+      {key:'纸浆',name:'纤维素浆料（纸浆）'},
+      {key:'Lyocell',name:'纤维素再生膜/Lyocell 纤维'},
+      {key:'多孔材料',name:'纤维素基多孔材料'},
+      {key:'醋酸纤维素',name:'醋酸纤维素塑料'},
+      {key:'吸水树脂',name:'可降解吸水树脂'}
+    ]},
+    {group:'水热醇解-PGA 链', items:[
+      {key:'MG',name:'乙醇酸甲酯(MG)'},
+      {key:'乙醇酸',name:'乙醇酸'},
+      {key:'粗乙交酯',name:'粗乙交酯'},
+      {key:'PGA',name:'聚乙醇酸(PGA)'}
+    ]},
+    {group:'微生物发酵-PLA 链', items:[
+      {key:'cell-乳酸',name:'乳酸单体'},
+      {key:'秸秆基PLA',name:'秸秆基/木聚糖基聚乳酸(PLA)'}
+    ]},
+    {group:'酶解发酵-PHA 链', items:[
+      {key:'PHA前体',name:'PHA 前体'},
+      {key:'秸秆基PHA',name:'秸秆基/木聚糖羟基脂肪酸酯(PHA)'}
+    ]}
   ],
   hemi: [
-    {key:'all',name:'全部'},
-    {key:'木糖醇',name:'木糖醇'},{key:'糠醛',name:'糠醛'},
-    {key:'PHA',name:'PHA'},{key:'PLA',name:'PLA'}
+    {group:'聚糖薄膜支', items:[
+      {key:'木聚糖膜',name:'木聚糖基薄膜'},
+      {key:'木葡聚糖膜',name:'木葡聚糖基薄膜'},
+      {key:'半乳甘露聚糖膜',name:'半乳甘露聚糖基薄膜'}
+    ]},
+    {group:'发酵-PHA 支', items:[
+      {key:'hc-PHA前体',name:'PHA 前体'},
+      {key:'半纤维素PHA',name:'秸秆基/木聚糖聚羟基脂肪酸酯(PHA)'}
+    ]},
+    {group:'碱溶-水凝胶 支', items:[
+      {key:'半纤维素碱溶液',name:'半纤维素碱溶液'},
+      {key:'水凝胶',name:'半纤维素水凝胶'}
+    ]},
+    {group:'溶解交联-生物胶 支', items:[
+      {key:'生物胶溶液',name:'生物胶溶液'},
+      {key:'壳聚糖复合生物胶',name:'半纤维素-壳聚糖复合可降解生物胶'}
+    ]},
+    {group:'活化-吸附剂 支', items:[
+      {key:'半纤维素溶液',name:'半纤维素溶液'},
+      {key:'半纤维素吸附剂',name:'半纤维素基可降解吸附剂'}
+    ]},
+    {group:'稀酸水解-PEF 支', items:[
+      {key:'糠醛',name:'糠醛'},
+      {key:'FDME',name:'呋喃二甲酸二甲酯(FDME)'},
+      {key:'PEF',name:'聚呋喃二甲酸乙二醇酯(PEF)'}
+    ]}
   ],
   'plant-oil': [
-    {key:'all',name:'全部'},
-    {key:'FAPO',name:'FAPO（油脂多元醇）'},{key:'WPU',name:'WPU 胶膜'},{key:'PHA',name:'PHA'}
+    {group:'油脂水解-FAPO 支', items:[
+      {key:'混合脂肪酸',name:'混合脂肪酸'},
+      {key:'环氧脂肪酸',name:'环氧脂肪酸'},
+      {key:'FAPO',name:'脂肪酸基聚酯多元醇(FAPO)'},
+      {key:'PU弹性膜',name:'PU 弹性膜'},
+      {key:'TPU颗粒',name:'TPU 颗粒'},
+      {key:'全水发泡软泡',name:'全水发泡软泡'}
+    ]},
+    {group:'环氧反应-WPU 胶膜 支', items:[
+      {key:'环氧植物油',name:'环氧植物油'},
+      {key:'甲氧基化多元醇',name:'甲氧基化多元醇'},
+      {key:'WPU分散体',name:'植物油基 WPU 分散体'},
+      {key:'WPU胶膜',name:'可降解水性聚氨酯胶膜'}
+    ]},
+    {group:'pha 提取支', items:[
+      {key:'po-PHA',name:'聚羟基脂肪酸酯(PHA)'}
+    ]}
   ],
   'plant-pro': [
-    {key:'all',name:'全部'},
-    {key:'植物蛋白基',name:'植物蛋白基复合'},{key:'生鲜冷链托盘',name:'生鲜冷链托盘'},
-    {key:'蛋托',name:'蛋托'},{key:'植物基薄膜',name:'植物基薄膜'}
+    {group:'缓冲发泡 支', items:[
+      {key:'植物蛋白糊',name:'植物蛋白糊'},
+      {key:'缓冲发泡材料',name:'植物蛋白基可降解缓冲发泡材料'}
+    ]},
+    {group:'超细粉碎-塑料/膜 支', items:[
+      {key:'蛋白超细粉',name:'植物蛋白超细粉'},
+      {key:'蛋白塑料',name:'植物蛋白塑料'},
+      {key:'蛋白包装膜',name:'植物蛋白基可降解包装膜'}
+    ]},
+    {group:'提取-胺化-包装膜 支', items:[
+      {key:'蛋白水溶液',name:'植物蛋白水溶液'},
+      {key:'氨基化蛋白溶液',name:'氨基化植物蛋白溶液'},
+      {key:'氨基化蛋白粉末',name:'氨基化蛋白粉末'},
+      {key:'活性蛋白包装膜',name:'活性蛋白基包装膜'}
+    ]},
+    {group:'活化-吸附剂 支', items:[
+      {key:'活化蛋白溶液',name:'植物活化蛋白溶液'},
+      {key:'蛋白吸附剂',name:'植物蛋白基可降解吸附剂颗粒'}
+    ]}
   ],
   'plant-gel': [
-    {key:'all',name:'全部'},
-    {key:'海藻酸钠',name:'海藻酸钠'},{key:'卡拉胶',name:'卡拉胶'},{key:'阿拉伯胶',name:'阿拉伯胶'}
+    {group:'溶胶-凝胶 支', items:[
+      {key:'果胶纤维素膜',name:'果胶纤维素膜'}
+    ]},
+    {group:'胶体碱溶-食用薄膜 支', items:[
+      {key:'果胶水溶液',name:'果胶水溶液'},
+      {key:'胶体可食包装薄膜',name:'植物胶体可食包装薄膜'}
+    ]},
+    {group:'热熔胶粒 支', items:[
+      {key:'玉米淀粉胶体',name:'玉米淀粉胶体'},
+      {key:'热熔胶粒',name:'植物胶体基热熔胶粒'}
+    ]}
   ],
   'ani-pro': [
-    {key:'all',name:'全部'},
-    {key:'角蛋白',name:'角蛋白'},{key:'明胶',name:'明胶'},{key:'胶原蛋白',name:'胶原蛋白'},{key:'丝蛋白',name:'丝蛋白'}
+    {group:'角蛋白链', items:[
+      {key:'角蛋白溶液',name:'角蛋白溶液'},
+      {key:'纯化角蛋白',name:'纯化角蛋白溶液/角蛋白粉末'},
+      {key:'角蛋白PVA膜',name:'角蛋白/PVA 共混膜'},
+      {key:'角蛋白复合塑料',name:'角蛋白复合塑料'},
+      {key:'角蛋白纤维',name:'角蛋白纤维'},
+      {key:'角蛋白泡沫',name:'角蛋白泡沫'}
+    ]},
+    {group:'明胶链', items:[
+      {key:'明胶粉',name:'明胶粉'},
+      {key:'明胶胶囊',name:'明胶硬/软胶囊'},
+      {key:'明胶可食膜',name:'可食性包装膜'},
+      {key:'明胶海绵',name:'明胶海绵'}
+    ]},
+    {group:'胶原蛋白链', items:[
+      {key:'胶原溶液',name:'胶原溶液'},
+      {key:'胶原膜',name:'胶原膜'},
+      {key:'胶原海绵',name:'胶原海绵'},
+      {key:'胶原纤维',name:'胶原纤维'},
+      {key:'胶原水凝胶',name:'胶原水凝胶'}
+    ]},
+    {group:'丝蛋白链', items:[
+      {key:'丝素溶液',name:'丝素蛋白溶液'},
+      {key:'丝素纳米纤维膜',name:'丝素纳米纤维膜'},
+      {key:'丝素透明薄膜',name:'丝素透明薄膜'}
+    ]}
   ],
   'ani-oil': [
-    {key:'all',name:'全部'},
-    {key:'多元醇',name:'多元醇'},{key:'PHA',name:'PHA'},{key:'油脂环氧化',name:'油脂环氧化'}
+    {group:'脂肪酸甲酯/乙酯 链', items:[
+      {key:'脂肪酸酯粗品',name:'脂肪酸甲酯/乙酯粗品'},
+      {key:'脂肪酸酯',name:'脂肪酸甲酯/乙酯'}
+    ]},
+    {group:'PCL 链', items:[
+      {key:'脂肪醇',name:'脂肪醇'},
+      {key:'ao-PCL',name:'聚己内酯(PCL)'}
+    ]},
+    {group:'pha 提取链', items:[
+      {key:'ao-PHA',name:'聚羟基脂肪酸酯(PHA)'}
+    ]}
   ],
   chitin: [
-    {key:'all',name:'全部'},
-    {key:'壳聚糖',name:'壳聚糖'},{key:'壳聚糖粉末',name:'工业级壳聚糖粉末'},{key:'壳寡糖',name:'壳寡糖'}
+    {group:'主链（壳聚糖粉末）', items:[
+      {key:'壳聚糖粗品',name:'壳聚糖粗品'},
+      {key:'工业级壳聚糖粉末',name:'工业级壳聚糖粉末'}
+    ]},
+    {group:'流延成膜 支', items:[
+      {key:'壳聚糖溶液',name:'壳聚糖溶液'},
+      {key:'壳聚糖膜',name:'壳聚糖膜'}
+    ]},
+    {group:'纺丝制备 支', items:[
+      {key:'壳聚糖纤维',name:'壳聚糖纤维'}
+    ]},
+    {group:'凝胶支架 支', items:[
+      {key:'复合浆料',name:'复合浆料'},
+      {key:'多孔干凝胶支架',name:'多孔干凝胶支架'},
+      {key:'壳聚糖交联支架',name:'壳聚糖交联支架'}
+    ]}
   ],
   coal: [
-    {key:'all',name:'全部'},
-    {key:'DMO',name:'DMO（草酸二甲酯）'},{key:'PGA',name:'PGA'},{key:'甲醇',name:'甲醇'},
-    {key:'PPC',name:'PPC'},{key:'BDO',name:'BDO'},{key:'PBAT',name:'PBAT'},{key:'PBS',name:'PBS'},
-    {key:'PBSA',name:'PBSA'},{key:'PBSC',name:'PBSC'},{key:'PBST',name:'PBST'},{key:'PHA',name:'PHA'}
+    {group:'气化主链', items:[
+      {key:'合成气',name:'合成气'},
+      {key:'甲醇',name:'甲醇'}
+    ]},
+    {group:'DMO-PGA 链', items:[
+      {key:'DMO',name:'草酸二甲酯(DMO)'},
+      {key:'MG',name:'乙醇酸甲酯(MG)'},
+      {key:'GA',name:'乙醇酸/乙交酯(GA)'},
+      {key:'PGA',name:'聚乙醇酸(PGA)'}
+    ]},
+    {group:'pha 提取链', items:[
+      {key:'coal-PHA',name:'聚羟基脂肪酸酯(PHA)'}
+    ]},
+    {group:'MTO-PPC 链', items:[
+      {key:'丙烯',name:'丙烯'},
+      {key:'PO',name:'环氧丙烷(PO)'},
+      {key:'PPC',name:'聚碳酸亚丙酯(PPC)'}
+    ]},
+    {group:'银法-GA 链', items:[
+      {key:'甲醛',name:'甲醛'},
+      {key:'银法MG',name:'乙醇酸甲酯'},
+      {key:'银法GA',name:'乙交酯(GA)'}
+    ]},
+    {group:'Reppe-BDO 链', items:[
+      {key:'BYD',name:'1,4-丁炔二醇(BYD)'},
+      {key:'BDO-Reppe',name:'1,4-丁二醇(BDO) — Reppe 路线'}
+    ]},
+    {group:'煤热解-BDO 链', items:[
+      {key:'兰炭',name:'半焦/兰炭'},
+      {key:'电石',name:'电石'},
+      {key:'乙炔',name:'乙炔'},
+      {key:'醋酸乙烯',name:'醋酸乙烯'},
+      {key:'BDO-煤热',name:'1,4-丁二醇(BDO) — 煤热解路线'}
+    ]},
+    {group:'BDO 下游 — PBS 类聚酯', items:[
+      {key:'AA',name:'己二酸(AA)'},
+      {key:'PTA',name:'对苯二甲酸(PTA)'},
+      {key:'DMC',name:'碳酸二甲酯(DMC)'},
+      {key:'DPC',name:'碳酸二苯酯(DPC)'},
+      {key:'PBS',name:'聚丁二酸丁二醇酯(PBS) 颗粒'},
+      {key:'PBAT',name:'聚对苯二甲酸-己二酸-丁二醇酯(PBAT) 颗粒'},
+      {key:'PBSA',name:'聚丁二酸-己二酸-丁二醇酯(PBSA) 颗粒'},
+      {key:'PBSC',name:'聚丁二酸-碳酸丁二醇酯(PBSC) 颗粒'},
+      {key:'PBST',name:'聚丁二酸-对苯二甲酸-丁二醇酯(PBST) 颗粒'}
+    ]}
   ],
   oil: [
-    {key:'all',name:'全部'},
-    {key:'PX',name:'PX'},{key:'PTA',name:'PTA'},{key:'PBAT',name:'PBAT'},
-    {key:'KA油',name:'KA 油'},{key:'AA',name:'AA（己二酸）'},{key:'ε-己内酯',name:'ε-己内酯'},{key:'PCL',name:'PCL'}
+    {group:'蒸馏分馏', items:[
+      {key:'石油焦',name:'石油焦'},
+      {key:'石脑油',name:'石脑油'}
+    ]},
+    {group:'石油焦-合成气', items:[
+      {key:'oil-合成气',name:'合成气'}
+    ]},
+    {group:'重整-PBAT 链', items:[
+      {key:'重整油',name:'重整油'},
+      {key:'混合芳烃',name:'混合芳烃'},
+      {key:'PX',name:'对二甲苯(PX)'},
+      {key:'PTA',name:'精对苯二甲酸(PTA)'},
+      {key:'oil-PBAT',name:'聚己二酸-对苯二甲酸丁二醇酯(PBAT)'}
+    ]},
+    {group:'重整-PCL 链', items:[
+      {key:'石油苯',name:'石油苯'},
+      {key:'环己烷',name:'环己烷'},
+      {key:'KA油',name:'环己酮/环己醇混合物(KA 油)'},
+      {key:'oil-AA',name:'己二酸(AA)'},
+      {key:'环己酮',name:'环己酮'},
+      {key:'ε-己内酯',name:'ε-己内酯'},
+      {key:'oil-PCL',name:'聚己内酯(PCL)'}
+    ]}
   ]
 };
+// 把分组列表拍平成 [{key,name}]，"全部" 选项不进入分组而是模态框单独渲染
+function getChainProdItems(chain){
+  return (chainProducts[chain] || chainProducts.all).flatMap(g => g.items);
+}
 let curInnovProd = 'all';
+// 渲染产品下拉（按支链分组：顶部"全部" + 每个支链一个 .chain-dd-hd 头 + 多个 .chain-dd-it）
 function renderInnovProdSel(){
-  const sel = document.getElementById('innovProdSel');
   const dd = document.getElementById('innovProdDd');
   const valEl = document.getElementById('innovProdVal');
-  if (!sel || !dd) return;
-  const items = chainProducts[innovChain] || chainProducts.all;
-  // 切链时重置为 全部
-  if (!items.find(x => x.key === curInnovProd)) curInnovProd = 'all';
-  dd.innerHTML = items.map(it => (
-    '<div class="chain-dd-it'+(it.key===curInnovProd?' cur':'')+'" data-key="'+it.key+'">'+it.name+'</div>'
-  )).join('');
-  valEl.textContent = (items.find(x=>x.key===curInnovProd)||items[0]).name;
+  if (!dd || !valEl) return;
+  const groups = chainProducts[innovChain] || chainProducts.all;
+  const flat = getChainProdItems(innovChain);
+  // 切链后若当前 key 已不存在 → 重置
+  if (curInnovProd !== 'all' && !flat.find(x => x.key === curInnovProd)) curInnovProd = 'all';
+  // 顶部固定"全部"
+  let html = '<div class="chain-dd-it'+(curInnovProd==='all'?' cur':'')+'" data-key="all">全部</div>';
+  groups.forEach(g => {
+    html += '<div class="chain-dd-hd">'+g.group+'（'+g.items.length+'）</div>';
+    g.items.forEach(it => {
+      html += '<div class="chain-dd-it'+(it.key===curInnovProd?' cur':'')+'" data-key="'+it.key+'" title="'+it.name+'">'+it.name+'</div>';
+    });
+  });
+  dd.innerHTML = html;
+  // 更新显示文本
+  if (curInnovProd === 'all') { valEl.textContent = '全部'; return; }
+  const cur = flat.find(x => x.key === curInnovProd);
+  valEl.textContent = cur ? cur.name : '全部';
 }
 function bindInnovProdSel(){
   const sel = document.getElementById('innovProdSel');
@@ -2591,14 +2954,15 @@ function bindInnovProdSel(){
   sel.addEventListener('click', e => {
     if (e.target.classList.contains('chain-dd-it')) {
       const k = e.target.dataset.key;
-      const items = chainProducts[innovChain] || chainProducts.all;
-      const it = items.find(x => x.key === k);
-      if (it) {
-        curInnovProd = k;
-        document.getElementById('innovProdVal').textContent = it.name;
-        renderInnovProdSel();
-        updateInnovNum();
+      const flat = getChainProdItems(innovChain);
+      if (k === 'all') {
+        curInnovProd = 'all';
+      } else {
+        const it = flat.find(x => x.key === k);
+        if (it) curInnovProd = k;
       }
+      renderInnovProdSel();
+      updateInnovNum();
       sel.classList.remove('open');
       e.stopPropagation();
       return;
@@ -2610,14 +2974,12 @@ function bindInnovProdSel(){
 }
 function updateInnovNum(){
   const baseChain = innovByChain[innovChain] != null ? innovByChain[innovChain] : 0;
-  const items = chainProducts[innovChain] || chainProducts.all;
-  // 选择"全部" → 显示该链总数；选择具体产品 → 按比例分摊（产品数 = 总数 / 子项数 ± 微小波动）
+  const flat = getChainProdItems(innovChain);
   let num = baseChain;
-  if (curInnovProd !== 'all' && items.length > 1) {
-    const subCount = items.length - 1;
-    const idx = items.findIndex(x => x.key === curInnovProd);
-    // 用 idx 做种子保证稳定
-    const variance = ((idx * 7919) % 100 - 50) / 100; // -0.5 ~ 0.5
+  if (curInnovProd !== 'all' && flat.length > 0) {
+    const idx = flat.findIndex(x => x.key === curInnovProd);
+    const subCount = flat.length;
+    const variance = ((idx >= 0 ? idx : 0) * 7919 % 100 - 50) / 100;
     num = Math.max(1, Math.round(baseChain / subCount * (1 + variance * 0.3)));
   }
   const el = document.getElementById('innovNum');
