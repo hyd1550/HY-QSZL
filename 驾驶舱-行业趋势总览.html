@@ -1158,11 +1158,6 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
                 <div class="mps-dd">
                   <div class="mps-it cur" data-prod="PBAT">PBAT</div>
                   <div class="mps-it" data-prod="PLA">PLA</div>
-                  <div class="mps-it" data-prod="PBS">PBS/PBSA</div>
-                  <div class="mps-it" data-prod="PHA">PHA</div>
-                  <div class="mps-it" data-prod="PGA">PGA</div>
-                  <div class="mps-it" data-prod="PCL">PCL</div>
-                  <div class="mps-it" data-prod="PPC">PPC</div>
                 </div>
               </div>
             </div>
@@ -1411,7 +1406,7 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
 
           <!-- 降解材料行业产能（按产品横向条形 + 运行率 · 公开数据测算） -->
           <div class="card mini-card" id="capCard">
-            <div class="card-title">行业产能 <span class="more" id="capMoreBtn" style="cursor:default;color:#7fa3c8">国内合计 · 年度</span></div>
+            <div class="card-title">行业产能 <span class="more" id="capMoreBtn" style="cursor:default;color:#7fa3c8">国内 PBAT 年度合计产能</span></div>
             <div class="mini-body">
               <div class="cap-summary">
                 <div class="cap-sm-c">
@@ -2764,11 +2759,6 @@ document.getElementById('expoViewBtn').addEventListener('click', openExpoDetail)
   const outputSeries = {
     PBAT: {label:'PBAT',     total:'12.0', yoy:'18.4', data:[10.2,10.8,11.4,12.1,12.6,11.9,11.5,11.2,11.9,12.2,11.5,12.0]},
     PLA:  {label:'PLA',      total:' 8.6', yoy:'14.2', data:[ 7.0, 7.4, 7.8, 8.2, 8.5, 8.1, 7.9, 7.7, 8.2, 8.4, 7.9, 8.6]},
-    PBS:  {label:'PBS/PBSA', total:' 4.2', yoy:'10.6', data:[ 3.6, 3.8, 4.0, 4.2, 4.4, 4.1, 4.0, 3.9, 4.2, 4.3, 4.0, 4.2]},
-    PHA:  {label:'PHA',      total:' 1.6', yoy:'26.3', data:[ 1.2, 1.3, 1.4, 1.5, 1.6, 1.4, 1.4, 1.3, 1.5, 1.6, 1.4, 1.6]},
-    PGA:  {label:'PGA',      total:' 1.2', yoy:'19.5', data:[ 0.9, 1.0, 1.0, 1.1, 1.2, 1.1, 1.0, 1.0, 1.1, 1.2, 1.1, 1.2]},
-    PCL:  {label:'PCL',      total:' 0.8', yoy:'13.4', data:[ 0.6, 0.7, 0.7, 0.8, 0.8, 0.7, 0.7, 0.7, 0.7, 0.8, 0.7, 0.8]},
-    PPC:  {label:'PPC',      total:' 0.5', yoy: '9.2', data:[ 0.4, 0.4, 0.4, 0.5, 0.5, 0.4, 0.4, 0.4, 0.5, 0.5, 0.4, 0.5]}
   };
 
   function smoothPath(pts){
