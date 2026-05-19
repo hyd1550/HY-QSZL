@@ -50,6 +50,15 @@ html,body{width:100%;height:100%;font-family:'PingFang SC','Microsoft YaHei',san
   max-height:380px;overflow-y:auto;display:none;
   box-shadow:0 8px 22px rgba(0,0,0,.4),0 0 14px rgba(58,212,255,.12)}
 .chain-sel.open .chain-dd{display:block}
+/* 已从 sel 中分离、挂到 body 上的下拉（避免被 .card 的 overflow:hidden 裁剪） */
+.chain-dd-detached{position:fixed;display:none;z-index:9999;
+  background:linear-gradient(180deg,rgba(10,25,50,.98),rgba(6,18,38,.99));
+  border:1px solid rgba(80,180,210,.4);border-radius:4px;padding:4px;
+  box-shadow:0 8px 22px rgba(0,0,0,.55),0 0 18px rgba(58,212,255,.18);
+  overflow-y:auto}
+.chain-dd-detached.show{display:block}
+.chain-dd-detached::-webkit-scrollbar{width:4px}
+.chain-dd-detached::-webkit-scrollbar-thumb{background:rgba(60,160,200,.45);border-radius:2px}
 .chain-dd::-webkit-scrollbar{width:3px}
 .chain-dd::-webkit-scrollbar-thumb{background:rgba(60,160,200,.4);border-radius:2px}
 .chain-dd-it{padding:6px 10px;font-size:12px;color:#cfe2f8;cursor:pointer;border-radius:3px;letter-spacing:.5px;transition:.15s}
@@ -101,9 +110,14 @@ html,body{width:100%;height:100%;font-family:'PingFang SC','Microsoft YaHei',san
 .prod-pick-all{display:inline-block;padding:7px 18px;font-size:13px;color:#fff;cursor:pointer;border-radius:3px;
   background:linear-gradient(180deg,#1797b8,#0a6584);border:1px solid #1797b8;letter-spacing:1px;font-weight:600;margin-bottom:10px}
 .prod-pick-all.cur{box-shadow:0 0 10px rgba(58,212,255,.4)}
-.prod-pick-search{flex:1;max-width:280px;background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);
+.prod-pick-search{flex:1;max-width:320px;background:rgba(15,35,65,.6);border:1px solid rgba(60,160,200,.25);
   border-radius:3px;padding:6px 10px;font-size:12.5px;color:#cfe2f8;outline:none}
 .prod-pick-search:focus{border-color:#3ad4ff;box-shadow:0 0 0 2px rgba(58,212,255,.15)}
+/* 弹窗内独立的检索行（不再放在 s-modal-hd 标题里） */
+.innov-prod-search-row{flex-shrink:0;display:flex;align-items:center;gap:8px;
+  padding:10px 24px 12px;border-bottom:1px dashed rgba(80,180,210,.18);
+  background:linear-gradient(180deg,rgba(8,22,45,.4),rgba(8,22,45,0))}
+.innov-prod-search-row .ipsr-lbl{font-size:12px;color:#a8c4e0;letter-spacing:.5px;flex-shrink:0}
 
 /* 顶部导航 tabs（已删除产业链选择器，topnav 回归页面正中） */
 .topnav{position:absolute;left:50%;top:14px;transform:translateX(-50%);display:flex;gap:0;
@@ -1580,7 +1594,10 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
         <button class="s-modal-close" id="innovProdClose">×</button>
         <div class="s-modal-hd">
           <div class="h1">选择产品 — 行业创新筛选</div>
-          <input type="text" class="prod-pick-search" id="innovProdSearch" placeholder="检索产品名称…" />
+        </div>
+        <div class="innov-prod-search-row">
+          <span class="ipsr-lbl">检索：</span>
+          <input type="text" class="prod-pick-search" id="innovProdSearch" placeholder="输入产品名称或代码关键字…" />
         </div>
         <div class="s-modal-body" id="innovProdBody"></div>
       </div>
@@ -1657,33 +1674,68 @@ function buildChainDdHtml(curKey){
   return html;
 }
 // 通用：每个 chain-sel 维护自己的状态，仅更新自身显示，不影响其他 chain-sel
+// 把 .chain-dd 移出 .card（避免被 overflow:hidden 裁剪 → 部分项目看不见）：
+//   - 挂到 body，position:fixed，每次开启时按触发器 getBoundingClientRect 重新定位
+//   - 关联用 sel.dataset.ddId / dd.dataset.ownerId 维护双向引用
 function bindChainSel(selId, getCur, setCur, onChange){
   const sel=document.getElementById(selId);
   if(!sel) return;
   const dd=sel.querySelector('.chain-dd');
   const valEl=sel.querySelector('[data-chain-val]');
   if(!dd) return;
+  // 首次绑定时把 dd 从原位置剥离，挂到 body（脱离 .card 的 overflow:hidden）
+  if (dd.parentNode === sel){
+    document.body.appendChild(dd);
+    dd.classList.add('chain-dd-detached');
+    dd.dataset.ownerId = selId;
+  }
   dd.innerHTML=buildChainDdHtml(getCur());
+
+  function positionDd(){
+    const r = sel.getBoundingClientRect();
+    dd.style.left = r.left + 'px';
+    dd.style.top  = (r.bottom + 4) + 'px';
+    dd.style.minWidth = Math.max(260, r.width) + 'px';
+    dd.style.maxHeight = Math.min(460, window.innerHeight - r.bottom - 16) + 'px';
+  }
+  function openDd(){
+    document.querySelectorAll('.chain-sel.open').forEach(s=>{ if(s!==sel) s.classList.remove('open'); });
+    sel.classList.add('open');
+    dd.classList.add('show');
+    positionDd();
+  }
+  function closeDd(){
+    sel.classList.remove('open');
+    dd.classList.remove('show');
+  }
+
   sel.addEventListener('click',e=>{
+    if (sel.classList.contains('open')) closeDd(); else openDd();
+    e.stopPropagation();
+  });
+  // dd 已挂到 body，需要直接监听其点击；并阻止冒泡防止 document handler 误关
+  dd.addEventListener('click', e=>{
     if(e.target.classList.contains('chain-dd-it')){
       const key=e.target.dataset.key;
       const c=chainList.find(x=>x.key===key);
       if(c){
         setCur(key);
-        if(valEl) valEl.textContent=c.name;     // 只更新本下拉的显示文本
-        dd.innerHTML=buildChainDdHtml(key);     // 只更新本下拉的选中态
+        if(valEl) valEl.textContent=c.name;
+        dd.innerHTML=buildChainDdHtml(key);
         if(onChange) onChange(key);
       }
-      sel.classList.remove('open');
-      e.stopPropagation();
-      return;
+      closeDd();
     }
-    document.querySelectorAll('.chain-sel.open').forEach(s=>{ if(s!==sel) s.classList.remove('open'); });
-    sel.classList.toggle('open');
     e.stopPropagation();
   });
+  // 窗口尺寸变化时如已打开则重定位
+  window.addEventListener('resize', () => { if (sel.classList.contains('open')) positionDd(); });
+  window.addEventListener('scroll',  () => { if (sel.classList.contains('open')) positionDd(); }, true);
 }
-document.addEventListener('click',()=>document.querySelectorAll('.chain-sel.open').forEach(s=>s.classList.remove('open')));
+document.addEventListener('click',()=>{
+  document.querySelectorAll('.chain-sel.open').forEach(s=>s.classList.remove('open'));
+  document.querySelectorAll('.chain-dd-detached.show').forEach(d=>d.classList.remove('show'));
+});
 // 在 DOM 完成插入后初始化两个 chain-sel（行业创新 + 地图卡）+ 行业创新产品下拉
 function initAllChainSels(){
   // 行业创新：切链 → 重置产品下拉为"全部" + 重算专利数
