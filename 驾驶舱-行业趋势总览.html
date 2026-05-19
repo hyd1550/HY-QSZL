@@ -519,7 +519,14 @@ table.s-tbl tbody tr:hover{background:rgba(30,110,140,.22);box-shadow:inset 3px 
 #expoProdSel{position:relative;z-index:5;min-width:90px}
 #expoProdSel .mps-v{min-width:60px}
 
-/* 上月累计出口 — 详情弹窗 */
+/* 月度出口 — 详情弹窗工具栏（含月份下拉） */
+.expo-detail-tools{display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  padding:8px 12px;background:rgba(15,40,75,.45);border:1px solid rgba(60,160,200,.22);border-radius:4px}
+.expo-detail-tools .expo-detail-lbl{font-size:12px;color:#a8c4e0;letter-spacing:.5px;flex-shrink:0}
+.expo-detail-tools .expo-detail-period{margin-left:auto;font-size:11.5px;color:#7fa3c8;letter-spacing:.3px}
+.expo-detail-tools #expoDetailMonthSel{min-width:110px}
+
+/* 月度出口 — 详情弹窗 */
 .expo-kpi-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;padding:14px 18px;
   background:rgba(20,45,80,.45);border:1px solid rgba(60,160,200,.22);border-radius:4px}
 .expo-kpi-c{display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0}
@@ -1104,9 +1111,7 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
 
         <!-- 最新报价（按反馈：可降解材料七大类报价；产品/地区下拉，去掉时间筛选） -->
         <div class="card tbl-card" id="priceCard">
-          <div class="card-title">可降解材料最新报价
-            <span class="more" id="priceMore">数据源：隆众资讯 / 化工网 ›</span>
-          </div>
+          <div class="card-title">可降解材料最新报价</div>
           <div class="tbl-tools">
             <div class="sel sel-dd" id="priceCatSel" data-val="all">
               <span class="sel-lbl">产品：</span><span class="sel-val">全部</span><span class="sel-arr">▾</span>
@@ -1117,7 +1122,6 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
               <div class="sel-dd-list" id="priceAreaDd"></div>
             </div>
             <div class="sp"></div>
-            <button class="sb" id="priceQuery">查 询</button>
           </div>
           <div class="tbl-wrap">
             <table id="priceTable">
@@ -1209,12 +1213,12 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
 
         <!-- 新增右侧两个 mini 模块（按反馈："上月累计出口" + "全国降解材料制品各月产量"） -->
         <div class="extra-col">
-          <!-- 上月出口 TOP5 — 国家 / 企业（标题行简洁；产品下拉单独一行） -->
+          <!-- 月度出口 TOP5 — 国家 / 企业（标题行简洁；产品 + 月份双下拉单独一行） -->
           <div class="card mini-card" id="expoTop5Card">
             <div class="card-title" style="padding:0">
               <div class="expo-title" style="padding:11px 16px 9px">
                 <span class="diamond"></span>
-                <span class="ti">上月出口 TOP5 — 国家 / 企业</span>
+                <span class="ti">月度出口 TOP5 — 国家 / 企业</span>
                 <span class="arrow-line"></span>
                 <span class="more" id="expoViewBtn">查看</span>
               </div>
@@ -1234,6 +1238,12 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
                     <div class="mps-it" data-prod="PCL">PCL</div>
                     <div class="mps-it" data-prod="PPC">PPC</div>
                   </div>
+                </div>
+                <span class="expo-prod-lbl" style="margin-left:14px">月份：</span>
+                <div class="mini-prod-sel" id="expoMonthSel">
+                  <span class="mps-v" id="expoMonthVal">2026-04</span>
+                  <span class="mps-a">▾</span>
+                  <div class="mps-dd" id="expoMonthDd"></div>
                 </div>
               </div>
               <div class="expo-top5-wrap">
@@ -1603,11 +1613,11 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
       </div>
     </div>
 
-    <!-- 上月累计出口 详情弹窗（产品出口明细 + 主要目的国） -->
+    <!-- 月度出口 详情弹窗（产品出口明细 + 主要目的国，支持月份切换） -->
     <div class="s-modal" id="expoDetailModal">
       <div class="s-modal-pnl">
         <button class="s-modal-close" id="expoDetailClose">×</button>
-        <div class="s-modal-hd"><div class="h1">上月累计出口 — 详情（2026-04）</div></div>
+        <div class="s-modal-hd"><div class="h1">月度出口 — 详情</div></div>
         <div class="s-modal-body" id="expoDetailBody"></div>
       </div>
     </div>
@@ -2378,12 +2388,38 @@ const expoTop5Data = {
   }
 };
 
-function renderExpoTop5(prodKey){
-  const d = expoTop5Data[prodKey] || expoTop5Data.PBAT;
+// 月份选项（近 6 个月，默认 2026-04 — 当前数据周期）+ 每月相对基准的系数
+const expoMonths = ['2025-11','2025-12','2026-01','2026-02','2026-03','2026-04'];
+const expoMonthMul = {
+  '2025-11': 0.78,
+  '2025-12': 0.86,
+  '2026-01': 0.93,
+  '2026-02': 0.97,
+  '2026-03': 1.05,
+  '2026-04': 1.00   // 基准月（即 expoTop5Data 中已写的数值）
+};
+// 当前所选产品 + 月份（卡片小弹出 + 详情弹窗共用）
+let curExpoProd  = 'PBAT';
+let curExpoMonth = '2026-04';
+
+// 按 prod + month 取出/缩放数据
+function getExpoTop5(prod, month){
+  const base = expoTop5Data[prod] || expoTop5Data.PBAT;
+  const m = expoMonthMul[month] != null ? expoMonthMul[month] : 1;
+  return {
+    countries: base.countries.map(c => ({...c, usd: Math.max(1, Math.round(c.usd * m))})),
+    companies: base.companies.map(c => ({...c, usd: Math.max(1, Math.round(c.usd * m))}))
+  };
+}
+
+function renderExpoTop5(prodKey, monthKey){
+  const prod  = prodKey  || curExpoProd;
+  const month = monthKey || curExpoMonth;
+  const d = getExpoTop5(prod, month);
   const cTotal = d.countries.reduce((a,b)=>a+b.usd,0);
   const eTotal = d.companies.reduce((a,b)=>a+b.usd,0);
-  document.getElementById('expoTop5CountrySub').textContent = '合计 ' + cTotal.toLocaleString() + ' 万美元';
-  document.getElementById('expoTop5CompSub').textContent    = '合计 ' + eTotal.toLocaleString() + ' 万美元';
+  document.getElementById('expoTop5CountrySub').textContent = month + ' · 合计 ' + cTotal.toLocaleString() + ' 万美元';
+  document.getElementById('expoTop5CompSub').textContent    = month + ' · 合计 ' + eTotal.toLocaleString() + ' 万美元';
   document.getElementById('expoTop5CountryList').innerHTML = d.countries.map((x,i) =>
     '<div class="expo-t5-row">'+
       '<span class="expo-t5-rk">'+(i+1)+'</span>'+
@@ -2399,6 +2435,16 @@ function renderExpoTop5(prodKey){
     '</div>'
   ).join('');
 }
+
+// 把月份下拉项写入 #expoMonthDd（倒序：最新月在最上）
+(function fillExpoMonthDd(){
+  const dd = document.getElementById('expoMonthDd');
+  if (!dd) return;
+  dd.innerHTML = expoMonths.slice().reverse().map(m =>
+    '<div class="mps-it'+(m===curExpoMonth?' cur':'')+'" data-month="'+m+'">'+m+'</div>'
+  ).join('');
+})();
+
 // 绑定产品下拉（复用 mini-prod-sel 交互）
 (function bindExpoProdSel(){
   const sel = document.getElementById('expoProdSel');
@@ -2406,11 +2452,11 @@ function renderExpoTop5(prodKey){
   sel.addEventListener('click', e => {
     const it = e.target.closest('.mps-it');
     if (it){
-      const key = it.dataset.prod;
+      curExpoProd = it.dataset.prod;
       document.getElementById('expoProdVal').textContent = it.textContent;
       sel.querySelectorAll('.mps-it').forEach(x => x.classList.remove('cur'));
       it.classList.add('cur');
-      renderExpoTop5(key);
+      renderExpoTop5();
       sel.classList.remove('open');
       e.stopPropagation();
       return;
@@ -2420,21 +2466,80 @@ function renderExpoTop5(prodKey){
     e.stopPropagation();
   });
   document.addEventListener('click', () => sel.classList.remove('open'));
-  renderExpoTop5('PBAT');
 })();
 
-function openExpoDetail(){
-  const totalKg  = expoDetailData.reduce((a,b)=>a+b.kg, 0);
-  const totalUsd = expoDetailData.reduce((a,b)=>a+b.usd,0);
+// 绑定月份下拉
+(function bindExpoMonthSel(){
+  const sel = document.getElementById('expoMonthSel');
+  if (!sel) return;
+  sel.addEventListener('click', e => {
+    const it = e.target.closest('.mps-it');
+    if (it){
+      curExpoMonth = it.dataset.month;
+      document.getElementById('expoMonthVal').textContent = curExpoMonth;
+      sel.querySelectorAll('.mps-it').forEach(x => x.classList.remove('cur'));
+      it.classList.add('cur');
+      renderExpoTop5();
+      sel.classList.remove('open');
+      e.stopPropagation();
+      return;
+    }
+    document.querySelectorAll('.mini-prod-sel.open').forEach(s2 => { if(s2!==sel) s2.classList.remove('open'); });
+    sel.classList.toggle('open');
+    e.stopPropagation();
+  });
+  document.addEventListener('click', () => sel.classList.remove('open'));
+})();
+
+// 初次渲染
+(function(){
+  renderExpoTop5();
+})();
+
+// 详情弹窗当前所选月份（从卡片继承，但弹窗内可独立切换）
+let curExpoDetailMonth = '2026-04';
+
+function renderExpoDetailBody(){
+  const m = expoMonthMul[curExpoDetailMonth] != null ? expoMonthMul[curExpoDetailMonth] : 1;
+  // 按月份系数缩放每个产品的 kg / usd
+  const rows = expoDetailData.map(d => ({
+    code: d.code, name: d.name,
+    kg:    Math.round(d.kg  * m),
+    usd:   +(d.usd  * m).toFixed(2),
+    price: d.price,                   // 单价基本稳定，保留原值
+    dest:  d.dest,
+    yoy:   d.yoy
+  }));
+  const totalKg  = rows.reduce((a,b)=>a+b.kg, 0);
+  const totalUsd = rows.reduce((a,b)=>a+b.usd,0);
   const destSet = new Set();
-  expoDetailData.forEach(d => d.dest.forEach(c => destSet.add(c)));
+  rows.forEach(d => d.dest.forEach(c => destSet.add(c)));
   const yoyCls = v => v.startsWith('+') ? 'expo-yoy-up' : 'expo-yoy-down';
+  // 月份的起止日期
+  const monthEnd = ((y,mm) => {
+    const last = new Date(y, mm, 0).getDate();
+    return y+'-'+String(mm).padStart(2,'0')+'-'+String(last).padStart(2,'0');
+  })(parseInt(curExpoDetailMonth.slice(0,4)), parseInt(curExpoDetailMonth.slice(5,7)));
+
+  const monthOpts = expoMonths.slice().reverse().map(mm =>
+    '<div class="mps-it'+(mm===curExpoDetailMonth?' cur':'')+'" data-month="'+mm+'">'+mm+'</div>'
+  ).join('');
+
   document.getElementById('expoDetailBody').innerHTML =
+    '<div class="expo-detail-tools">'+
+      '<span class="expo-detail-lbl">月份：</span>'+
+      '<div class="mini-prod-sel" id="expoDetailMonthSel">'+
+        '<span class="mps-v" id="expoDetailMonthVal">'+curExpoDetailMonth+'</span>'+
+        '<span class="mps-a">▾</span>'+
+        '<div class="mps-dd">'+monthOpts+'</div>'+
+      '</div>'+
+      '<span class="expo-detail-period">统计周期：'+curExpoDetailMonth+'-01 至 '+monthEnd+'</span>'+
+    '</div>'+
     '<div class="expo-kpi-bar">'+
       '<div class="expo-kpi-c"><div class="expo-kpi-n">'+totalKg.toLocaleString()+'</div><div class="expo-kpi-l">出口量（千克）</div></div>'+
       '<div class="expo-kpi-c"><div class="expo-kpi-n">'+totalUsd.toFixed(1)+'</div><div class="expo-kpi-l">出口额（万美元）</div></div>'+
       '<div class="expo-kpi-c"><div class="expo-kpi-n">'+destSet.size+'</div><div class="expo-kpi-l">涉及国家（个）</div></div>'+
-      '<div class="expo-kpi-c"><div class="expo-kpi-n">86</div><div class="expo-kpi-l">涉及企业（家）</div></div>'+
+      '<div class="expo-kpi-c"><div class="expo-kpi-n">'+Math.round(86 * m)+'</div><div class="expo-kpi-l">涉及企业（家）</div></div>'+
     '</div>'+
     '<table class="s-tbl">'+
       '<thead><tr>'+
@@ -2447,7 +2552,7 @@ function openExpoDetail(){
         '<th style="width:23%">主要目的国（Top 3）</th>'+
         '<th style="width:9%;text-align:center">同比</th>'+
       '</tr></thead><tbody>'+
-      expoDetailData.map((d,i)=>(
+      rows.map((d,i)=>(
         '<tr>'+
           '<td style="text-align:center"><span class="dl-row-num">'+String(i+1).padStart(2,'0')+'</span></td>'+
           '<td><span class="std-rtag">'+d.name+'</span></td>'+
@@ -2460,7 +2565,34 @@ function openExpoDetail(){
         '</tr>'
       )).join('')+
       '</tbody></table>'+
-    '<div class="expo-foot">数据来源：海关总署 / 国际贸易司 · 统计周期：2026-04-01 至 2026-04-30</div>';
+    '<div class="expo-foot">数据来源：海关总署 / 国际贸易司 · 统计周期：'+curExpoDetailMonth+'-01 至 '+monthEnd+'</div>';
+
+  // 更新弹窗标题
+  const titleEl = document.querySelector('#expoDetailModal .s-modal-hd .h1');
+  if (titleEl) titleEl.textContent = '月度出口 — 详情（' + curExpoDetailMonth + '）';
+
+  // 绑定弹窗内月份下拉
+  const dmSel = document.getElementById('expoDetailMonthSel');
+  if (dmSel){
+    dmSel.addEventListener('click', e => {
+      const it = e.target.closest('.mps-it');
+      if (it){
+        curExpoDetailMonth = it.dataset.month;
+        renderExpoDetailBody();   // 重渲整个 body（含下拉自身）
+        e.stopPropagation();
+        return;
+      }
+      document.querySelectorAll('.mini-prod-sel.open').forEach(s2 => { if(s2!==dmSel) s2.classList.remove('open'); });
+      dmSel.classList.toggle('open');
+      e.stopPropagation();
+    });
+  }
+}
+
+function openExpoDetail(){
+  // 打开时把卡片当前月份作为默认月份
+  curExpoDetailMonth = curExpoMonth;
+  renderExpoDetailBody();
   document.getElementById('expoDetailModal').classList.add('show');
 }
 document.getElementById('expoDetailClose').addEventListener('click', () => document.getElementById('expoDetailModal').classList.remove('show'));
@@ -3547,14 +3679,24 @@ function openCatModal(product, tab){
     '<span class="tag" style="color:'+meta.color+';border-color:'+meta.colorBd+';background:'+meta.colorBg+'">'+meta.label+'</span>';
 
   const PAGE_SIZE=10;
-  let curPage=1, searchQ='';
+  let curPage=1, searchQ='', provQ='all';
 
-  // ── 一次性构建 shell：搜索条/计数（静态） + 表格滚动区（pat-tbl-wrap） + 分页（静态）
-  // 表头 sticky 在 pat-tbl-wrap 内部生效，避免被搜索/分页相互压盖
+  // 省份下拉选项：基于 provs（实际有该品类企业的省份）+ "全部省份"
+  const provOpts = ['<div class="sel-dd-it cur" data-prov="all">全部省份（'+provs.length+'）</div>']
+    .concat(provs.map(p => {
+      const fn = (typeof fullName!=='undefined' && fullName[p.prov]) || p.prov;
+      return '<div class="sel-dd-it" data-prov="'+p.prov+'" title="'+fn+'">'+p.prov+' <span style="color:#5e85b0;font-size:11px;margin-left:4px">'+p.count+' 家</span></div>';
+    })).join('');
+
+  // ── 一次性构建 shell：搜索/省份下拉/计数（静态） + 表格滚动区 + 分页（静态）
   document.getElementById('patBody').innerHTML =
     '<div class="pat-shell">'+
       '<div class="s-search pat-search-fix">'+
         '<input id="catSearchInput" placeholder="检索企业名称关键字…" value=""/>'+
+        '<div class="sel sel-dd" id="catProvSel" data-val="all" style="margin-left:8px">'+
+          '<span class="sel-lbl">省份：</span><span class="sel-val" id="catProvVal">全部省份</span><span class="sel-arr">▾</span>'+
+          '<div class="sel-dd-list" id="catProvDd">'+provOpts+'</div>'+
+        '</div>'+
         '<span class="pat-count">命中 <b id="patCntHit">'+allRows.length+'</b> 条 / 全部 <b class="muted">'+allRows.length+'</b> 条</span>'+
       '</div>'+
       '<div class="pat-tbl-wrap">'+
@@ -3581,7 +3723,9 @@ function openCatModal(product, tab){
   const wrap  = document.querySelector('#patBody .pat-tbl-wrap');
 
   function renderTable(){
-    const filtered = searchQ ? allRows.filter(c => (c.prov+c.name).toLowerCase().indexOf(searchQ)>=0) : allRows;
+    let filtered = allRows;
+    if (provQ && provQ !== 'all') filtered = filtered.filter(c => c.prov === provQ);
+    if (searchQ) filtered = filtered.filter(c => (c.prov+c.name).toLowerCase().indexOf(searchQ)>=0);
     const total = filtered.length;
     const pages = Math.max(1, Math.ceil(total/PAGE_SIZE));
     if (curPage > pages) curPage = pages;
@@ -3633,6 +3777,27 @@ function openCatModal(product, tab){
       searchQ = e.target.value.trim().toLowerCase();
       curPage = 1;
       renderTable();
+    });
+  }
+  // 省份下拉（一次性绑定，不重渲）
+  const provSel = document.getElementById('catProvSel');
+  if (provSel){
+    provSel.addEventListener('click', e => {
+      const it = e.target.closest('.sel-dd-it');
+      if (it){
+        provQ = it.dataset.prov;
+        document.getElementById('catProvVal').textContent = provQ==='all' ? '全部省份' : provQ;
+        provSel.querySelectorAll('.sel-dd-it').forEach(x => x.classList.remove('cur'));
+        it.classList.add('cur');
+        provSel.classList.remove('open');
+        curPage = 1;
+        renderTable();
+        e.stopPropagation();
+        return;
+      }
+      document.querySelectorAll('.sel.sel-dd.open').forEach(s => { if (s !== provSel) s.classList.remove('open'); });
+      provSel.classList.toggle('open');
+      e.stopPropagation();
     });
   }
 
@@ -4172,7 +4337,6 @@ bindPriceDd('priceAreaSel','priceAreaDd', priceAreas,
 document.addEventListener('click',()=>{
   document.querySelectorAll('.tbl-tools .sel.open').forEach(s=>s.classList.remove('open'));
 });
-document.getElementById('priceQuery').addEventListener('click', renderPriceTable);
 renderPriceTable();
 
 // 调试钩子：URL 参数 demo / tab / detail 可自动展示某省份悬浮卡或详情面板
