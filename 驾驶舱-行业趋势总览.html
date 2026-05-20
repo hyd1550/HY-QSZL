@@ -886,7 +886,7 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
           <div class="innov-chain">
             <div class="chain-sel" id="innovChainSel">
               <span class="chain-sel-label">产业链：</span>
-              <span class="chain-sel-val" data-chain-val="1">降解材料产业链图谱 — 总图谱</span>
+              <span class="chain-sel-val" data-chain-val="1">生物可降解材料产业链</span>
               <span class="chain-sel-arrow">▼</span>
               <div class="chain-dd"></div>
             </div>
@@ -1031,7 +1031,7 @@ table.dl-tbl tbody tr:nth-child(-n+3) .dl-row-num{color:#fcd34d;background:rgba(
           <div class="map-chain-row">
             <div class="chain-sel" id="mapChainSel">
               <span class="chain-sel-label">产业链：</span>
-              <span class="chain-sel-val" data-chain-val="1">降解材料产业链图谱 — 总图谱</span>
+              <span class="chain-sel-val" data-chain-val="1">生物可降解材料产业链</span>
               <span class="chain-sel-arrow">▼</span>
               <div class="chain-dd"></div>
             </div>
@@ -1642,30 +1642,27 @@ function fit(){
 }
 window.addEventListener('resize',fit); fit();
 
-// ── 1+11 产业链数据（按 驾驶舱-产业链版图-2.html 中实际 11 条线命名）
+// ── 12 条产业链（与产业链版图保持一致：1 条主链 + 11 条应用领域链）
 const chainList=[
-  {key:'all',     name:'降解材料产业链图谱 — 总图谱', group:'总图谱'},
-  // 植物基 6 条
-  {key:'starch',  name:'淀粉链',       group:'植物基'},
-  {key:'cell',    name:'纤维素链',     group:'植物基'},
-  {key:'hemi',    name:'半纤维素链',   group:'植物基'},
-  {key:'plant-oil',name:'植物油脂链',  group:'植物基'},
-  {key:'plant-pro',name:'植物蛋白链',  group:'植物基'},
-  {key:'plant-gel',name:'植物胶体链',  group:'植物基'},
-  // 动物基 3 条
-  {key:'ani-pro', name:'动物蛋白链',   group:'动物基'},
-  {key:'ani-oil', name:'动物油脂链',   group:'动物基'},
-  {key:'chitin',  name:'生物甲壳链',   group:'动物基'},
-  // 石油基 2 条
-  {key:'coal',    name:'煤炭链',       group:'石油基'},
-  {key:'oil',     name:'石油链',       group:'石油基'}
+  {key:'all',     name:'生物可降解材料产业链', group:'主链'},
+  {key:'daily',   name:'日用消费品产业链',     group:'应用领域'},
+  {key:'mb',      name:'母婴用品产业链',       group:'应用领域'},
+  {key:'pack',    name:'包装产业链',           group:'应用领域'},
+  {key:'agri',    name:'农业园艺产业链',       group:'应用领域'},
+  {key:'textile', name:'纺织纤维与鞋服产业链', group:'应用领域'},
+  {key:'med',     name:'一次性医用耗材产业链', group:'应用领域'},
+  {key:'3d',      name:'3D打印产业链',         group:'应用领域'},
+  {key:'sand',    name:'防沙环保产业链',       group:'应用领域'},
+  {key:'light',   name:'轻量化应用产业链',     group:'应用领域'},
+  {key:'fish',    name:'渔牧业应用产业链',     group:'应用领域'},
+  {key:'elec',    name:'电子产品应用产业链',   group:'应用领域'}
 ];
 // 两套独立的产业链状态：地图卡 / 行业创新卡，互不联动
 let mapChain   = 'all';
 let innovChain = 'all';
 // 通用：在指定容器内构造产业链下拉（含分组标题）
 function buildChainDdHtml(curKey){
-  const groups=['总图谱','植物基','动物基','石油基'];
+  const groups=['主链','应用领域'];
   let html='';
   groups.forEach(g=>{
     const items=chainList.filter(c=>c.group===g);
@@ -3281,8 +3278,7 @@ document.querySelectorAll('#dsLayerTabs .dlt').forEach(el => {
 });
 // ── 产业链切换：刷新行业创新数字（按链 mock 一组数字）+ 联动地图侧栏
 const innovByChain={
-  all:154, starch:18, cell:22, hemi:9, 'plant-oil':12, 'plant-pro':14, 'plant-gel':6,
-  'ani-pro':16, 'ani-oil':8, chitin:5, coal:24, oil:20
+  all:154, daily:32, mb:24, pack:46, agri:30, textile:34, med:26, '3d':18, sand:14, light:22, fish:9, elec:17
 };
 // ── 行业创新：每条产业链对应的产品/环节列表（按 驾驶舱-产业链版图-2.html 中实际产业链节点构建，按支链分组）
 //    数据结构：chain → [{group, items:[{key,name}]}]；通过 getChainProdItems() 拍平
@@ -3300,255 +3296,248 @@ const chainProducts = {
       {key:'DMO',name:'草酸二甲酯(DMO)'},{key:'MG',name:'乙醇酸甲酯(MG)'},{key:'FDME',name:'呋喃二甲酸二甲酯(FDME)'}
     ]}
   ],
-  starch: [
-    {group:'TPS 链', items:[
-      {key:'熔融淀粉',name:'熔融淀粉'},
-      {key:'热塑性淀粉(TPS)',name:'热塑性淀粉(TPS)'},
-      {key:'TPS',name:'TPS（共混改性后）'}
+  daily: [
+    {group:'基础原料', items:[
+      {key:'PBS',name:'PBS（聚丁二酸丁二酯）'},
+      {key:'PBAT',name:'PBAT（聚己二酸/对苯二甲酸丁二酯）'},
+      {key:'PLA',name:'PLA（聚乳酸）'},
+      {key:'PHA',name:'PHA（聚羟基脂肪酸酯）'}
     ]},
-    {group:'糖化液-PLA 链', items:[
-      {key:'高活性淀粉',name:'高活性淀粉'},
-      {key:'糖化液',name:'糖化液'},
-      {key:'乳酸单体',name:'乳酸单体'},
-      {key:'淀粉基PLA',name:'淀粉基聚乳酸(PLA)'}
+    {group:'纺丝路线', items:[
+      {key:'daily-纺丝专用料',name:'可降解纺丝/纺布专用料'},
+      {key:'daily-水刺无纺布',name:'可降解水刺无纺布'},
+      {key:'daily-热风无纺布',name:'可降解热风无纺布'},
+      {key:'daily-复合无纺布',name:'淋膜/涂层/复合无纺布'},
+      {key:'daily-可降解纤维',name:'可降解纤维'}
     ]},
-    {group:'糖化液-PHA 链', items:[
-      {key:'淀粉基PHA',name:'淀粉基聚羟基脂肪酸酯(PHA)'}
+    {group:'注塑路线', items:[
+      {key:'daily-注塑专用料',name:'可降解注塑专用料/改性料'},
+      {key:'daily-地垫片材',name:'可降解地垫片材/卷材/坯件'},
+      {key:'daily-耐用注塑料',name:'耐用性可降解注塑专用料'}
+    ]},
+    {group:'薄膜/发泡/涂覆', items:[
+      {key:'daily-吹膜专用料',name:'可降解吹膜/流延专用料'},
+      {key:'daily-可降解薄膜',name:'可降解薄膜'},
+      {key:'daily-发泡专用料',name:'可降解发泡专用料'},
+      {key:'daily-发泡片材',name:'可降解发泡片材'},
+      {key:'daily-淋膜专用料',name:'食品接触级可降解淋膜专用料'},
+      {key:'daily-淋膜纸卷',name:'淋膜纸卷'}
     ]}
   ],
-  cell: [
-    {group:'直接产物', items:[
-      {key:'纸浆',name:'纤维素浆料（纸浆）'},
-      {key:'Lyocell',name:'纤维素再生膜/Lyocell 纤维'},
-      {key:'多孔材料',name:'纤维素基多孔材料'},
-      {key:'醋酸纤维素',name:'醋酸纤维素塑料'},
-      {key:'吸水树脂',name:'可降解吸水树脂'}
+  mb: [
+    {group:'基础材料', items:[
+      {key:'mb-PLA',name:'PLA（聚乳酸）'},
+      {key:'mb-PBAT',name:'PBAT'},
+      {key:'mb-PHA',name:'PHA'}
     ]},
-    {group:'水热醇解-PGA 链', items:[
-      {key:'MG',name:'乙醇酸甲酯(MG)'},
-      {key:'乙醇酸',name:'乙醇酸'},
-      {key:'粗乙交酯',name:'粗乙交酯'},
-      {key:'PGA',name:'聚乙醇酸(PGA)'}
+    {group:'纺织/无纺布制品', items:[
+      {key:'mb-纸尿裤',name:'婴儿尿不湿/纸尿裤'},
+      {key:'mb-湿巾',name:'婴儿一次性湿巾'},
+      {key:'mb-哺乳垫',name:'防溢哺乳垫'},
+      {key:'mb-隔尿垫',name:'隔尿垫巾'}
     ]},
-    {group:'微生物发酵-PLA 链', items:[
-      {key:'cell-乳酸',name:'乳酸单体'},
-      {key:'秸秆基PLA',name:'秸秆基/木聚糖基聚乳酸(PLA)'}
+    {group:'喂养与餐具', items:[
+      {key:'mb-餐盘',name:'婴幼儿餐盘/餐碗'},
+      {key:'mb-勺叉',name:'婴幼儿勺/叉'},
+      {key:'mb-奶瓶配件',name:'奶瓶手柄/奶嘴盖'},
+      {key:'mb-辅食盒',name:'辅食盒/储奶盒'}
     ]},
-    {group:'酶解发酵-PHA 链', items:[
-      {key:'PHA前体',name:'PHA 前体'},
-      {key:'秸秆基PHA',name:'秸秆基/木聚糖羟基脂肪酸酯(PHA)'}
+    {group:'玩具与日用', items:[
+      {key:'mb-牙胶',name:'可降解牙胶/磨牙器'},
+      {key:'mb-玩具',name:'婴幼儿安全玩具'},
+      {key:'mb-洗澡玩具',name:'洗澡玩具'}
     ]}
   ],
-  hemi: [
-    {group:'聚糖薄膜支', items:[
-      {key:'木聚糖膜',name:'木聚糖基薄膜'},
-      {key:'木葡聚糖膜',name:'木葡聚糖基薄膜'},
-      {key:'半乳甘露聚糖膜',name:'半乳甘露聚糖基薄膜'}
+  pack: [
+    {group:'基础材料', items:[
+      {key:'pack-PLA',name:'PLA'},
+      {key:'pack-PBAT',name:'PBAT'},
+      {key:'pack-PBS',name:'PBS'},
+      {key:'pack-PHA',name:'PHA'}
     ]},
-    {group:'发酵-PHA 支', items:[
-      {key:'hc-PHA前体',name:'PHA 前体'},
-      {key:'半纤维素PHA',name:'秸秆基/木聚糖聚羟基脂肪酸酯(PHA)'}
+    {group:'软包装', items:[
+      {key:'pack-购物袋',name:'可降解购物袋/购物提袋'},
+      {key:'pack-垃圾袋',name:'可降解垃圾袋'},
+      {key:'pack-保鲜袋',name:'保鲜袋/食品袋'},
+      {key:'pack-快递袋',name:'快递包装袋'},
+      {key:'pack-膜袋',name:'气泡膜/缓冲膜袋'}
     ]},
-    {group:'碱溶-水凝胶 支', items:[
-      {key:'半纤维素碱溶液',name:'半纤维素碱溶液'},
-      {key:'水凝胶',name:'半纤维素水凝胶'}
+    {group:'硬包装/容器', items:[
+      {key:'pack-餐盒',name:'可降解一次性餐盒'},
+      {key:'pack-外卖盒',name:'外卖打包盒'},
+      {key:'pack-杯具',name:'一次性杯具/吸管'},
+      {key:'pack-托盘',name:'果蔬/生鲜托盘'},
+      {key:'pack-标签',name:'可降解标签/胶带'}
     ]},
-    {group:'溶解交联-生物胶 支', items:[
-      {key:'生物胶溶液',name:'生物胶溶液'},
-      {key:'壳聚糖复合生物胶',name:'半纤维素-壳聚糖复合可降解生物胶'}
-    ]},
-    {group:'活化-吸附剂 支', items:[
-      {key:'半纤维素溶液',name:'半纤维素溶液'},
-      {key:'半纤维素吸附剂',name:'半纤维素基可降解吸附剂'}
-    ]},
-    {group:'稀酸水解-PEF 支', items:[
-      {key:'糠醛',name:'糠醛'},
-      {key:'FDME',name:'呋喃二甲酸二甲酯(FDME)'},
-      {key:'PEF',name:'聚呋喃二甲酸乙二醇酯(PEF)'}
+    {group:'缓冲材料', items:[
+      {key:'pack-发泡',name:'可降解发泡填充物'},
+      {key:'pack-纸塑',name:'纸塑复合包装'}
     ]}
   ],
-  'plant-oil': [
-    {group:'油脂水解-FAPO 支', items:[
-      {key:'混合脂肪酸',name:'混合脂肪酸'},
-      {key:'环氧脂肪酸',name:'环氧脂肪酸'},
-      {key:'FAPO',name:'脂肪酸基聚酯多元醇(FAPO)'},
-      {key:'PU弹性膜',name:'PU 弹性膜'},
-      {key:'TPU颗粒',name:'TPU 颗粒'},
-      {key:'全水发泡软泡',name:'全水发泡软泡'}
+  agri: [
+    {group:'基础材料', items:[
+      {key:'agri-PBAT',name:'PBAT'},
+      {key:'agri-PLA',name:'PLA'},
+      {key:'agri-PHA',name:'PHA'}
     ]},
-    {group:'环氧反应-WPU 胶膜 支', items:[
-      {key:'环氧植物油',name:'环氧植物油'},
-      {key:'甲氧基化多元醇',name:'甲氧基化多元醇'},
-      {key:'WPU分散体',name:'植物油基 WPU 分散体'},
-      {key:'WPU胶膜',name:'可降解水性聚氨酯胶膜'}
+    {group:'地膜与覆盖物', items:[
+      {key:'agri-地膜',name:'可降解地膜'},
+      {key:'agri-防草布',name:'防草布/地表覆盖布'},
+      {key:'agri-保温被',name:'温室保温被'}
     ]},
-    {group:'pha 提取支', items:[
-      {key:'po-PHA',name:'聚羟基脂肪酸酯(PHA)'}
+    {group:'容器与器具', items:[
+      {key:'agri-育苗钵',name:'可降解育苗钵/育苗盘'},
+      {key:'agri-花盆',name:'可降解花盆'},
+      {key:'agri-绳网',name:'可降解园艺绳/支架网'}
+    ]},
+    {group:'灌溉与缓释', items:[
+      {key:'agri-滴灌带',name:'可降解滴灌带'},
+      {key:'agri-缓释肥膜',name:'缓释化肥包衣材料'},
+      {key:'agri-种子包衣',name:'种子包衣材料'}
     ]}
   ],
-  'plant-pro': [
-    {group:'缓冲发泡 支', items:[
-      {key:'植物蛋白糊',name:'植物蛋白糊'},
-      {key:'缓冲发泡材料',name:'植物蛋白基可降解缓冲发泡材料'}
+  textile: [
+    {group:'基础材料', items:[
+      {key:'tex-PLA',name:'PLA 纤维料'},
+      {key:'tex-PBAT',name:'PBAT 纤维料'},
+      {key:'tex-PHA',name:'PHA 纤维料'}
     ]},
-    {group:'超细粉碎-塑料/膜 支', items:[
-      {key:'蛋白超细粉',name:'植物蛋白超细粉'},
-      {key:'蛋白塑料',name:'植物蛋白塑料'},
-      {key:'蛋白包装膜',name:'植物蛋白基可降解包装膜'}
+    {group:'纤维与纱线', items:[
+      {key:'tex-短纤',name:'可降解短纤维'},
+      {key:'tex-长丝',name:'可降解长丝'},
+      {key:'tex-混纺纱',name:'混纺纱线'},
+      {key:'tex-无纺布',name:'可降解无纺布'}
     ]},
-    {group:'提取-胺化-包装膜 支', items:[
-      {key:'蛋白水溶液',name:'植物蛋白水溶液'},
-      {key:'氨基化蛋白溶液',name:'氨基化植物蛋白溶液'},
-      {key:'氨基化蛋白粉末',name:'氨基化蛋白粉末'},
-      {key:'活性蛋白包装膜',name:'活性蛋白基包装膜'}
+    {group:'纺织面料', items:[
+      {key:'tex-针织布',name:'可降解针织面料'},
+      {key:'tex-机织布',name:'可降解机织面料'},
+      {key:'tex-功能面料',name:'功能性可降解面料'}
     ]},
-    {group:'活化-吸附剂 支', items:[
-      {key:'活化蛋白溶液',name:'植物活化蛋白溶液'},
-      {key:'蛋白吸附剂',name:'植物蛋白基可降解吸附剂颗粒'}
+    {group:'鞋服终端', items:[
+      {key:'tex-成衣',name:'可降解成衣/T 恤'},
+      {key:'tex-内衣',name:'可降解内衣/袜子'},
+      {key:'tex-运动鞋',name:'可降解运动鞋面'},
+      {key:'tex-鞋底',name:'可降解鞋底/中底材料'}
     ]}
   ],
-  'plant-gel': [
-    {group:'溶胶-凝胶 支', items:[
-      {key:'果胶纤维素膜',name:'果胶纤维素膜'}
+  med: [
+    {group:'基础材料', items:[
+      {key:'med-PLA',name:'医用级 PLA'},
+      {key:'med-PGA',name:'PGA（聚乙醇酸）'},
+      {key:'med-PCL',name:'PCL（聚己内酯）'},
+      {key:'med-PHA',name:'医用级 PHA'}
     ]},
-    {group:'胶体碱溶-食用薄膜 支', items:[
-      {key:'果胶水溶液',name:'果胶水溶液'},
-      {key:'胶体可食包装薄膜',name:'植物胶体可食包装薄膜'}
+    {group:'敷料与无纺布', items:[
+      {key:'med-医用敷料',name:'一次性医用敷料/伤口敷料'},
+      {key:'med-口罩',name:'医用一次性口罩'},
+      {key:'med-手术衣',name:'手术衣/隔离衣'},
+      {key:'med-医用湿巾',name:'医用消毒湿巾'}
     ]},
-    {group:'热熔胶粒 支', items:[
-      {key:'玉米淀粉胶体',name:'玉米淀粉胶体'},
-      {key:'热熔胶粒',name:'植物胶体基热熔胶粒'}
+    {group:'器械与耗材', items:[
+      {key:'med-注射器',name:'一次性注射器外壳'},
+      {key:'med-采血管',name:'采血管/试管'},
+      {key:'med-检测耗材',name:'IVD 检测耗材'},
+      {key:'med-培养皿',name:'细胞培养皿'}
+    ]},
+    {group:'缝合与植入', items:[
+      {key:'med-缝合线',name:'可吸收缝合线'},
+      {key:'med-骨钉',name:'可吸收骨钉/骨板'},
+      {key:'med-药物载体',name:'药物缓释载体'}
     ]}
   ],
-  'ani-pro': [
-    {group:'角蛋白链', items:[
-      {key:'角蛋白溶液',name:'角蛋白溶液'},
-      {key:'纯化角蛋白',name:'纯化角蛋白溶液/角蛋白粉末'},
-      {key:'角蛋白PVA膜',name:'角蛋白/PVA 共混膜'},
-      {key:'角蛋白复合塑料',name:'角蛋白复合塑料'},
-      {key:'角蛋白纤维',name:'角蛋白纤维'},
-      {key:'角蛋白泡沫',name:'角蛋白泡沫'}
+  '3d': [
+    {group:'基础材料', items:[
+      {key:'3d-PLA线材',name:'PLA 3D 打印线材'},
+      {key:'3d-PHA线材',name:'PHA 3D 打印线材'},
+      {key:'3d-PCL线材',name:'PCL 3D 打印线材'}
     ]},
-    {group:'明胶链', items:[
-      {key:'明胶粉',name:'明胶粉'},
-      {key:'明胶胶囊',name:'明胶硬/软胶囊'},
-      {key:'明胶可食膜',name:'可食性包装膜'},
-      {key:'明胶海绵',name:'明胶海绵'}
+    {group:'打印耗材', items:[
+      {key:'3d-FDM线材',name:'FDM 线材/料盘'},
+      {key:'3d-SLA树脂',name:'SLA 可降解光敏树脂'},
+      {key:'3d-SLS粉末',name:'SLS 可降解粉末'}
     ]},
-    {group:'胶原蛋白链', items:[
-      {key:'胶原溶液',name:'胶原溶液'},
-      {key:'胶原膜',name:'胶原膜'},
-      {key:'胶原海绵',name:'胶原海绵'},
-      {key:'胶原纤维',name:'胶原纤维'},
-      {key:'胶原水凝胶',name:'胶原水凝胶'}
-    ]},
-    {group:'丝蛋白链', items:[
-      {key:'丝素溶液',name:'丝素蛋白溶液'},
-      {key:'丝素纳米纤维膜',name:'丝素纳米纤维膜'},
-      {key:'丝素透明薄膜',name:'丝素透明薄膜'}
+    {group:'终端产品', items:[
+      {key:'3d-医疗模型',name:'医疗教学模型'},
+      {key:'3d-教育模型',name:'教育/创客模型'},
+      {key:'3d-工业件',name:'工业原型件'},
+      {key:'3d-生物支架',name:'生物医用支架'}
     ]}
   ],
-  'ani-oil': [
-    {group:'脂肪酸甲酯/乙酯 链', items:[
-      {key:'脂肪酸酯粗品',name:'脂肪酸甲酯/乙酯粗品'},
-      {key:'脂肪酸酯',name:'脂肪酸甲酯/乙酯'}
+  sand: [
+    {group:'基础材料', items:[
+      {key:'sand-PBAT',name:'PBAT'},
+      {key:'sand-PLA',name:'PLA'},
+      {key:'sand-PHA',name:'PHA'}
     ]},
-    {group:'PCL 链', items:[
-      {key:'脂肪醇',name:'脂肪醇'},
-      {key:'ao-PCL',name:'聚己内酯(PCL)'}
+    {group:'防沙网格', items:[
+      {key:'sand-沙障',name:'可降解草方格沙障'},
+      {key:'sand-阻沙网',name:'可降解阻沙网/挡沙板'},
+      {key:'sand-固沙带',name:'可降解固沙带'}
     ]},
-    {group:'pha 提取链', items:[
-      {key:'ao-PHA',name:'聚羟基脂肪酸酯(PHA)'}
+    {group:'生态修复', items:[
+      {key:'sand-植生袋',name:'可降解植生袋/护坡袋'},
+      {key:'sand-植草毯',name:'生态植草毯'},
+      {key:'sand-保水剂',name:'可降解保水剂'},
+      {key:'sand-土工布',name:'可降解土工布'}
     ]}
   ],
-  chitin: [
-    {group:'主链（壳聚糖粉末）', items:[
-      {key:'壳聚糖粗品',name:'壳聚糖粗品'},
-      {key:'工业级壳聚糖粉末',name:'工业级壳聚糖粉末'}
+  light: [
+    {group:'基础材料', items:[
+      {key:'light-PLA',name:'PLA 改性料'},
+      {key:'light-PBAT',name:'PBAT 改性料'},
+      {key:'light-发泡料',name:'可降解发泡专用料'},
+      {key:'light-纤维增强',name:'纤维增强可降解复合材料'}
     ]},
-    {group:'流延成膜 支', items:[
-      {key:'壳聚糖溶液',name:'壳聚糖溶液'},
-      {key:'壳聚糖膜',name:'壳聚糖膜'}
+    {group:'轻量化结构件', items:[
+      {key:'light-轻量板',name:'轻量化复合板材'},
+      {key:'light-发泡件',name:'轻量化发泡缓冲件'},
+      {key:'light-蜂窝',name:'可降解蜂窝芯材'}
     ]},
-    {group:'纺丝制备 支', items:[
-      {key:'壳聚糖纤维',name:'壳聚糖纤维'}
-    ]},
-    {group:'凝胶支架 支', items:[
-      {key:'复合浆料',name:'复合浆料'},
-      {key:'多孔干凝胶支架',name:'多孔干凝胶支架'},
-      {key:'壳聚糖交联支架',name:'壳聚糖交联支架'}
+    {group:'终端应用', items:[
+      {key:'light-汽车内饰',name:'汽车内饰件'},
+      {key:'light-高铁内饰',name:'高铁/航空内饰件'},
+      {key:'light-行李箱',name:'轻量化行李箱'},
+      {key:'light-家电壳',name:'家电外壳/支架'}
     ]}
   ],
-  coal: [
-    {group:'气化主链', items:[
-      {key:'合成气',name:'合成气'},
-      {key:'甲醇',name:'甲醇'}
+  fish: [
+    {group:'基础材料', items:[
+      {key:'fish-PBAT',name:'PBAT'},
+      {key:'fish-PHA',name:'PHA'},
+      {key:'fish-PCL',name:'PCL'}
     ]},
-    {group:'DMO-PGA 链', items:[
-      {key:'DMO',name:'草酸二甲酯(DMO)'},
-      {key:'MG',name:'乙醇酸甲酯(MG)'},
-      {key:'GA',name:'乙醇酸/乙交酯(GA)'},
-      {key:'PGA',name:'聚乙醇酸(PGA)'}
+    {group:'渔业用品', items:[
+      {key:'fish-渔网',name:'可降解渔网/网具'},
+      {key:'fish-渔线',name:'可降解渔线'},
+      {key:'fish-诱饵',name:'可降解人工诱饵'},
+      {key:'fish-浮球',name:'可降解浮球/浮标'}
     ]},
-    {group:'pha 提取链', items:[
-      {key:'coal-PHA',name:'聚羟基脂肪酸酯(PHA)'}
-    ]},
-    {group:'MTO-PPC 链', items:[
-      {key:'丙烯',name:'丙烯'},
-      {key:'PO',name:'环氧丙烷(PO)'},
-      {key:'PPC',name:'聚碳酸亚丙酯(PPC)'}
-    ]},
-    {group:'银法-GA 链', items:[
-      {key:'甲醛',name:'甲醛'},
-      {key:'银法MG',name:'乙醇酸甲酯'},
-      {key:'银法GA',name:'乙交酯(GA)'}
-    ]},
-    {group:'Reppe-BDO 链', items:[
-      {key:'BYD',name:'1,4-丁炔二醇(BYD)'},
-      {key:'BDO-Reppe',name:'1,4-丁二醇(BDO) — Reppe 路线'}
-    ]},
-    {group:'煤热解-BDO 链', items:[
-      {key:'兰炭',name:'半焦/兰炭'},
-      {key:'电石',name:'电石'},
-      {key:'乙炔',name:'乙炔'},
-      {key:'醋酸乙烯',name:'醋酸乙烯'},
-      {key:'BDO-煤热',name:'1,4-丁二醇(BDO) — 煤热解路线'}
-    ]},
-    {group:'BDO 下游 — PBS 类聚酯', items:[
-      {key:'AA',name:'己二酸(AA)'},
-      {key:'PTA',name:'对苯二甲酸(PTA)'},
-      {key:'DMC',name:'碳酸二甲酯(DMC)'},
-      {key:'DPC',name:'碳酸二苯酯(DPC)'},
-      {key:'PBS',name:'聚丁二酸丁二醇酯(PBS) 颗粒'},
-      {key:'PBAT',name:'聚对苯二甲酸-己二酸-丁二醇酯(PBAT) 颗粒'},
-      {key:'PBSA',name:'聚丁二酸-己二酸-丁二醇酯(PBSA) 颗粒'},
-      {key:'PBSC',name:'聚丁二酸-碳酸丁二醇酯(PBSC) 颗粒'},
-      {key:'PBST',name:'聚丁二酸-对苯二甲酸-丁二醇酯(PBST) 颗粒'}
+    {group:'牧业用品', items:[
+      {key:'fish-饲料包',name:'可降解饲料包装'},
+      {key:'fish-耳标',name:'可降解动物耳标'},
+      {key:'fish-牧场地膜',name:'草场覆盖地膜'}
     ]}
   ],
-  oil: [
-    {group:'蒸馏分馏', items:[
-      {key:'石油焦',name:'石油焦'},
-      {key:'石脑油',name:'石脑油'}
+  elec: [
+    {group:'基础材料', items:[
+      {key:'elec-PLA',name:'PLA 工程改性料'},
+      {key:'elec-PBAT',name:'PBAT 工程改性料'},
+      {key:'elec-PHA',name:'PHA 改性料'}
     ]},
-    {group:'石油焦-合成气', items:[
-      {key:'oil-合成气',name:'合成气'}
+    {group:'外壳与结构件', items:[
+      {key:'elec-外壳',name:'可降解电子产品外壳'},
+      {key:'elec-按键',name:'可降解按键/旋钮'},
+      {key:'elec-支架',name:'可降解结构支架'}
     ]},
-    {group:'重整-PBAT 链', items:[
-      {key:'重整油',name:'重整油'},
-      {key:'混合芳烃',name:'混合芳烃'},
-      {key:'PX',name:'对二甲苯(PX)'},
-      {key:'PTA',name:'精对苯二甲酸(PTA)'},
-      {key:'oil-PBAT',name:'聚己二酸-对苯二甲酸丁二醇酯(PBAT)'}
+    {group:'电子包装', items:[
+      {key:'elec-缓冲泡棉',name:'电子产品缓冲泡棉'},
+      {key:'elec-防静电袋',name:'可降解防静电袋'},
+      {key:'elec-护套',name:'连接线护套'}
     ]},
-    {group:'重整-PCL 链', items:[
-      {key:'石油苯',name:'石油苯'},
-      {key:'环己烷',name:'环己烷'},
-      {key:'KA油',name:'环己酮/环己醇混合物(KA 油)'},
-      {key:'oil-AA',name:'己二酸(AA)'},
-      {key:'环己酮',name:'环己酮'},
-      {key:'ε-己内酯',name:'ε-己内酯'},
-      {key:'oil-PCL',name:'聚己内酯(PCL)'}
+    {group:'可穿戴/IoT', items:[
+      {key:'elec-可穿戴壳',name:'可穿戴设备外壳'},
+      {key:'elec-IoT外壳',name:'IoT 模块外壳'},
+      {key:'elec-传感器壳',name:'传感器外壳'}
     ]}
   ]
 };
